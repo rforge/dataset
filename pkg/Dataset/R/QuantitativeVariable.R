@@ -1,0 +1,58 @@
+
+
+setClass(
+  Class = "QuantitativeVariable",
+  contains = c("Variable"),
+  representation = c("VIRTUAL"),
+  validity = function(object) {
+    if(Dataset.globalenv$print.io) cat (" =>       QuantitativeVariable: object validity check \n")
+  	flag = TRUE
+    
+		return(flag)
+	}
+)
+
+
+quantitativeVariable <- function(x, values, missings, description, weights) {
+  if(Dataset.globalenv$print.io) cat(" => (in)  QuantitativeVariable: virtual builder \n")
+  
+  if(inherits(x, 'factor')) stop("x can't be a factor")
+  
+  # we apply special treatment for variable
+  variable <- variable(
+    x = x,
+    missings = missings,
+    values = values,
+    description = description,
+    weights = weights
+  )
+  
+  # then we apply special treatment for a quantitative variable
+  # (nothing)
+
+  
+  out <- list(
+    x = variable$x,
+    missings = variable$missings,
+    values = variable$values,
+    description = variable$description,
+    weights = variable$weights
+  )
+  #print(out)
+  if(Dataset.globalenv$print.io) cat(" => (out) QuantitativeVariable: virtual builder \n")
+  return(out)
+}
+
+is.quantitative <- function(x){
+  if(inherits(x, "QuantitativeVariable")){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+setMethod("plot", "QuantitativeVariable", 
+  definition = function (x, ...) {
+  boxplot(as.vector(x), ...)
+  }
+)
