@@ -1,7 +1,7 @@
 Package: Dataset
 Type: Package
 Title: A class and some methods for handling data in a SPSS-like way.
-Version: 0.2-006
+Version: 0.2-007
 Date: 2012-05-09
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle more information about a data set in
@@ -13,13 +13,13 @@ Description: This package provides a class, called Dataset, and some
         to a Dataset object is provided.
 Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>, Reto Buergin <reto.buergin@unige.ch>
-Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>
-Depends: R (>= 2.10.1), methods, foreign, stats, xtable
+Maintainer: Emmanuel Rousseaux <contact+Dataset@emmanuelrousseaux.com>
+Depends: R (>= 2.10.1), methods, foreign, stats, xtable, Hmisc
 LazyLoad: yes
 LazyData: yes
 ZipData: no
 License: GPL (>= 2)
-Collate: environments.R allGeneric.R summary-tools.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R gchart.map.R dataManipulation.R spssToDataset.R zzz.R
+Collate: environments.R allGeneric.R summary-tools.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R gchart.map.R dataManipulation.R spssToDataset.R stats.table.R as.value.R as.missing.R bivan.R reglog.R zzz.R
 URL: http://rforge.fr/Dataset
 Repository: NA
 Date/Publication:

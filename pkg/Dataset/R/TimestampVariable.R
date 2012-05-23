@@ -80,7 +80,7 @@ tvar <- function(
     origin = origin,
     format = format
   )
-  message(paste('number of missings:',nmissings(out)))
+  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
   return(out)
 }
 
@@ -168,6 +168,13 @@ setMethod(
   signature = "TimestampVariable", 
   definition = function (x) {
     return(as.character(x)) # as.Date instead
+  }
+)
+setMethod(
+  f = "v",
+  signature = "TimestampVariable", 
+  definition = function (x) {
+    return(as.vector(x)) # as.Date instead
   }
 )
 

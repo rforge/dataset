@@ -155,7 +155,7 @@ helps to deal with the complexity of the data. (TO CHANGE, from bioconductor)
       \node[main node] (Q) at (3.5,-2) {Quantitative (V)};
       \node[main node] (S) at (2.25,-4) {Scale \textcolor{orange}{svar()}};
       \node[main node] (T) at (5.25,-4) {Timestamp \textcolor{orange}{tvar()}};
-      \node[main node] (C) at (-5,-2) {Qualitative (V)};
+      \node[main node] (C) at (-5,-2) {Categorical (V) \textcolor{orange}{cvar()}};
       \node[main node] (O) at (-5,-4) {Ordered (V)};
       \node[main node] (N) at (-2,-4) {Nominal \textcolor{orange}{nvar()}};
       \node[main node] (BO) at (-9,-6) {Ordinal Binary \textcolor{orange}{bvar()}};

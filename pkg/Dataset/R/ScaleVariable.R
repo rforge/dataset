@@ -61,7 +61,7 @@ svar <- function(
     description = variable$description,
     weights = weights
   )
-  message(paste('number of missings:',nmissings(out)))
+  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
   return(out)
 }
 
@@ -83,6 +83,13 @@ setMethod(
   signature = "ScaleVariable", 
   definition = function (x) {
     return(as.numeric(x))
+  }
+)
+setMethod(
+  f = "v",
+  signature = "ScaleVariable", 
+  definition = function (x) {
+    return(as.vector(x))
   }
 )
 

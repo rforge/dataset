@@ -8,6 +8,7 @@ exportClasses(
   'QuantitativeVariable',
   'CategoricalVariable',
   'ScaleVariable',
+  'WeightingVariable',
   'TimestampVariable',
   'NominalVariable',
   'BinaryVariable',
@@ -38,6 +39,7 @@ exportMethods(
   'mean',
   'min',
   'nmissings',
+  'nvalues',
   'print',
   'sd',
   'show',
@@ -86,10 +88,24 @@ exportMethods(
   'weights<-',
   'weights',
   'merge',
-  'recode'
+  'recode',
+  'cut',
+  'value',
+  'alldescriptions',
+  'plot',
+  'as.value',
+  'as.missing',
+  'export',
+  'v',
+  'control',
+  'control<-',
+  'weighting',
+  'weighting<-'
 )
 
 export(
+  Dataset.globalenv.print.io,
+  cvar,
   is.quantitative,
   is.qualitative,
   svar,
@@ -102,9 +118,16 @@ export(
   is.binary,
   ovar,
   is.ordinal,
+  wvar,
+  is.weighting,
   dataset,
   get.spss.file,
   cunion,
   runion,
-  spssToDataset
+  spssToDataset,
+  str.typevar,
+  str.names,
+  bivan,
+  reglog,
+  summaryToPDF.reglog
 )

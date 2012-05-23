@@ -89,7 +89,7 @@ nvar <- function(
     description = variable$description,
     weights = variable$weights
   )
-  message(paste('number of missings:',nmissings(out)))
+  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
   return(out)
 }
 
@@ -107,3 +107,4 @@ setMethod("summary", "NominalVariable",
     summary(as.vector(object))
   }
 )
+

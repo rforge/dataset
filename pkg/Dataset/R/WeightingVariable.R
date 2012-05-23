@@ -9,10 +9,13 @@ setClass(
   validity = function(object) {
     if(Dataset.globalenv$print.io) cat (" =>       WeightingVariable: object validity check \n")
     flag <- TRUE
-    if(length(slot(object, 'Weighting')) > 0)
-      stop("A WeightingVariable can't have a non-empty Weighting slot")
+    #if(length(slot(object, 'Weighting')) > 0)
+    #  stop("A WeightingVariable can't have a non-empty Weighting slot")
     
-    #FIXME: no NAs
+    if(any(is.na(v(object)))) {
+      flag <- FALSE
+      message("A WeightingVariable can't have missings values")
+    }
     
   	return(flag)
 	}
@@ -42,7 +45,19 @@ wvar <- function(
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- character(0)
   if(missing(x)) x <- numeric(0)
-  Weighting <- numeric(0)
+  weighting <- numeric(0)
+  
+  if(inherits(x, "ScaleVariable")) {
+    return(new(
+        Class = "WeightingVariable",
+        codes = codes(x),
+        missings = missings(x),
+        values = values(x),
+        description = description(x)
+        # weights = weighting
+      )
+    )
+  }
   
   # we apply special treatment for scale variable
   variable <- quantitativeVariable( #FIXME: SHOULD BE SCALE
@@ -50,7 +65,7 @@ wvar <- function(
     missings = missings,
     values = values,
     description = description,
-    Weighting = Weighting
+    weights = weighting
   )
   
   # then we apply special treatment for a Weighting variable
@@ -63,9 +78,9 @@ wvar <- function(
     missings = variable$missings,
     values = variable$values,
     description = variable$description,
-    Weighting = Weighting
+    weights = weighting
   )
-  message(paste('number of missings:',nmissings(out))) # FIXME: REMOVE
+  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)')) # FIXME: REMOVE
   return(out)
 }
 

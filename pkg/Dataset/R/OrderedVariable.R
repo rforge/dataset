@@ -61,6 +61,13 @@ setMethod(
     return(as.factor(x))
   }
 )
+setMethod(
+  f = "v",
+  signature = "OrderedVariable", 
+  definition = function (x) {
+    return(as.vector(x))
+  }
+)
 
 setMethod(
   f = "is.ordered",

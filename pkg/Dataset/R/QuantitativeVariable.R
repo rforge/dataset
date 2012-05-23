@@ -53,6 +53,27 @@ is.quantitative <- function(x){
 
 setMethod("plot", "QuantitativeVariable", 
   definition = function (x, ...) {
-  boxplot(as.vector(x), ...)
+    boxplot(as.vector(x), ...)
+  }
+)
+
+setMethod(
+  f = "cut", 
+  signature = "QuantitativeVariable", 
+  definition = function (x, ...) {
+    args <- list(...)
+    out <- cut(as.vector(x), ... = ...)
+    
+    # print(levels(out))
+    
+    if (nlevels(out) == 2) out <- bvar(out)
+    else out <- ovar(out)
+    
+    description(out) <- paste(description(x),'- cutted')
+
+    if(is.null(args$silent) || (args$silent == FALSE))
+      print(table(v(x), v(out)))
+    
+    return(out)
   }
 )

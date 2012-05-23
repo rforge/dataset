@@ -240,6 +240,26 @@ setMethod(
 #)
 
 setMethod(
+  f = "value",
+  signature = c("character", "Variable"), 
+  definition = function (value, object) {
+    stopifnot(length(value) == 1)
+    out <- values(object)[value]
+    names(out) <- NULL
+    return(out)
+  }
+)
+
+setMethod(
+  f = "value",
+  signature = c("numeric", "Variable"), 
+  definition = function (value, object) {
+    stopifnot(length(value) == 1)
+    return(names(values(object))[which(values(object) == value)])
+  }
+)
+
+setMethod(
   f = "values.reverse",
   signature = c("Variable"), 
   definition = function (object) {
@@ -403,3 +423,4 @@ setMethod(
     message(txt.weighted)
   }
 )
+

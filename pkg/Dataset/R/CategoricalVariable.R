@@ -18,7 +18,7 @@ setClass(
     weights <- object@weights
     
     if(!all(is.element(uniqueCodes, union(values, missings)))){
-      print("For a qualitative variable, all codes have to exist in values")
+      print("For a categorical variable, all codes have to exist in values")
       flag <- FALSE
     }    
 		return(flag)
@@ -134,7 +134,7 @@ cvar <- function(
       description = variable$description,
       weights = variable$weights
     )
-    message(paste('number of missings:',nmissings(out)))
+    message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
     return(out)
   } else {
     variable <- binaryVariable(
@@ -188,6 +188,13 @@ setMethod(
   signature = "CategoricalVariable", 
   definition = function (x) {
     return(as.factor(x))
+  }
+)
+setMethod(
+  f = "v",
+  signature = "CategoricalVariable", 
+  definition = function (x) {
+    return(as.vector(x))
   }
 )
 
@@ -317,25 +324,54 @@ setMethod("nvalues", "CategoricalVariable",
   }
 )
 
-# object <- variables(tt)[[8]]
-#recoding <- list(
-#  'not well at all' = c('not well at all', 'not very well'),
-#  'not very well' = 'so, so (average)',
-#  'well' = c('well', 'very well')
-#)
-#obj2 <- object
-#obj <- recode(object, recoding)
+
 setMethod(
   f = "recode",
   signature = c("CategoricalVariable", "list"),
-  definition = function (object, recoding) {
+  definition = function (object, recoding, ...) {
+    require('Hmisc')
+    args <- list(...)
+    object.init <- object
+    
     val <- values(object)
     names <- names(recoding)
+    
+    if (all.is.numeric(names)) { #user gives codes
+      if(!(is.null(args$keep) || (args$keep == FALSE))) {
+        names <- as.numeric(names)
+        if (!all(names %in% val)) stop("[Dataset::recode] all codes have to appear in values")
+        else {
+          names.temp <- character(0)
+          for(i in 1:length(names)) {
+            names.temp[i] <- value(names[i], object)
+          }
+          names <- names.temp
+        }
+      }
+    }
+  
     for (i in 1:length(recoding)) {
       r <- recoding[[i]]
+
+      if (all.is.numeric(r)) { #user gives codes
+        r <- as.numeric(r)
+        r.temp <- character(0)
+        for(j in 1:length(r)) {
+          #print(r[j])
+          r.temp[j] <- value(r[j], object)
+        }
+        r <- r.temp
+      }
+      
+      #print(r)
+      #print(names(val))
+      
+      #print(r %in% names(val))
       if (!all(r %in% names(val))) stop("[Dataset::recode] some recoding names doesn't exist in the variable")
-      v <- match(recoding[[i]], names(val))
+      v <- match(r, names(val))
+      #print(v)
       code <- val[v[1]]
+      #print(code)
       # we change codes
       wcodes <- which(codes(object) %in% val[v])
       codes(object)[wcodes] <- code
@@ -345,17 +381,35 @@ setMethod(
       val <- c(val,code)
       
     }
-    values(object) <- val
+    if(length(val) < 3) {
+      object <- bvar(
+        x = codes(object),
+        missings = missings(object),
+        values = val,
+        description = description(object),
+        weights = weights(object)
+      )
+    } else {
+      values(object) <- val
+    }
+    
+    if(is.null(args$silent) || (args$silent == FALSE))
+      print(table(v(object.init), v(object)))
+      
     return(object)
   }
 )
 
+#setMethod(
+#  f = "table",
+#  signature = c("CategoricalVariable"),
+#  definition = function (..., exclude, useNA, dnn, deparse.level) {
+#    args <- list(...)
+#    # Function: table (package base)
+#    # ...="ANY"
+#    # exclude="CategoricalVariable"
+#    # exclude="missing"
+#    # (inherited from: ...="ANY")
+#  }
+#)
 
-    
-setMethod("cut", "CategoricalVariable", 
-  definition = function (x, ...) {
-  return(
-    as.Variable(cut(as.vector(x), ...))
-  )
-  }
-)

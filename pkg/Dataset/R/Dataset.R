@@ -11,6 +11,7 @@ setClass(
 		variables = "list",
 		row.names = "character",
     weights = "character",
+    control = "character",
     infos = "list"
 	),
 	validity = function(object) {
@@ -24,11 +25,20 @@ setClass(
       flag <- FALSE
     }
     if(lw == 1){
-      if(!is.element(weights(object), names(object))){
+      if(!is.element(weighting(object), names(object))){
         message("The weights variable name given is not in the dataset")
         flag <- FALSE
       }
     }
+    
+    if (length(control(object)) > 0) {
+      if(!all(control(object) %in% names(object))) {
+        message("All control variables have to exist in the Dataset")
+        flag <- FALSE
+      }
+    }
+    #FIXME control variables have to be categorical?
+    #FIXME control variables can't be weighting variables?
     
 		for (v in variables(object)) {
 			if (!inherits(v, "Variable")) {
@@ -120,6 +130,7 @@ dataset <- function(
     name = name,
     variables = variables,
     row.names = row.names,
+    weights = weights,
     infos = infos
   ))
 }
@@ -155,6 +166,27 @@ setReplaceMethod(
 	}
 )
 
+setMethod("control", "Dataset", 
+  definition = function (object) { 
+    #if(length(slot(object,'control')) == 0) {
+    #  message("no control variables are defined, so all are used")
+    #  return(svar(rep(1, nrow(object))))
+    #} else {
+      #return(variables(object)[slot(object, 'control')])
+      return(slot(object, 'control'))
+    #}
+  }
+)
+setReplaceMethod(
+  f = "control" ,
+	signature = "Dataset" ,
+	definition = function(object, value){
+		object@control <- value
+    validObject(object)
+		return(object)
+	}
+)
+
 setMethod("alldescriptions", "Dataset", 
   definition = function (object) {
     out <- mapply(description, variables(object))
@@ -168,8 +200,12 @@ setMethod("alldescriptions", "Dataset",
 )
 
 setMethod("variables", "Dataset", 
-  definition = function (object) { 
-  return(slot(object, "variables"))
+  definition = function (object, weighting) {
+    if (weighting) {
+      return(slot(object, "variables"))
+    } else {
+      
+    }
   }
 )
 setReplaceMethod(
@@ -208,11 +244,27 @@ setMethod("weights", "Dataset",
   }
 )
 
+setMethod("weighting", "Dataset", 
+  definition = function (object, ...) {
+    return(slot(object, 'weights'))
+  }
+)
+
 setReplaceMethod(
-  f = "weights" ,
-  signature = "Dataset" ,
+  f = "weighting" ,
+  signature = c("Dataset", "character") ,
   definition = function(object, value){
 		object@weights <- value
+    validObject(object)
+		return(object)
+	}
+)
+
+setReplaceMethod(
+  f = "weighting" ,
+  signature = c("Dataset", "WeightingVariable") ,
+  definition = function(object, value){
+  	object@weights <- value
     validObject(object)
 		return(object)
 	}
@@ -287,6 +339,36 @@ setMethod(
 			for (k in 1:length(listData)) {
 				listData[[k]] <- listData[[k]][i]
 			}
+      #representativity to control variables check
+      lc <- length(control(x))
+      if(lc > 0) {
+       for (k in 1:lc) {
+          var <- variables(x)[[control(x)[k]]]
+          if (inherits(var, 'CategoricalVariable')) {
+            #a <- table(v(weights(x)) * v(listData[[control(x)[k]]]))
+            a <- table(v(listData[[control(x)[k]]]))
+            b <- distrib(var)
+            #print(a)
+            #print(a/sum(a))
+            #print(b)
+            cs <- chisq.test(x = a, p = b)
+            if(cs$p.value >= 0.05) {
+              message(paste("=> control on ", control(x)[k], ': ok', sep = ''))
+            } else {
+              res <- cs$stdres
+              res <- res[which(abs(res) > 1.96)]
+              over <- which(res > 0)
+              under <- which(res < 0)
+              message(paste("=> control on ", control(x)[k], ': warning, p-value < 0.05', sep = ''))
+             #message(paste("=> control on ", 'sexe', ': warning, p-value < 0.05', sep = ''))
+              if(length(over) > 0)
+                message(paste(paste(names(over), collapse=', '), 'is/are oversampled'))
+              if(length(under) > 0)
+                message(paste(paste(names(under), collapse=', '), 'is/are undersampled'))
+            }
+          }
+        }
+      }
 		}
 		# print(listData)
 		return(new("Dataset", 
@@ -294,6 +376,8 @@ setMethod(
         description = description(x),
 				variables = listData,
         row.names = row.names,
+        weights = weighting(x),
+        control = control(x),
         infos = infos(x)
 			)
 		)
@@ -368,6 +452,16 @@ setMethod(
 	"Dataset",
 	function (x, name) {
 		return(variables(x)[[name]])
+	}
+)
+setReplaceMethod(
+  "$",
+  "Dataset",
+	function (x, name, value) {
+    y <- variables(x)
+    y[[name]] <- value
+    slot(x, 'variables') <- y
+		return(x)
 	}
 )
 
@@ -456,6 +550,8 @@ setMethod(
   "quantitatives",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.quantitative))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -472,6 +568,8 @@ setMethod(
   "scales",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.scale))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -488,6 +586,8 @@ setMethod(
   "qualitatives",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.qualitative))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -504,6 +604,8 @@ setMethod(
   "nominals",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.nominal))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -520,6 +622,8 @@ setMethod(
   "ordinals",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.ordinal))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -533,9 +637,29 @@ setMethod(
 	}
 )
 setMethod(
+  "weightings",
+  "Dataset",
+  function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
+    subsetvar <- names(which(unlist(lapply(variables(object), is.weighting))))
+    variables(object) <- variables(object)[subsetvar]
+    return(object)
+  }
+)
+setMethod(
+  "nweightings",
+  "Dataset",
+  function (object) {
+    return(ncol(weightings(object)))
+	}
+)
+setMethod(
   "times",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.time))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -552,6 +676,8 @@ setMethod(
   "binaries",
   "Dataset",
   function (object) {
+    control(object) <- character(0)
+    weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.binary))))
     variables(object) <- variables(object)[subsetvar]
     return(object)
@@ -574,6 +700,8 @@ setMethod(
     return(object)
   }
 )
+
+
     
 setMethod(
   f = "valid",
@@ -616,9 +744,7 @@ setMethod("summaryToPDF", "Dataset",
 	latexFile <- paste(pdfSavingName, ".tex", sep="")
 	
 	cat("\\documentclass[landscape]{article} \n" , file = latexFile, append = F)
-	cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = latexFile, append = T)
-	cat("\\usepackage{longtable} \n", file = latexFile, append = T)
-  cat("\\usepackage{graphicx} \n", file = latexFile, append = T)
+	latex.head(latexFile)
 	cat("\\author{Generated by the R Dataset package} \n", file = latexFile, append = T)
 	cat("\\title{Summary of the", totex(name(object)), "dataset} \n", file = latexFile, append = T)
 	cat("\\begin{document} \n", file = latexFile, append = T)
@@ -756,7 +882,7 @@ setMethod("summaryToPDF", "Dataset",
       
     	descriptions <- c(descriptions, desc.temp)
   		nbNA <- c(nbNA, nmissings(vtemp))
-  		theNlevels <- c(theNlevels, nlevels(vtemp))
+  		theNlevels <- c(theNlevels, nvalues(vtemp))
   		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
   		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
 	  }
@@ -808,7 +934,7 @@ setMethod("summaryToPDF", "Dataset",
       
     	descriptions <- c(descriptions, desc.temp)
   		nbNA <- c(nbNA, nmissings(vtemp))
-  		theNlevels <- c(theNlevels, nlevels(vtemp))
+  		theNlevels <- c(theNlevels, nvalues(vtemp))
   		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
   		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
 	  }
@@ -981,6 +1107,12 @@ setMethod("as.data.frame", "Dataset",
   }
 )
 
+setMethod("v", "Dataset", 
+  function(x) {
+	  return(as.data.frame(x))
+  }
+)
+
 setAs("Dataset", "data.frame", 
   function(from) {
 		return(as.data.frame(from))
@@ -1032,3 +1164,12 @@ setMethod(
   }
 )
   
+setMethod(
+  "export",
+  "Dataset",
+  function (object, name) {
+    #dir.create(name)
+    save(object, file = paste(name, ".RData", sep = ''))
+    summaryToPDF(object, name)
+  }
+)
