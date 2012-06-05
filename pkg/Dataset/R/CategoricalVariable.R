@@ -320,7 +320,7 @@ setMethod("as.data.frame", "CategoricalVariable",
 #)
 setMethod("nvalues", "CategoricalVariable", 
   definition = function (object) {
-  	nlevels(as.factor(object))
+  	length(values(object))
   }
 )
 
