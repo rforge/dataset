@@ -1,8 +1,8 @@
 Package: Dataset
 Type: Package
 Title: A class and some methods for handling data in a SPSS-like way.
-Version: 0.2-007
-Date: 2012-05-09
+Version: 0.2-008
+Date: 2012-06-2
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle more information about a data set in
         a SPSS-like way: handle variable labels, values labels,
@@ -12,9 +12,9 @@ Description: This package provides a class, called Dataset, and some
         analysis. A function allowing to import data from a SPSS file
         to a Dataset object is provided.
 Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
-        Ritschard <gilbert.ritschard@unige.ch>, Reto Buergin <reto.buergin@unige.ch>
+        Ritschard <gilbert.ritschard@unige.ch>
 Maintainer: Emmanuel Rousseaux <contact+Dataset@emmanuelrousseaux.com>
-Depends: R (>= 2.10.1), methods, foreign, stats, xtable, Hmisc
+Depends: R (>= 2.10.1), methods, foreign, stats, xtable
 LazyLoad: yes
 LazyData: yes
 ZipData: no

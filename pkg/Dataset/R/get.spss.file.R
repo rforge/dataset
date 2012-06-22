@@ -69,12 +69,14 @@ get.spss.file <- function(
 	
 	if(missing(features)) features <- names(spssdata)
 	for (v in features) {
+    message(paste("Loading", v))
+    
 		counter <- counter + 1;
 	
 		vtemp <- spssdata[[v]]
     codes <- vtemp
     attributes(codes) <- NULL # we remove all attributes: codes must contains only numerics codes
-		description <- variable.labels[v]
+    description <- variable.labels[v]
 		value.labels.all <- as.numeric(attr(vtemp,'value.labels'))
     names(value.labels.all) <- names(attr(vtemp,'value.labels'))
     value.labels.all <- removeEmptyValueLabels(value.labels.all)
@@ -85,7 +87,7 @@ get.spss.file <- function(
     #  value.labels[which(value.labels < 0)] # negative codes appearing in values
     #)
     missings <- value.labels.all[which(value.labels.all < 0)] # negative codes appearing in values
-		if (is.element(v, tsvar)) {
+    if (is.element(v, tsvar)) {
 			l[[counter]] <- tvar(
 				x = codes,
 				description = description,
