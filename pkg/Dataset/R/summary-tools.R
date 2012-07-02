@@ -3,13 +3,13 @@ totex <- function(txt){
 }
 # totex("shp_bon")
 
-latex.head <- function(latexFile){
-  cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = latexFile, append = T)
-  cat("\\usepackage[utf8x]{inputenc} \n", file = latexFile, append = T)
-  cat("\\usepackage[T1]{fontenc} \n", file = latexFile, append = T)
-  cat("\\usepackage{aeguill}  \n", file = latexFile, append = T)
-  cat("\\usepackage{longtable} \n", file = latexFile, append = T)
-  cat("\\usepackage{graphicx} \n", file = latexFile, append = T)
+latex.head <- function(outFileCon){
+  cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
+  cat("\\usepackage[utf8x]{inputenc} \n", file = outFileCon, append = T)
+  cat("\\usepackage[T1]{fontenc} \n", file = outFileCon, append = T)
+  cat("\\usepackage{aeguill}  \n", file = outFileCon, append = T)
+  cat("\\usepackage{longtable} \n", file = outFileCon, append = T)
+  cat("\\usepackage{graphicx} \n", file = outFileCon, append = T)
 }
 
 # v a Variable
