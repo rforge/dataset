@@ -18,10 +18,11 @@ removeEmptyValueLabels <- function(values) {
 get.spss.file <- function(
   datadir,
 	file, 
-	features,
+	variables,
 	tsvar,
   ordinals,
   weightings,
+  use.coding.order = "increasing",
 	max.value.labels = Inf,
 	savingName,
 	lowernames = TRUE,
@@ -38,6 +39,7 @@ get.spss.file <- function(
   if (missing(ordinals)) ordinals <- character(0)
 	
   #sub(paste(.Platform$file.sep,'$', sep=''), '', 'cc//')
+  if(missing(datadir)) datadir <- getwd()
   path <- file.path(datadir,file)
   path <- sub(paste(.Platform$file.sep,.Platform$file.sep, sep=''), .Platform$file.sep, path)
 	spssdata <- read.spss(
@@ -50,10 +52,10 @@ get.spss.file <- function(
 	variable.labels <- attr(spssdata, "variable.labels")
 	
 	#on converti les noms de variable en noms de variables valides pour R (remplacement des $$ en particulier) (déjà fait par read.spss ?)
-	if(!missing(features)) {
-		featuresExist <- features %in% tolower(names(spssdata))
-		if(FALSE %in% featuresExist)
-			stop(paste("Dataset::getSPSSfile    ", features[which(featuresExist == FALSE)], "contain(s) some names not in the file"));
+	if(!missing(variables)) {
+		variablesExist <- variables %in% tolower(names(spssdata))
+		if(FALSE %in% variablesExist)
+			stop(paste("Dataset::getSPSSfile    ", variables[which(variablesExist == FALSE)], "contain(s) some names not in the file"));
 	}
 	names(spssdata) <- make.names(names(spssdata))
 	names(variable.labels) <- make.names(names(variable.labels))
@@ -67,8 +69,8 @@ get.spss.file <- function(
 	
 	counter <- 0;
 	
-	if(missing(features)) features <- names(spssdata)
-	for (v in features) {
+	if(missing(variables)) variables <- names(spssdata)
+	for (v in variables) {
     message(paste("Loading", v))
     
 		counter <- counter + 1;
@@ -81,6 +83,8 @@ get.spss.file <- function(
     names(value.labels.all) <- names(attr(vtemp,'value.labels'))
     value.labels.all <- removeEmptyValueLabels(value.labels.all)
     value.labels <- value.labels.all[which(value.labels.all >= 0)] # positive codes
+    if(use.coding.order == "increasing" ) value.labels <- sort(value.labels)
+    if(use.coding.order == "decreasing" ) value.labels <- sort(value.labels, decreasing = T)
     uval <- unique(vtemp)
 		#missings <- union(
     #  uval[which(uval < 0)], # negative codes appearing in data
@@ -136,7 +140,7 @@ get.spss.file <- function(
 		}
 	}
 
-  names(l) <- features
+  names(l) <- variables
 	
 	if (!missing(name)){
 		outName <- name

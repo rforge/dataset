@@ -59,6 +59,7 @@ binaryVariable <- function(
       values[which(values == M)] <- 1
       message("the higher value must be 1 in a BinaryVariable object, a recodage has been performed")
     }
+
     out <- list(
       x = x,
       missings = missings,

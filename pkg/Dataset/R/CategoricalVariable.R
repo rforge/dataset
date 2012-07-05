@@ -16,6 +16,7 @@ setClass(
     values <- object@values
     description <- object@description
     weights <- object@weights
+
     
     if(!all(is.element(uniqueCodes, union(values, missings)))){
       print("For a categorical variable, all codes have to exist in values")
@@ -176,8 +177,8 @@ setMethod(
     levels(out) <- valuelevels
     out <- as.character(out) # we get a character vector using the values
     
-    # then we create the factor with all values as levels in the same order than given in the values slot (without missing values)
-    out <- factor(out, levels = names(values(x, type = "classes")))
+    # then we create the factor with all values as levels in the same order as given in the values slot (without missing values)
+    out <- factor(out, levels = names(values(x)))
     return(out)
   }
 )

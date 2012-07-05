@@ -148,13 +148,17 @@ variable <- function(x, values, missings, description, weights) {
   #print(x)
   nas <- which(sapply(x, is.na))
   if(length(nas) > 0) {
-    m <- -1
-    if (length(missings)>0) m <- min(min(missings, na.rm = T), m)
-    m <- min(min(x, na.rm = T)-1, m)
+    m <- min(x, na.rm = T) # we take the minimal value appearing in codes (for scales)
+    if (length(missings)>0) m <- min(min(missings, na.rm = T), m) # then we take the min value defined in missings (and not appearing in codes)
+    if (length(values)>0) m <- min(min(values, na.rm = T), m) # then we take the min value defined in values (and not appearing in codes)
+    m <- min(m - 1, -1) # then we set the new value at the min -1, and at least -1
+    
     x[nas] <- m
     names <- names(missings)
     missings <- c(missings, m)
-    names(missings) <- c(names, 'Unspecified missing')
+    missinglabel <- 'Unspecified missing'
+    names(missings) <- c(names, missinglabel)
+    warning(paste("One or more NA value(s) found, a missing value has been created, with code", m, "and label", missinglabel))
   }
     
   if(length(values) > 0 && is.null(names(values))) names(values) <- make.names(1:length(values))
@@ -263,7 +267,10 @@ setMethod(
   f = "values.reverse",
   signature = c("Variable"), 
   definition = function (object) {
-    values(object) <- rev(values(object))
+    #names <- names(values(object))
+    new <- rev(values(object))
+    #names(new) <- names
+    values(object) <- new
     return(object)
   }
 )
