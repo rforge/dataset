@@ -5,11 +5,19 @@ totex <- function(txt){
 
 latex.head <- function(outFileCon){
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
-  cat("\\usepackage[utf8x]{inputenc} \n", file = outFileCon, append = T)
+  #cat("\\usepackage[utf8x]{inputenc} \n", file = outFileCon, append = T)
   cat("\\usepackage[T1]{fontenc} \n", file = outFileCon, append = T)
-  cat("\\usepackage{aeguill}  \n", file = outFileCon, append = T)
+  #cat("\\usepackage{aeguill}  \n", file = outFileCon, append = T)
   cat("\\usepackage{longtable} \n", file = outFileCon, append = T)
   cat("\\usepackage{graphicx} \n", file = outFileCon, append = T)
+}
+
+latex.write.packages <- function(packages, outFileCon){
+  stopifnot(inherits(packages, "character"))
+  packages <- unique(packages)
+  for (i in 1:length(packages)) {
+    cat("\\usepackage", packages[i], " \n", file = outFileCon, append = T, sep="")
+  }
 }
 
 # v a Variable
