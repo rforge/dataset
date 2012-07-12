@@ -13,7 +13,9 @@ exportClasses(
   'NominalVariable',
   'BinaryVariable',
   'OrdinalVariable',
-  'Dataset'
+  'Dataset',
+  'summary.Statdf',
+  'Statdf'
 )
 
 exportMethods(
@@ -100,7 +102,19 @@ exportMethods(
   'control',
   'control<-',
   'weighting',
-  'weighting<-'
+  'weighting<-',
+  'df',
+  'df<-',
+  'thresholds',
+  'thresholds<-',
+  'na',
+  'na<-',
+  'nan',
+  'nan<-',
+  'formatc',
+  'formatc<-',
+  'legend',
+  'legend<-'
 )
 
 export(

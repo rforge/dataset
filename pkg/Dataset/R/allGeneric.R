@@ -59,6 +59,21 @@ setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
 setGeneric("alldescriptions", function(object){ standardGeneric("alldescriptions") })
 setGeneric("v", function(x){ standardGeneric("v") })
 setGeneric("export", function(object, name){ standardGeneric("export") })
+
+# for Statdf
+setGeneric("df", function(object){ standardGeneric("df") })
+setGeneric("df<-", function(object, value){ standardGeneric("df<-" ) })
+setGeneric("thresholds", function(object){ standardGeneric("thresholds") })
+setGeneric("thresholds<-", function(object, value){ standardGeneric("thresholds<-" ) })
+setGeneric("na", function(object){ standardGeneric("na") })
+setGeneric("na<-", function(object, value){ standardGeneric("na<-" ) })
+setGeneric("nan", function(object){ standardGeneric("nan") })
+setGeneric("nan<-", function(object, value){ standardGeneric("nan<-" ) })
+setGeneric("formatc", function(object){ standardGeneric("formatc") })
+setGeneric("formatc<-", function(object, value){ standardGeneric("formatc<-" ) })
+setGeneric("legend", function(object){ standardGeneric("legend") })
+setGeneric("legend<-", function(object, value){ standardGeneric("legend<-" ) })
+
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 
 # setGeneric("sd", function(object, na.rm = FALSE){ standardGeneric("sd") })

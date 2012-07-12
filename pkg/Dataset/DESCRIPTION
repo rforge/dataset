@@ -1,13 +1,13 @@
 Package: Dataset
 Type: Package
 Title: A class and some methods for handling data in a SPSS-like way.
-Version: 0.2-008
-Date: 2012-06-2
+Version: 0.2-009
+Date: 2012-07-12
 Description: This package provides a class, called Dataset, and some
-        methods allowing to handle more information about a data set in
-        a SPSS-like way: handle variable labels, values labels,
-        and retrieve information about missing values like in a SPSS
-        data set file. In particularity we can switch a specific
+        methods allowing to handle efficiently survey data: handle variable
+        labels, values labels, and retrieve information about missing values   
+        like in a SPSSdata set file.
+        In particularity we can switch a specific
         missing value type from a NA to a level to use it in the
         analysis. A function allowing to import data from a SPSS file
         to a Dataset object is provided.
@@ -19,7 +19,7 @@ LazyLoad: yes
 LazyData: yes
 ZipData: no
 License: GPL (>= 2)
-Collate: environments.R allGeneric.R summary-tools.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R gchart.map.R dataManipulation.R spssToDataset.R stats.table.R as.value.R as.missing.R bivan.R reglog.R zzz.R
+Collate: environments.R allGeneric.R summary-tools.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R gchart.map.R dataManipulation.R spssToDataset.R Statdf.R as.value.R as.missing.R bivan.R reglog.R zzz.R
 URL: http://rforge.fr/Dataset
 Repository: NA
 Date/Publication:
