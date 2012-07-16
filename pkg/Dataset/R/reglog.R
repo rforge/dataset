@@ -266,7 +266,8 @@ print.summary.reglog <- function(x) {
   message('')
   print(giveStars.df.even(x[[2]]))
 }
-  
+
+
 summaryToPDF.reglog <- function(x){
   pdfSavingName <- "reglog"
   latexFile <- paste(pdfSavingName, ".tex", sep="")
