@@ -7,6 +7,8 @@ latex.head <- function(title, latexPackages, outFileCon){
   cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
   
+  cat("\\usepackage[utf8]{inputenc} \n", file = outFileCon, append = T)
+  
   latex.write.packages(latexPackages, outFileCon)
   
   #cat("\\usepackage[utf8x]{inputenc} \n", file = outFileCon, append = T)
@@ -29,6 +31,28 @@ latex.write.packages <- function(packages, outFileCon){
       cat("\\usepackage", packages[i], " \n", file = outFileCon, append = T, sep="")
     }
   }
+}
+
+
+close.and.clean <- function(outFileCon, pdfSavingName, keepTex){
+  cat("\\end{document} \n", file = outFileCon, append = T)
+  close(outFileCon)
+  tools::texi2pdf(paste(pdfSavingName, '.tex', sep = ''))
+  
+  # clean directory
+  if (keepTex) {
+    extensionsToRemove <- ".(log|aux)"
+  } else {
+    extensionsToRemove <- ".(log|aux|tex)"
+  }
+  
+  tempTex <- list.files(
+    ##paste(datadir, wavesFolder, "-SPSS", "/", i, sep = ""),
+    getwd(),
+    pattern = paste("^", pdfSavingName, extensionsToRemove, sep = "")
+  )
+  
+  unlink(tempTex)
 }
 
 # v a Variable

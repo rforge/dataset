@@ -4,8 +4,7 @@ bivan <- function(
   measures = c("Chi^2", "Cramer's V", "GK's Tau sqrt", "Somer's D"),
   tables = c("Std Res."),
   digits = 3,
-  verbose = TRUE,
-  texExport = FALSE
+  verbose = TRUE
 ) {
   #FIXME: type date non géré
   #data.Dataset <- data
@@ -102,12 +101,7 @@ bivan <- function(
 	}
 	
 	nbTests <- length(userTests)
-	
-  # creating an blank dataframe for printing results
-  outToPrint <- as.data.frame(matrix(rep(0, nbxnames * nbTests), nrow = nbxnames, ncol = nbTests))
-  row.names(outToPrint) <- xnames
-  names(outToPrint) <- userTests
-  
+	  
 	# creating an blank dataframe for storing results (with p-values)
 	out <- as.data.frame(matrix(rep(0, nbxnames * nbTests * 2), nrow = nbxnames, ncol = nbTests*2))
 	row.names(out) <- xnames
@@ -125,13 +119,10 @@ bivan <- function(
     #print(chisq)
 		
 		j <- 0
-    k <- 0
 		
 		if (is.element("Chi^2", userTests)) {
 			j <- j+1; out[i, j] <- chisq$statistic
       j <- j+1; out[i, j] <- chisq$p.value
-      
-      k <- k+1; outToPrint[i, k] <- giveStars(chisq$p.value)
       
       if (is.element("Std Res.", tables)) {
         message("")
@@ -144,14 +135,11 @@ bivan <- function(
 		if (is.element("Phi", userTests)) {
 			j <- j+1; out[i, j] <- sqrt(chisq$statistic / sum(tablexy));
       j <- j+1; out[i, j] <- chisq$p.value
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(chisq$p.value), sep = "")
 		}
 		
 		if (is.element("Cramer's V", userTests)) {
 			j <- j+1; out[i, j] <- sqrt(chisq$statistic / (sum(tablexy) * min(dim(tablexy) - 1 )))
       j <- j+1; out[i, j] <- chisq$p.value
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(chisq$p.value), sep = "")
-      
 		}
     
 		if (is.element("GK's Lambda", userTests)) {
@@ -160,7 +148,6 @@ bivan <- function(
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
 			j <- j+1; out[i, j] <- temp$pvalue;
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
     
 		if (is.element("GK's Tau", userTests)) {
@@ -169,7 +156,6 @@ bivan <- function(
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
 			j <- j+1; out[i, j] <- temp$p.tau.CR;
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
 		if (is.element("GK's Tau sqrt", userTests)) {
       temp <- GK.tau(tablexy)
@@ -177,7 +163,6 @@ bivan <- function(
   		# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
 			j <- j+1; out[i, j] <- temp$p.tau.CR;
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
 		
     if (is.element("Theil's u", userTests)) {
@@ -186,7 +171,6 @@ bivan <- function(
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
 			j <- j+1; out[i, j] <- temp$pvalue;
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
     if (is.element("Theil's u sqrt", userTests)) {
       temp <- calc.Theil.u(tablexy)
@@ -194,35 +178,30 @@ bivan <- function(
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
 			j <- j+1; out[i, j] <- temp$pvalue;
 			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
     
 		if (is.element("Kendall's A Tau", userTests)) {
       temp <- calc.Kendall.tauA(tablexy)
 			j <- j+1; out[i, j] <- temp$statistic;
       j <- j+1; out[i, j] <- temp$pvalue;
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
 		
 		if (is.element("Stuart's C Tau", userTests)) {
       temp <- calc.Stuart.tauC(tablexy)
   		j <- j+1; out[i, j] <- temp$statistic;
       j <- j+1; out[i, j] <- temp$pvalue;
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
 		
 		if (is.element("GK's gamma", userTests)) {
       temp <- calc.GK.gamma(tablexy)
     	j <- j+1; out[i, j] <- temp$statistic;
       j <- j+1; out[i, j] <- temp$pvalue;
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 		}
 		
 		if (is.element("Somer's D", userTests)) {
       temp <- calc.Sd(tablexy)
       j <- j+1; out[i, j] <- temp$Sd.CR;
       j <- j+1; out[i, j] <- temp$pvalue;
-      k <- k+1; outToPrint[i, k] <- paste(round(out[i, j-1], digits = digits), giveStars(out[i, j]), sep = "")
 			# j <- j+1; out[i, j] <- calc.Sd(tablexy)$Sd.CR
 		}
 	}
@@ -230,23 +209,20 @@ bivan <- function(
 	message("")
 	message("== Results ==")
 	message("")
-	print(outToPrint)
-  message(giveStars(legend = T))
-	message("")
-	message("")
   
-  if (texExport) {
-    require(xtable)
-    out.xtable <- xtable(
-      out,
-      digits = 4,
-      label = "bivanresults",
-      caption = "Bivan results"
-    )
-    print(out.xtable, file = "bivan.tex")
+  #if (texExport) {
+  #  require(xtable)
+  #  out.xtable <- xtable(
+  #    out,
+  #    digits = 4,
+  #    label = "bivanresults",
+  #    caption = "Bivan results"
+  #  )
+  #  print(out.xtable, file = "bivan.tex")
     
   }
-	invisible(out)
+	#invisible(out)
+  return(out)
 	# cat("Somer's D based on Mark Heckmann implementation (OpenRepGrid package version 0.1.5)")
 }
 

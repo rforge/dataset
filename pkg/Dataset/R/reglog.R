@@ -261,10 +261,11 @@ print.reglog <- function(x) {
 print.summary.reglog <- function(x) {
   message("Coefficients")
   message('')
-  print(giveStars.df.even(x[[1]]))
+  print(x)
+  #print(giveStars.df.even(x[[1]]))
   message('')
   message('')
-  print(giveStars.df.even(x[[2]]))
+  #print(giveStars.df.even(x[[2]]))
 }
 
 

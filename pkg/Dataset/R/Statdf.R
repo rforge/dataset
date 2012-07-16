@@ -1,9 +1,22 @@
-#df1 <- data.frame('chi2' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN), 't' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN))
-#sdf1 <- statdf(df1)
-#sdf1
-#df(sdf1)
-#ssdf1 <- summary(sdf1)
-#ssdf1
+#df2 <- data.frame('chi2' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN), 't' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN))
+#sdf2 <- statdf(df2)
+#sdf2
+#df(sdf2)
+#ssdf2 <- summary(sdf2)
+#ssdf2
+# summaryToPDF(sdf2)
+#df3 <- data.frame('chi2' = c(23.664518,48.69871987), 'p-values' = c(NA, NA), 't' = c(23.664518,48.69871987), 'p-values' = c(0.0265432, 0.007555))
+#sdf3 <- statdf(df3)
+#sdf3
+#df(sdf3)
+#ssdf3 <- summary(sdf3)
+#ssdf3
+#df4 <- data.frame('chi2' = c(NA,NaN), 'p-values' = c(NA, NA), 't' = c(23.664518,48.69871987), 'p-values' = c(0.0265432, 0.007555))
+#sdf4 <- statdf(df4)
+#sdf4
+#df(sdf4)
+#ssdf4 <- summary(sdf4)
+#ssdf4
 
 #---------------------------------------------------------------------------
 #        summary.Statdf class specifications
@@ -302,6 +315,31 @@ is.na.in.pvalues <- function(x) {
   return(flag)
 }
 
+is.nan.in.statistics <- function(x) {
+  ncol <- ncol(x)/2
+  ids <- seq.int(1, ncol, by = 2)
+  flag <- FALSE
+  for (i in ids) {
+    if (any(is.nan(x[,i]))){
+      flag <- TRUE
+      break
+    }
+  }
+  return(flag)
+}
+
+is.na.in.statistics <- function(x) {
+  ncol <- ncol(x)/2
+  ids <- seq.int(1, ncol, by = 2)
+  flag <- FALSE
+  for (i in ids) {
+    if (any(is.na(x[,i]))){
+      flag <- TRUE
+      break
+    }
+  }
+  return(flag)
+}
 
 # FIXME PREVOIR LES DEGRES DE LIBERTES ?
 giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
@@ -310,31 +348,43 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
   
   out <- pvalues
   
-  nas <- which(is.na(pvalues))  
-  if(length(nas) > 0) {
-    lna <- paste(rep(' ', maxnc-nchar(na)+1), collapse = '') #FIXME pourquoi +1 ?
-    #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
-    for (i in nas)
-      out[i] <-  paste(na, lna, sep = '')
-    #out[i] <-  paste('?', lna, sep = '')
+  nas <- which(is.na(pvalues))
+  
+  # first we check if we have only NAs value
+  if (length(nas) == length(pvalues)) {
+    out <- rep(na, length(pvalues))
+  } else {
+  
+    if(length(nas) > 0) {
+      lna <- paste(rep(' ', maxnc-nchar(na)+1), collapse = '') #FIXME pourquoi +1 ?
+      #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
+      for (i in nas)
+        out[i] <-  paste(na, lna, sep = '')
+      #out[i] <-  paste('?', lna, sep = '')
+    }
+    
+    nans <- which(is.nan(pvalues))
+    if(length(nans) > 0) {
+      lna <- paste(rep(' ', maxnc-nchar(nan)+1), collapse = '') #FIXME pourquoi +1 ?
+      #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
+      for (i in nans)
+        out[i] <-  paste(nan, lna, sep = '')
+      #out[i] <-  paste('?', lna, sep = '')
+    }
+    
+    
+    for (i in 1:length(stars)) {
+      stars[i] <- paste(stars[i], paste(rep(' ', maxnc-nchar(stars[i])), collapse = ''))
+    }
+    
+    # we set stars but not for NAs (NaN included)
+    # first : case with no NAs
+    if(length(nas) == 0) {
+      out <- stars[mapply(findInterval, pvalues, list(thresholds), rightmost.closed = T) + 1]
+    } else {
+      out[-nas] <- stars[mapply(findInterval, pvalues[-nas], list(thresholds), rightmost.closed = T) + 1]
+    }
   }
-  
-  nans <- which(is.nan(pvalues))
-  if(length(nans) > 0) {
-    lna <- paste(rep(' ', maxnc-nchar(nan)+1), collapse = '') #FIXME pourquoi +1 ?
-    #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
-    for (i in nans)
-      out[i] <-  paste(nan, lna, sep = '')
-    #out[i] <-  paste('?', lna, sep = '')
-  }
-  
-  
-  for (i in 1:length(stars)) {
-    stars[i] <- paste(stars[i], paste(rep(' ', maxnc-nchar(stars[i])), collapse = ''))
-  }
-  
-  # we set stars but not for NAs (NaN included)
-  out[-nas] <- stars[mapply(findInterval, pvalues[-nas], list(thresholds), rightmost.closed = T) + 1]
   
   return(out)
 }
@@ -342,6 +392,7 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
 #giveStars(c(0.02, 0.005, 0.06), th)
 #giveStars(c(0.02, 0.005, 0.06, NA), th)
 #giveStars(c(0.02, 0.005, 0.06, NA, 0.2, NaN), th, '!')
+#giveStars(c(NA,NA,NA), th)
 
 
 
@@ -353,10 +404,16 @@ setMethod(
     ids <- seq.int(1, ncol(object), by = 2)
     out <- data.frame(matrix(rep(0, ncol*nrow(object)), ncol = ncol))
     names(out) <- names(object)[ids]
+    row.names(out) <- row.names(object)
     
     # we format values
     for(i in 1:ncol){
-      out[,i] <- do.call(formatC, c(list("x" = object[,ids[i]]), formatc(sdf1))) 
+      out[,i] <- do.call(formatC, c(list("x" = object[,ids[i]]), formatc(object)))
+      # then we replace NAs
+      for (k in 1:length(out[,i])) {
+        if (is.na(out[k,i])) out[k,i] <- na(object)
+      }
+      # then we replace NaN
     }
     
     # we give stars
@@ -365,6 +422,8 @@ setMethod(
       out[,i] <- mapply(paste, out[,i], temp, sep = '')
     }
     
+    
+    # we create the legend
     legend <- paste(names(thresholds(object)), thresholds(object), collapse = ', ', sep = ' < ')
     if(is.na.in.pvalues(object)) legend <- paste(legend, ', ', na(object), ' = NA', sep = '')
 
@@ -380,7 +439,58 @@ setMethod(
 
 
 
+setMethod(
+  f = 'summaryToPDF',
+  signature = c('Statdf'),
+  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE) {
+    
+    s <- summary(object)
+    
+    require(xtable)
+    
+    outName <- "Untitled"
+    
+    outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+    
+    if(missing(pdfSavingName)) {		
+      pdfSavingName <- paste("Summary-", outName, sep = "") # no spaces for Unix/Texlive compilation ?
+    }
+    
+    latexFile <- paste(pdfSavingName, ".tex", sep="")
+    
+    outFileCon <- file(latexFile, "w", encoding="UTF-8")
+    
+    latex.head(title = paste("Summary of the", totex(outName), "table"), latexPackages, outFileCon)
+    
+    #cat("\\section*{Overview} \n", file = outFileCon, append = T)
+    
+    object.xtable <- xtable(
+      df(s),
+      #label='validCasesSummary',
+      #caption='Number of variables by percent of valid cases',
+      caption=legend(s),
+      #digits = 3,
+      #align = c("l","l","l","c","c"),
+      #display = c("d","d","d")
+    )
+    
+    cat("\\begin{center} \n", file = outFileCon, append = T)
+    print(object.xtable, file=outFileCon , append=T,
+      #tabular.environment='longtable',
+      table.placement = "htb",
+      floating=F
+    )
+    
+    cat("\\newline ", " \n", file = outFileCon, append = T)
+    cat(legend(s), " \n", file = outFileCon, append = T)
+    
+    cat("\\end{center} \n", file = outFileCon, append = T)
 
+    
+    close.and.clean(outFileCon, pdfSavingName, keepTex)
+ 
+  }
+)
 
 
 
