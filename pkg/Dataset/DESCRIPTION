@@ -1,7 +1,7 @@
 Package: Dataset
 Type: Package
 Title: A class and some methods for handling data in a SPSS-like way.
-Version: 0.2-009
+Version: 0.2-010
 Date: 2012-07-12
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable

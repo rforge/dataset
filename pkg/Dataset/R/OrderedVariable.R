@@ -50,10 +50,12 @@ setMethod(
   definition = function (x) {
     m <- getMethod("as.factor", "CategoricalVariable")
     out <- do.call(m, list(x))
-    out <- ordered(out)
+    #out <- ordered(out) # FIXED if we use ordered(), unused levels are dropped! So keep in mind we always have to specify levels!
+    out <- ordered(out, levels = levels(out))
     return(out)
   }
 )
+
 setMethod(
   f = "as.vector",
   signature = "OrderedVariable", 

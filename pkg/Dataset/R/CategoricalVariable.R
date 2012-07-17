@@ -178,6 +178,7 @@ setMethod(
     out <- as.character(out) # we get a character vector using the values
     
     # then we create the factor with all values as levels in the same order as given in the values slot (without missing values)
+    #out <- factor(out, levels = names(values(x)), labels = names(values(x)))
     out <- factor(out, levels = names(values(x)))
     return(out)
   }
