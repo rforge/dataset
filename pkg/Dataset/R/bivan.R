@@ -219,9 +219,9 @@ bivan <- function(
   #    caption = "Bivan results"
   #  )
   #  print(out.xtable, file = "bivan.tex")
-    
-  }
-	#invisible(out)
+  #}
+	
+  #invisible(out)
   return(out)
 	# cat("Somer's D based on Mark Heckmann implementation (OpenRepGrid package version 0.1.5)")
 }
