@@ -393,7 +393,7 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
 
 #sdf4
 #df(sdf4)
-sdf4[2,1]
+#sdf4[2,1]
 #ssdf4 <- summary(sdf4)
 
 setMethod(
