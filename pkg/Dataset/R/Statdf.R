@@ -357,19 +357,15 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
   
     if(length(nas) > 0) {
       lna <- paste(rep(' ', maxnc-nchar(na)+1), collapse = '') #FIXME pourquoi +1 ?
-      #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
       for (i in nas)
         out[i] <-  paste(na, lna, sep = '')
-      #out[i] <-  paste('?', lna, sep = '')
     }
     
     nans <- which(is.nan(pvalues))
     if(length(nans) > 0) {
       lna <- paste(rep(' ', maxnc-nchar(nan)+1), collapse = '') #FIXME pourquoi +1 ?
-      #lna <- paste(rep(' ', maxnc-nchar('?')+1), collapse = '') #FIXME pourquoi +1 ?
       for (i in nans)
         out[i] <-  paste(nan, lna, sep = '')
-      #out[i] <-  paste('?', lna, sep = '')
     }
     
     
@@ -395,6 +391,10 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
 #giveStars(c(NA,NA,NA), th)
 
 
+#sdf4
+#df(sdf4)
+sdf4[2,1]
+#ssdf4 <- summary(sdf4)
 
 setMethod(
   f = 'summary',
@@ -408,12 +408,16 @@ setMethod(
     
     # we format values
     for(i in 1:ncol){
-      out[,i] <- do.call(formatC, c(list("x" = object[,ids[i]]), formatc(object)))
-      # then we replace NAs
-      for (k in 1:length(out[,i])) {
-        if (is.na(out[k,i])) out[k,i] <- na(object)
-      }
-      # then we replace NaN
+      out[,i] <- object[,ids[i]]
+      
+      the.nas <- which(is.na(out[,i]))
+      the.nans <- which(is.nan(out[,i]))
+      # we replace NAs
+      if(length(the.nas) > 0) out[the.nas,i] <- na(object)
+      # we replace NAs
+      if(length(the.nans) > 0) out[the.nans,i] <- nan(object)
+      # then we format values
+      out[,i] <- do.call(formatC, c(list("x" = out[,i]), formatc(object)))
     }
     
     # we give stars
