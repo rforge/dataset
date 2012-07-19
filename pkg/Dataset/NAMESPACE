@@ -143,5 +143,6 @@ export(
   str.names,
   bivan,
   reglog,
-  summaryToPDF.reglog
+  summaryToPDF.reglog,
+  Dataset.version
 )

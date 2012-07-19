@@ -1,6 +1,6 @@
 Package: Dataset
 Type: Package
-Title: A class and some methods for handling data in a SPSS-like way.
+Title: Handling survey data in R.
 Version: 0.2-010
 Date: 2012-07-12
 Description: This package provides a class, called Dataset, and some
@@ -14,7 +14,8 @@ Description: This package provides a class, called Dataset, and some
 Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>
 Maintainer: Emmanuel Rousseaux <contact+Dataset@emmanuelrousseaux.com>
-Depends: R (>= 2.10.1), methods, foreign, stats, xtable
+Depends: R (>= 2.10.1), methods, stats
+Suggests: foreign, xtable
 LazyLoad: yes
 LazyData: yes
 ZipData: no

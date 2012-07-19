@@ -18,19 +18,19 @@
 #    }
 #}
 
-#.onAttach <- function(libname, pkgname) {
-#	message(paste(
-#			"\nWelcome to Dataset\n\n",
-#			"You are using the version", version.Dataset(), "\n\n",
-#			"Vignette contains introductory material. To view, type",
-#			"'openVignette()'.\n\n"
-#			#"\n\n To cite Dataset, see",
-#			#"'citation(\"Dataset\")' and for packages 'citation(pkgname)'.\n"
-#			, sep=" "
-#		)
-#	)
+.onAttach <- function(libname, pkgname) {
+	  packageStartupMessage('\n', 'Welcome to Dataset', '.')
+	  packageStartupMessage('You are running on the version ', Dataset.version(), '.')
+	  packageStartupMessage(
+      'Vignette contains introductory material. To view, type ',
+			"'openVignette()'.\n"
+	  )
+	  packageStartupMessage(
+      'If you use this package for building a data base or for pre-processing data, please reward your work by citing the package in your paper. ',
+      "Please type 'citation(\"Dataset\")' for citation information.\n"
+	  )
 		#addVigs2WinMenu("Dataset") 
-#}
+}
 
 .onUnload <- function( libpath ) {
   #library.dynam.unload("Dataset", libpath )

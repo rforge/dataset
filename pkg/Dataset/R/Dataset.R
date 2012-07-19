@@ -733,6 +733,8 @@ setMethod("summaryToPDF", "Dataset",
   definition = function (object, pdfSavingName, graphics = FALSE, description.chlength, values.chlength, dateformat, latexPackages = NULL, keepTex = FALSE) {
   require(xtable)
   nTuples <- nrow(object)
+  
+  require(xtable)
 
 	if (length(name(object)) == 0) { outName <- "Untitled Dataset" } else { outName <- name(object) }
 	outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
