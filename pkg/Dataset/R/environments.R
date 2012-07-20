@@ -1,6 +1,7 @@
 Dataset.globalenv <- new.env()
 Dataset.globalenv$package.infos <- utils:::packageDescription("Dataset")
 Dataset.globalenv$object.version <- "0.3-001"
+# shoud be the same as in utils:::packageVersion("Dataset")
 Dataset.globalenv$print.io <- FALSE
 
 Dataset.globalenv.print.io <- function(x){
