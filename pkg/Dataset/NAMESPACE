@@ -142,5 +142,6 @@ export(
   bivan,
   reglog,
   summaryToPDF.reglog,
-  Dataset.version
+  Dataset.version,
+  readVignette
 )
