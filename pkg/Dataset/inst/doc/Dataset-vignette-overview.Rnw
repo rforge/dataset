@@ -45,7 +45,7 @@
 \section*{Prequisites}
 
 The Dataset package provides a class, called Dataset, and some
-methods allowing to handle more information about a data set in
+methods allowing to handle survey data bases in
 a SPSS-like way: handle variable labels, values labels,
 and retrieve information about missing values like in a SPSS
 data set file. In particularity we can switch a specific
