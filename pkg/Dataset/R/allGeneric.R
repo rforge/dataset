@@ -63,8 +63,8 @@ setGeneric("export", function(object, name){ standardGeneric("export") })
 
 # for Statdf
 #setGeneric("df")
-setGeneric("df", function(object){ standardGeneric("df") })
-setGeneric("df<-", function(object, value){ standardGeneric("df<-" ) })
+setGeneric("sdf", function(object){ standardGeneric("sdf") })
+setGeneric("sdf<-", function(object, value){ standardGeneric("sdf<-" ) })
 setGeneric("thresholds", function(object){ standardGeneric("thresholds") })
 setGeneric("thresholds<-", function(object, value){ standardGeneric("thresholds<-" ) })
 setGeneric("na", function(object){ standardGeneric("na") })
@@ -74,8 +74,8 @@ setGeneric("nan<-", function(object, value){ standardGeneric("nan<-" ) })
 setGeneric("formatc", function(object){ standardGeneric("formatc") })
 setGeneric("formatc<-", function(object, value){ standardGeneric("formatc<-" ) })
 #setGeneric("legend") #package:graphics
-setGeneric("legend", function(object){ standardGeneric("legend") })
-setGeneric("legend<-", function(object, value){ standardGeneric("legend<-" ) })
+#setGeneric("legend", function(object){ standardGeneric("legend") })
+#setGeneric("legend<-", function(object, value){ standardGeneric("legend<-" ) })
 
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 
@@ -91,7 +91,8 @@ setGeneric("legend<-", function(object, value){ standardGeneric("legend<-" ) })
 #setGeneric("categorize", function(object){ standardGeneric("categorize") })
 ##setGeneric("cUnion", function(...){ standardGeneric("cUnion") })
 ##setClassUnion
-setGeneric("merge",  function(x, y, ...){  standardGeneric("merge") })
+setGeneric("merge")
+#setGeneric("merge",  function(x, y, ...){  standardGeneric("merge") })
 setGeneric("cbind",  function(..., deparse.level = 1){  standardGeneric("cbind") })
 setGeneric("rbind",  function(..., deparse.level = 1){  standardGeneric("rbind") })
 

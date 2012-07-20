@@ -103,8 +103,8 @@ exportMethods(
   'control<-',
   'weighting',
   'weighting<-',
-  'df',
-  'df<-',
+  'sdf',
+  'sdf<-',
   'thresholds',
   'thresholds<-',
   'na',
@@ -112,9 +112,7 @@ exportMethods(
   'nan',
   'nan<-',
   'formatc',
-  'formatc<-',
-  'legend',
-  'legend<-'
+  'formatc<-'
 )
 
 export(

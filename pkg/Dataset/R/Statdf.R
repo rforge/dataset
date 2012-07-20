@@ -1,20 +1,20 @@
 #df2 <- data.frame('chi2' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN), 't' = c(23.664518,48.69871987,19.71,29.65419,34.7531), 'p-values' = c(0.0265432, 0.007555, 0.065789316, NA, NaN))
 #sdf2 <- statdf(df2)
 #sdf2
-#df(sdf2)
+#sdf(sdf2)
 #ssdf2 <- summary(sdf2)
 #ssdf2
 # summaryToPDF(sdf2)
 #df3 <- data.frame('chi2' = c(23.664518,48.69871987), 'p-values' = c(NA, NA), 't' = c(23.664518,48.69871987), 'p-values' = c(0.0265432, 0.007555))
 #sdf3 <- statdf(df3)
 #sdf3
-#df(sdf3)
+#as.data.frame(sdf3)
 #ssdf3 <- summary(sdf3)
 #ssdf3
 #df4 <- data.frame('chi2' = c(NA,NaN), 'p-values' = c(NA, NA), 't' = c(23.664518,48.69871987), 'p-values' = c(0.0265432, 0.007555))
 #sdf4 <- statdf(df4)
 #sdf4
-#df(sdf4)
+#as.data.frame(sdf4)
 #ssdf4 <- summary(sdf4)
 #ssdf4
 
@@ -25,15 +25,15 @@
 setClass(
   'summary.Statdf',
   representation(
-    legend = 'character'
+    thresholds = 'character'
   ),
   contains = c('data.frame'),
   validity = function(object) {
     flag = TRUE
     
     # only one NA symbol
-    if(flag && length(legend(object)) > 1) {
-      print('legend argument should have a length of 1')
+    if(flag && length(thresholds(object)) > 1) {
+      print('thresholds argument should have a length of 1')
       flag <- FALSE
     }
     
@@ -41,7 +41,7 @@ setClass(
   }
 )
 
-setMethod('df', 'summary.Statdf', 
+setMethod('sdf', 'summary.Statdf', 
           definition = function (object) {
             out <- data.frame(slot(object, '.Data'))
             names(out) <- slot(object, 'names')
@@ -50,27 +50,32 @@ setMethod('df', 'summary.Statdf',
           }
 )
 setReplaceMethod(
-  f = 'df' ,
+  f = 'sdf' ,
   signature = c('summary.Statdf', 'data.frame') ,
   definition = function(object, value){
-    object@df <- value
+    object@sdf <- value
     object@names <- names(value)
     object@row.names <- row.names(value)
     validObject(object)
     return(object)
   }
 )
+setMethod('as.data.frame', 'summary.Statdf', 
+          definition = function (x) {
+            return(sdf(x))
+          }
+)
 
-setMethod('legend', 'summary.Statdf', 
+setMethod('thresholds', 'summary.Statdf', 
           definition = function (object) { 
-            return(slot(object, 'legend'))
+            return(slot(object, 'thresholds'))
           }
 )
 setReplaceMethod(
-  f = 'legend' ,
+  f = 'thresholds' ,
   signature = 'summary.Statdf' ,
   definition = function(object, value){
-    object@legend <- value
+    object@thresholds <- value
     validObject(object)
     return(object)
   }
@@ -81,8 +86,8 @@ setMethod(
   f = 'print',
   signature = c('summary.Statdf'),
   definition = function(x, ...) {
-    print(df(x))
-    print(legend(x))
+    print(sdf(x))
+    print(thresholds(x))
   }
 )
 
@@ -172,20 +177,20 @@ setClass(
 
 # builder
 statdf <- function(
-  df, 
+  sdf, 
   thresholds = c('***' = 0.001, '**' = 0.01, '*' = 0.05, '+' = 0.1),
   na = '?',
   nan = '',
   formatc = list('digits' = 2, 'format' = 'f')
 ) {
-  stopifnot(inherits(df, 'data.frame'))
-  if(ncol(df) %% 2 == 1) {
+  stopifnot(inherits(sdf, 'data.frame'))
+  if(ncol(sdf) %% 2 == 1) {
     stop('statdf: ncol(df) should be even')
   }
   out <- new('Statdf',
-    .Data = df,
-    row.names = row.names(df),
-    names = names(df),
+    .Data = sdf,
+    row.names = row.names(sdf),
+    names = names(sdf),
     thresholds = thresholds,
     na = na,
     nan = nan,
@@ -193,7 +198,7 @@ statdf <- function(
   )
 }
 
-setMethod('df', 'Statdf', 
+setMethod('sdf', 'Statdf', 
   definition = function (object) {
     out <- data.frame(slot(object, '.Data'))
     names(out) <- slot(object, 'names')
@@ -202,10 +207,10 @@ setMethod('df', 'Statdf',
   }
 )
 setReplaceMethod(
-  f = 'df' ,
+  f = 'sdf' ,
   signature = c('Statdf', 'data.frame') ,
   definition = function(object, value){
-    object@df <- value
+    object@sdf <- value
     object@names <- names(value)
     object@row.names <- row.names(value)
     validObject(object)
@@ -277,7 +282,7 @@ setMethod(
   f = 'print',
   signature = c('Statdf'),
   definition = function(x, ...) {
-    print(df(x))
+    print(sdf(x))
   }
 )
 
@@ -392,7 +397,7 @@ giveStars <- function(pvalues, thresholds, na = '?', nan = '#') {
 
 
 #sdf4
-#df(sdf4)
+#sdf(sdf4)
 #sdf4[2,1]
 #ssdf4 <- summary(sdf4)
 
@@ -435,7 +440,7 @@ setMethod(
        .Data = out,
        row.names = row.names(out),
        names = names(out),
-      "legend" = legend
+       thresholds = legend
     )
     return(out)
   }
@@ -469,10 +474,10 @@ setMethod(
     #cat("\\section*{Overview} \n", file = outFileCon, append = T)
     
     object.xtable <- xtable(
-      df(s),
+      sdf(s),
       #label='validCasesSummary',
       #caption='Number of variables by percent of valid cases',
-      caption=legend(s),
+      caption=thresholds(s),
       #digits = 3,
       #align = c("l","l","l","c","c"),
       #display = c("d","d","d")
@@ -486,7 +491,7 @@ setMethod(
     )
     
     cat("\\newline ", " \n", file = outFileCon, append = T)
-    cat(legend(s), " \n", file = outFileCon, append = T)
+    cat(thresholds(s), " \n", file = outFileCon, append = T)
     
     cat("\\end{center} \n", file = outFileCon, append = T)
 
