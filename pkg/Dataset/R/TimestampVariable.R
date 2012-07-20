@@ -1,5 +1,5 @@
 #####################################################################
-## CategoricalFeature class
+## TimestampVariable class
 #####################################################################
 
 
@@ -102,8 +102,8 @@ setReplaceMethod(
 
 # format
 setMethod("format", "TimestampVariable", 
-  definition = function (object) {
-		slot(object, "format")
+  definition = function (x) { # need to be x as in base::format
+		slot(x, "format")
   }
 )
 setReplaceMethod(
