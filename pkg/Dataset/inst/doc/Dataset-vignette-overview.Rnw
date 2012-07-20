@@ -42,7 +42,7 @@
 \author{Emmanuel Rousseaux}
 \maketitle
 
-\section*{Prequisites}
+\section*{Introduction}
 
 The Dataset package provides a class, called Dataset, and some
 methods allowing to handle survey data bases in
@@ -60,35 +60,15 @@ It is based on the R language ({\url www.r-project.org}).
 	\item Dataset objects should be used instead of data.frame objects
 \end{itemize}
 
-% Bioconductor packages provide flexible interactive tools for carrying
-% out a number of different computational tasks. They are generally not
-% as fast as other analysis tools (since they are interactive) and often
-% reflect current ideas. Most can be improved and interested users should 
-% file bug reports and feature requests on the Bioconductor mailing list.
+\section{Starting guide}
+
+In this section we will present how to handle each variable type. At this end of this section you will be able to create, modify, recode the different kinds of variable, and deal with the Dataset data base format.
+
+\section{Building a data base from a survey}
+
+\section{Importing a data base from a SPSS file}
 
 
-% Bioconductor welcome collaboration in many different forms. These
-% include new packages, fixes or additions to existing packages and help
-% on different projects that are currently underway.
-% Please see the {\em Current Projects} web page to see if there are any
-% projects that are intersting to you.
-
-\subsection*{How to report a bug}
-
-Please provide enough information for us to help you. This typically
-includes the platform (windows, Unix, Macintosh) that you are using as
-well as version numbers for R and for the package that seems to be
-working incorrectly.
-
-Include a small complete example that can be run and demonstrates the
-problem. In some cases it is also important that you describe what you
-thought you should get.
-
-Please note:
-\begin{itemize}
-\item bugs in R should be reported to the R community
-\item missing features are not bugs -- they are feature requests.
-\end{itemize}
 
 \section{Dataset Design}
 
@@ -184,6 +164,23 @@ helps to deal with the complexity of the data. (TO CHANGE, from bioconductor)
 
 A Variable can't be of type "character", i.e. a character vector with a different value for each individual. We don't expect this kind of variable in survey data.
 If such a vector is given to build a Variable object, the result will be a CategoricalVariable.
+
+%\subsection*{How to report a bug}
+
+%Please provide enough information for us to help you. This typically
+%includes the platform (windows, Unix, Macintosh) that you are using as
+%well as version numbers for R and for the package that seems to be
+%working incorrectly.
+
+%Include a small complete example that can be run and demonstrates the
+%problem. In some cases it is also important that you describe what you
+%thought you should get.
+
+%Please note:
+%\begin{itemize}
+%\item bugs in R should be reported to the R community
+%\item missing features are not bugs -- they are feature requests.
+%\end{itemize}
 
 \section{Session Information}
 
