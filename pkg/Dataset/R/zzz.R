@@ -18,7 +18,6 @@
       'If you use this package for building a data base, pre-processing data or data analysis, please reward your work by citing the package in own work. ',
       "Please type 'citation(\"Dataset\")' for citation information.\n"
 	  )
-		#addVigs2WinMenu("Dataset") 
 }
 
 .Last.lib <- function(libpath) {
