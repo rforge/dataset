@@ -68,7 +68,7 @@ In this section we will present how to handle each variable type. At this end of
 
 \section{Importing a data base from a SPSS file}
 
-
+\section{Spatial plot}
 
 \section{Dataset Design}
 

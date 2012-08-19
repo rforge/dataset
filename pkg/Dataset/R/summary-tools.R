@@ -109,3 +109,11 @@ str.names <- function(x, parenthesis=TRUE, sep = ' ') {
 }
 # str.names(z, parenthesis = T)
 
+addSignif <- function(char.vector, word = "signif.") {
+  out <- character(0)
+  for (i in 1:length(char.vector)) {
+    out <- c(out, char.vector[i])
+    out <- c(out, paste(char.vector[i], word))
+  }
+  return(out)
+}

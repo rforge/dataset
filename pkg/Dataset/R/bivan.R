@@ -3,8 +3,7 @@ bivan <- function(
   data,
   measures = c("Chi^2", "Cramer's V", "GK's Tau sqrt", "Somer's D"),
   tables = c("Std Res."),
-  digits = 3,
-  verbose = TRUE
+  quiet = FALSE
 ) {
   #FIXME: type date non géré
   #data.Dataset <- data
@@ -41,7 +40,7 @@ bivan <- function(
   x <- data.df[xnames]
   class(x)
   
-  if (verbose) {
+  if (!quiet) {
   	message("== Dependant feature ==")
 		message(paste(yname, " is ", str.typevar(data[[yname]]), ".", sep = ""))
 		message("")
