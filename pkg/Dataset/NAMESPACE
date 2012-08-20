@@ -15,7 +15,8 @@ exportClasses(
   'OrdinalVariable',
   'Dataset',
   'summary.Statdf',
-  'Statdf'
+  'Statdf',
+  'Bivan'
 )
 
 exportMethods(
@@ -105,6 +106,8 @@ exportMethods(
   'weighting<-',
   'sdf',
   'sdf<-',
+  'pvalues',
+  'pvalues<-',
   'thresholds',
   'thresholds<-',
   'na',
@@ -112,7 +115,16 @@ exportMethods(
   'nan',
   'nan<-',
   'formatc',
-  'formatc<-'
+  'formatc<-',
+  'bivan',
+  'target',
+  'target<-',
+  'predictors',
+  'predictors<-',
+  'stdres',
+  'stdres<-',
+  'global',
+  'global<-'
 )
 
 export(

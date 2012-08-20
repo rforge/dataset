@@ -80,6 +80,25 @@ setGeneric("formatc<-", function(object, value){ standardGeneric("formatc<-" ) }
 #setGeneric("legend", function(object){ standardGeneric("legend") })
 #setGeneric("legend<-", function(object, value){ standardGeneric("legend<-" ) })
 
+setGeneric("bivan", function(
+  formula,
+  data,
+  chi2 = TRUE,
+  cramer.v = TRUE,
+  gk.tau = TRUE,
+  somer.d = TRUE,
+  stdres = TRUE,
+  quiet = FALSE
+){ standardGeneric("bivan") })
+setGeneric("target", function(object){ standardGeneric("target") })
+setGeneric("target<-", function(object, value){ standardGeneric("target<-" ) })
+setGeneric("predictors", function(object){ standardGeneric("predictors") })
+setGeneric("predictors<-", function(object, value){ standardGeneric("predictors<-" ) })
+setGeneric("stdres", function(object){ standardGeneric("stdres") })
+setGeneric("stdres<-", function(object, value){ standardGeneric("stdres<-" ) })
+setGeneric("global", function(object){ standardGeneric("global") })
+setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
+
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 
 # setGeneric("sd", function(object, na.rm = FALSE){ standardGeneric("sd") })

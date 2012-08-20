@@ -1,231 +1,469 @@
-bivan <- function(
-  formula,
-  data,
-  measures = c("Chi^2", "Cramer's V", "GK's Tau sqrt", "Somer's D"),
-  tables = c("Std Res."),
-  quiet = FALSE
-) {
-  #FIXME: type date non géré
-  #data.Dataset <- data
-  data.df <- v(data)
-  #data <- data.df
-  
-  if (missing(formula) && missing(data)) 
-    stop("must supply either 'formula' or 'data'")
-  if (!missing(formula)) {
-    formula <- as.formula(formula)
-    if (!inherits(formula, "formula")) 
-      stop("'formula' missing or incorrect")
-  }
-  if (any(attr(terms(formula, data = data.df), "order") > 1)) 
-    stop("interactions are not allowed")
-  
-  #m <- match.call(expand.dots = FALSE)
-  #m[[1L]] <- as.name("model.frame")
-  #print(m[['data']])
-  #print(class(m[['data']]))  
-  #mf <- eval(m, parent.frame())
-  
-  if (length(formula) < 3L) {
-    stop("You have to specify a response variable")
-  }
-  
-  t <- terms(formula)
-  variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
-  yname <- variables[attr(t, "response")]
-  xnames <- variables[-attr(t, "response")]
-  nbxnames <- length(xnames)
-  
-  y <- data.df[[yname]]
-  x <- data.df[xnames]
-  class(x)
-  
-  if (!quiet) {
-  	message("== Dependant feature ==")
-		message(paste(yname, " is ", str.typevar(data[[yname]]), ".", sep = ""))
-		message("")
-		message("== Independant feature(s) ==")
-		for (i in xnames) {
-			message(paste(i, " is ", str.typevar(data[[i]]), ".", sep = ""))
-		}
-		message("")
-	}
-  
-  # getting which test the user want to perform
-	allTests <- c(
-    # == dependant feature: nominal ==
-		# === predictor feature: nominal ===
-		# nominal measures
-		## symmetric
-    "Chi^2", "Phi", "Cramer's V",
-    ### Rand, kappa
-  	## directional, error reduction in prediction type
-		"GK's Lambda",
-    "GK's Tau", "GK's Tau sqrt",
-    ### Theil u index (and sqrt)
-    "Theil's u", "Theil's u sqrt",
-    ## ordinal, based on concordance/discordance, symmetric
-    "Kendall's A Tau", "Kendall's B Tau",  "Stuart's C Tau", "GK's gamma",
-    ## ordinal, based on conc/disc, directional
-    "Somer's D"
-    ## ordinal, based on the rank
-  	### rho de Spearman
-		# == dependant feature: numeric ==
-		# === predictor feature: nominal ===
-		### eta coefficient
-		# === predictor feature: numeric ===
-		### Pearson linear correlation
-  )
-	
-	#if (missing(measures)) measures <- allTests
-	userTests <- character(0)
-	
-	names(measures) <- measures
-	measures <- tolower(measures) # we don't want to be case sensitive
-	
-	for (i in allTests) {
-		if (is.element(tolower(i), measures)) {
-			userTests <- c(userTests, i)
-			measures <- measures[-which(tolower(i) == measures)]
-		}
-	}
+# debug/test examples
+# data(mtcars)
+# mtc.dataset <- dataset(mtcars, ordinal = 'am')
+# mtc.dataset <- dataset(mtcars)
+# mtc.dataset$am <- bvar(v(mtc.dataset[['am']]), values=c("auto" = 0, "manual" = 1))
+# mtc.dataset$vs <- bvar(v(mtc.dataset[['vs']]), values=c("V" = 0, "S" = 1))
+# mtc.dataset$cyl <- ovar(v(mtc.dataset[['cyl']]), values=c("4" = 4, "6" = 6, "8"=8), description = 'number of cylinders')
+# mtc.dataset$gear <- ovar(v(mtc.dataset[['gear']]), values=c("3" = 3, "4" = 4, "5"=5), description = 'gear type')
+# b1 <- bivan(cyl ~ am + gear, mtc.dataset)
+# summaryToPDF(b1, pdf = 'bivan1')
+#target(b1)
+#description(target(b1))
 
-  userTestsSignif <- addSignif(userTests)
+bivan.tests <- function(){
+ out <- data.frame(
+   'chi2' = c("Chi^2", 'global', 'symmetric', 'nominal', 'nominal'),
+   'cramer.v' = c("Cramer's V", 'global', 'symmetric', 'nominal', 'nominal'),
+   'gk.tau' = c("GK's Tau", 'global', 'symmetric', 'nominal', 'nominal'),
+   'somer.d' = c("Somer's D", 'global', 'symmetric', 'nominal', 'nominal'),
+   'stdres' = c("Std. Res.", 'global', 'symmetric', 'nominal', 'nominal')
+ )
+ row.names(out) <- c('name', 'type', 'symmetry', 'dependant', 'predictor')
+ return(out)
+}
+# getting which test the user want to perform
+#allTests <- c(
+  # == dependant feature: nominal ==
+  # === predictor feature: nominal ===
+  # nominal crit.global
+  ## symmetric
+#  "Chi^2", "Phi", "Cramer's V",
+  ### Rand, kappa
+  ## directional, error reduction in prediction type
+#  "GK's Lambda",
+#  "GK's Tau", "GK's Tau sqrt",
+  ### Theil u index (and sqrt)
+#  "Theil's u", "Theil's u sqrt",
+  ## ordinal, based on concordance/discordance, symmetric
+#  "Kendall's A Tau", "Kendall's B Tau",  "Stuart's C Tau", "GK's gamma",
+  ## ordinal, based on conc/disc, directional
+#  "Somer's D"
+  ## ordinal, based on the rank
+  ### rho de Spearman
+  # == dependant feature: numeric ==
+  # === predictor feature: nominal ===
+  ### eta coefficient
+  # === predictor feature: numeric ===
+  ### Pearson linear correlation
 
-  # print(userTests)
-  # print(userTestsSignif)
-	# case if some measures didn't match
-	if (length(measures) > 0) {
-		warning(paste("Dataset::bivariateAnalysis:", names(measures), "was (were) not recognize as valid test name(s) and was (were) not used."))
-	}
-	
-	nbTests <- length(userTests)
-	  
-	# creating an blank dataframe for storing results (with p-values)
-	out <- as.data.frame(matrix(rep(0, nbxnames * nbTests * 2), nrow = nbxnames, ncol = nbTests*2))
-	row.names(out) <- xnames
-	names(out) <- userTestsSignif
-	
-	
-	
-	# message("== Results ==")
-	for (i in xnames) {
-		#if (verbose) {
-		#	message(paste("Processing ", i, ": ", "get label", "...", sep = ""))
-		#}
-		tablexy <- table(x[,i], y)
-		chisq <- chisq.test(tablexy, correct=FALSE)
-    #print(chisq)
-		
-		j <- 0
-		
-		if (is.element("Chi^2", userTests)) {
-			j <- j+1; out[i, j] <- chisq$statistic
-      j <- j+1; out[i, j] <- chisq$p.value
-      
-      if (is.element("Std Res.", tables)) {
-        message("")
-        print(paste("Standard residuals for variable ", i, ":", sep = ""))
-        print(chisq$stdres)
-        message("")
+setClass(
+  'Bivan',
+  representation(
+    target = 'Dataset',
+    predictors = 'Dataset',
+    stdres = 'Statdf',
+    global = 'Statdf'
+  ),
+  validity = function(object) {
+    flag = TRUE
+    
+    # only one target
+    if (flag && ncol(target(object)) != 1) {
+      message("bivan function currently accepts only one target")
+      message(names(target(object)))
+      flag <- FALSE
+    }
+    
+    return(flag)
+  }
+)
+
+setMethod('target', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'target'))
+          }
+)
+setReplaceMethod(
+  f = 'target' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@target <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('predictors', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'predictors'))
+          }
+)
+setReplaceMethod(
+  f = 'predictors' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@predictors <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('stdres', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'stdres'))
+          }
+)
+setReplaceMethod(
+  f = 'stdres' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@stdres <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('global', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'global'))
+          }
+)
+setReplaceMethod(
+  f = 'global' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@global <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod(
+  f = 'print',
+  signature = c('Bivan'),
+  definition = function(x, ...) {
+    message("Target")
+    message(names(target(x))[1], appendLF = F)
+    if (length(description(target(x)[[1]])) > 0) {
+      message(paste(":", description(target(x)[[1]])), appendLF = F)
+    }
+    message("")
+    #message(paste(yname, " is ", str.typevar(data[[yname]]), ".", sep = ""))
+    message("")
+    message("Predictor(s)")
+    #message(paste(names(predictors(x)), collapse = ', '))
+    preds <- names(predictors(x))
+    for (i in preds) {
+      message(i, appendLF = F)
+      if (length(description(predictors(x)[[i]])) > 0) {
+        message(paste(":", description(predictors(x)[[i]])), appendLF = F)
       }
-		}
-		
-		if (is.element("Phi", userTests)) {
-			j <- j+1; out[i, j] <- sqrt(chisq$statistic / sum(tablexy));
-      j <- j+1; out[i, j] <- chisq$p.value
-		}
-		
-		if (is.element("Cramer's V", userTests)) {
-			j <- j+1; out[i, j] <- sqrt(chisq$statistic / (sum(tablexy) * min(dim(tablexy) - 1 )))
-      j <- j+1; out[i, j] <- chisq$p.value
-		}
+      message("")
+    }
+    message("")
+    #for (i in xnames) {
+    #  message(paste(i, " is ", str.typevar(data[[i]]), ".", sep = ""))
+    #}
     
-		if (is.element("GK's Lambda", userTests)) {
-      temp <- calc.GK.lambda(tablexy)
-  		j <- j+1; out[i, j] <- temp$statistic;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
-			j <- j+1; out[i, j] <- temp$pvalue;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-		}
+    if(ncol(stdres(x)) > 0) {
+      print(summary(stdres(x), merge = 'left'))
+      message("");message("")
+    }
     
-		if (is.element("GK's Tau", userTests)) {
-      temp <- GK.tau(tablexy)
-			j <- j+1; out[i, j] <- temp$tau.CR;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
-			j <- j+1; out[i, j] <- temp$p.tau.CR;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-		}
-		if (is.element("GK's Tau sqrt", userTests)) {
-      temp <- GK.tau(tablexy)
-      j <- j+1; out[i, j] <- sqrt(temp$tau.CR);
-  		# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
-			j <- j+1; out[i, j] <- temp$p.tau.CR;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-		}
-		
-    if (is.element("Theil's u", userTests)) {
-      temp <- calc.Theil.u(tablexy)
-  		j <- j+1; out[i, j] <- temp$statistic;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
-			j <- j+1; out[i, j] <- temp$pvalue;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-		}
-    if (is.element("Theil's u sqrt", userTests)) {
-      temp <- calc.Theil.u(tablexy)
-    	j <- j+1; out[i, j] <- sqrt(temp$statistic);
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$tau.CR
-			j <- j+1; out[i, j] <- temp$pvalue;
-			# j <- j+1; out[i, j] <- GK.tau(tablexy)$p.tau.CR
-		}
+    if(ncol(global(x)) > 0) {
+      print(summary(global(x), merge = 'left'))
+      message("");message("")
+    }
+  }
+)
+
+setMethod(
+  f = 'show',
+  signature = c('Bivan'),
+  definition = function(object) {
+    print(object)
+  }
+)
+
+# summaryToPDF(b1)
+setMethod(
+  f = 'summaryToPDF',
+  signature = c('Bivan'),
+  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE) {
     
-		if (is.element("Kendall's A Tau", userTests)) {
-      temp <- calc.Kendall.tauA(tablexy)
-			j <- j+1; out[i, j] <- temp$statistic;
-      j <- j+1; out[i, j] <- temp$pvalue;
-		}
-		
-		if (is.element("Stuart's C Tau", userTests)) {
-      temp <- calc.Stuart.tauC(tablexy)
-  		j <- j+1; out[i, j] <- temp$statistic;
-      j <- j+1; out[i, j] <- temp$pvalue;
-		}
-		
-		if (is.element("GK's gamma", userTests)) {
-      temp <- calc.GK.gamma(tablexy)
-    	j <- j+1; out[i, j] <- temp$statistic;
-      j <- j+1; out[i, j] <- temp$pvalue;
-		}
-		
-		if (is.element("Somer's D", userTests)) {
-      temp <- calc.Sd(tablexy)
-      j <- j+1; out[i, j] <- temp$Sd.CR;
-      j <- j+1; out[i, j] <- temp$pvalue;
-			# j <- j+1; out[i, j] <- calc.Sd(tablexy)$Sd.CR
-		}
-	}
-	# message("Done.")
-	message("")
-	message("== Results ==")
-	message("")
-  
-  #if (texExport) {
-  #  require(xtable)
-  #  out.xtable <- xtable(
-  #    out,
-  #    digits = 4,
-  #    label = "bivanresults",
-  #    caption = "Bivan results"
-  #  )
-  #  print(out.xtable, file = "bivan.tex")
-  #}
-	
-  #invisible(out)
-  return(out)
-	# cat("Somer's D based on Mark Heckmann implementation (OpenRepGrid package version 0.1.5)")
+    require(xtable)
+    
+    outName <- 'Bivariate analysis'
+    
+    outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+    
+    if(missing(pdfSavingName)) {  	
+      pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
+    }
+    
+    latexFile <- paste(pdfSavingName, ".tex", sep="")
+    
+    outFileCon <- file(latexFile, "w", encoding="UTF-8")
+    
+    latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
+    
+    cat("\\section*{Variables} \n", file = outFileCon, append = T)
+    
+    cat("\\textbf{Target}", names(target(object))[1], file = outFileCon, append = T)
+    if (length(description(target(object)[[1]])) > 0) {
+      cat(paste(":", description(target(object)[[1]])), " \n", file = outFileCon, append = T)
+    }
+    
+    cat("\\newline \n", file = outFileCon, append = T)
+    cat("\\textbf{Predictor(s)}", " \n", file = outFileCon, append = T)
+    cat("\\begin{itemize*}", " \n", file = outFileCon, append = T)
+    preds <- names(predictors(object))
+    for (i in preds) {
+      cat("\\item ", i, file = outFileCon, append = T)
+      if(length(description(predictors(object)[[i]])) > 0) {
+        cat(paste(":", description(predictors(object)[[i]])), file = outFileCon, append = T)
+      }
+      cat(" \n", file = outFileCon, append = T)
+    }
+    cat("\\end{itemize*}", " \n", file = outFileCon, append = T)
+    
+    # stdres --------------------------------------
+    if(ncol(stdres(object)) > 0) {
+      s <- summary(stdres(object), merge = 'left')
+      object.xtable <- xtable(
+        sdf(s),
+        align = c("l", rep('c', ncol(sdf(s)))),
+        caption=thresholds(s),
+      )
+      cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
+      cat("\\begin{center} \n", file = outFileCon, append = T)
+      print(object.xtable, file=outFileCon , append=T,
+            table.placement = "htb",
+            floating=F
+      )
+      cat("\\newline ", " \n", file = outFileCon, append = T)
+      cat(thresholds(s), " \n", file = outFileCon, append = T)
+      cat("\\end{center} \n", file = outFileCon, append = T)
+    }
+    
+    # global --------------------------------------
+    if(ncol(global(object)) > 0) {
+      s <- summary(global(object), merge = 'left')
+      object.xtable <- xtable(
+        sdf(s),
+        align = c("l", rep('c', ncol(sdf(s)))),
+        caption=thresholds(s),
+      )
+      cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
+      cat("\\begin{center} \n", file = outFileCon, append = T)
+      print(object.xtable, file=outFileCon , append=T,
+            table.placement = "htb",
+            floating=F
+      )
+      cat("\\newline ", " \n", file = outFileCon, append = T)
+      cat(thresholds(s), " \n", file = outFileCon, append = T)
+      cat("\\end{center} \n", file = outFileCon, append = T)
+    }
+    
+    close.and.clean(outFileCon, pdfSavingName, keepTex)
+    
+  }
+)
+
+
+
+
+calc.pval <- function(x) {
+  return(pnorm(-abs(x))*2)
 }
 
+setMethod(
+  f = 'bivan',
+  signature = c(
+    'formula', 
+    'Dataset'
+  ),
+  definition = function (
+    formula,
+    data,
+    chi2,
+    cramer.v,
+    gk.tau,
+    somer.d,
+    stdres,
+    quiet
+  ) {
     
+    #FIXME: type date non géré
+    #data.Dataset <- data
+    data.df <- v(data)
+    
+    if (any(attr(terms(formula, data = data.df), "order") > 1)) 
+      stop("interactions are not allowed")
+    
+    if (length(formula) < 3L) {
+      stop("You have to specify a response variable")
+    }
+    
+    t <- terms(formula)
+    variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
+    yname <- variables[attr(t, "response")]
+    xnames <- variables[-attr(t, "response")]
+    nbxnames <- length(xnames)
+    
+    y <- data.df[[yname]]
+    ncat <- nlevels(y)
+    x <- data.df[xnames]
+    
+    alltests <- bivan.tests()
+    
+    # -------------------------
+    # stdres
+    out.stdres <- statdf()
+    if(stdres) {
+      res <- NULL
+      for (i in xnames) {
+        #i <- 1
+        tablexy <- table(x[,i], y)
+        chisq <- chisq.test(tablexy, correct=FALSE)
+        res.temp <- chisq$stdres
+        row.names(res.temp) <- paste(paste(i, '/'), row.names(res.temp))
+        if(is.null(res)) {
+          res <- res.temp
+        } else {
+          res <- rbind(res, res.temp)
+        }
+      }
+
+      out.stdres <- data.frame(matrix(rep(0, ncol(res)*2*nrow(res)), nrow = nrow(res)))
+      names(out.stdres) <- addSignif(dimnames(res)[[2]])
+      row.names(out.stdres) <- row.names(res)
+      for (i in 1:ncol(res)){
+         out.stdres[,i*2-1] <- res[,i]
+         out.stdres[,i*2] <- calc.pval(res[,i])
+      }
+      out.stdres <- statdf(
+        out.stdres,
+        pvalues = 'even',
+        name = paste(alltests['name', 'stdres'], 'table')
+      )
+    }
+    
+    # -------------------------
+    # global
+    userTests <- character(0)
+    # SPOT1
+    if (chi2) userTests <- c(userTests, 'chi2')
+    if (cramer.v) userTests <- c(userTests, 'cramer.v')
+    if (gk.tau) userTests <- c(userTests, 'gk.tau')
+    if (somer.d) userTests <- c(userTests, 'somer.d')
+    
+    userTestsSignif <- addSignif(userTests)
+    
+    nbTests <- length(userTests)
+    
+    # creating an blank dataframe for storing results (with p-values)
+    mes <- as.data.frame(matrix(rep(0, nbxnames * nbTests * 2), nrow = nbxnames))
+    row.names(mes) <- xnames
+    names(mes) <- userTestsSignif
+    
+    for (i in xnames) {
+      tablexy <- table(x[,i], y)
+      chisq <- chisq.test(tablexy, correct=FALSE)
+      
+      j <- 0
+      
+      # KEEP SAME ORDER THAN IN 'SPOT1'
+      if (is.element("chi2", userTests)) {
+        j <- j+1; mes[i, j] <- chisq$statistic
+        j <- j+1; mes[i, j] <- chisq$p.value
+      }
+      
+      if (is.element("Phi", userTests)) {
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / sum(tablexy));
+        j <- j+1; mes[i, j] <- chisq$p.value
+      }
+      
+      if (is.element("cramer.v", userTests)) {
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / (sum(tablexy) * min(dim(tablexy) - 1 )))
+        j <- j+1; mes[i, j] <- chisq$p.value
+      }
+      
+      if (is.element("GK's Lambda", userTests)) {
+        temp <- calc.GK.lambda(tablexy)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
+      }
+      
+      if (is.element("gk.tau", userTests)) {
+        temp <- GK.tau(tablexy)
+        j <- j+1; mes[i, j] <- temp$tau.CR;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
+        j <- j+1; mes[i, j] <- temp$p.tau.CR;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
+      }
+      if (is.element("GK's Tau sqrt", userTests)) {
+        temp <- GK.tau(tablexy)
+        j <- j+1; mes[i, j] <- sqrt(temp$tau.CR);
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
+        j <- j+1; mes[i, j] <- temp$p.tau.CR;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
+      }
+      
+      if (is.element("Theil's u", userTests)) {
+        temp <- calc.Theil.u(tablexy)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
+      }
+      if (is.element("Theil's u sqrt", userTests)) {
+        temp <- calc.Theil.u(tablexy)
+        j <- j+1; mes[i, j] <- sqrt(temp$statistic);
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
+      }
+      
+      if (is.element("Kendall's A Tau", userTests)) {
+        temp <- calc.Kendall.tauA(tablexy)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+      }
+      
+      if (is.element("Stuart's C Tau", userTests)) {
+        temp <- calc.Stuart.tauC(tablexy)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+      }
+      
+      if (is.element("GK's gamma", userTests)) {
+        temp <- calc.GK.gamma(tablexy)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+      }
+      
+      if (is.element("somer.d", userTests)) {
+        temp <- calc.Sd(tablexy)
+        j <- j+1; mes[i, j] <- temp$Sd.CR;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
+      }
+    }
+
+    out.global <- statdf(
+      mes,
+      pvalues = 'even',
+      name = 'Global association measures'
+    )
+    # -------------------------
+    # out
+          
+    out <- new(
+      'Bivan',
+      target = data[,yname],
+      predictors = data[,xnames],
+      stdres = out.stdres,
+      global = out.global
+    )
+    
+    return(out)
+    
+  }
+)
+
+
+
 
 
 

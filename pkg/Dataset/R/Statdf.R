@@ -249,7 +249,8 @@ statdf <- function(
   nan = '',
   formatc = list('digits' = 2, 'format' = 'f')
 ) {
-  stopifnot(inherits(sdf, 'data.frame'))
+  if(missing(sdf)) sdf <- data.frame()
+  stopifnot(inherits(sdf, 'data.frame'))  
   
   if(missing(pvalues)) pvalues <- numeric(0)
   
@@ -629,7 +630,7 @@ setMethod(
       #caption='Number of variables by percent of valid cases',
       caption=thresholds(s),
       #digits = 3,
-      #align = c("l","l","l","c","c"),
+      align = c("l", rep('c', ncol(sdf(s)))),
       #display = c("d","d","d")
     )
     
