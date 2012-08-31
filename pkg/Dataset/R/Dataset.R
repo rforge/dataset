@@ -11,7 +11,7 @@ setClass(
 		variables = "list",
 		row.names = "character",
     weights = "character",
-    control = "character",
+    checkvars = "character",
     infos = "list"
 	),
 	validity = function(object) {
@@ -31,14 +31,14 @@ setClass(
       }
     }
     
-    if (length(control(object)) > 0) {
-      if(!all(control(object) %in% names(object))) {
-        message("All control variables have to exist in the Dataset")
+    if (length(checkvars(object)) > 0) {
+      if(!all(checkvars(object) %in% names(object))) {
+        message("All checkvars variables have to exist in the Dataset")
         flag <- FALSE
       }
     }
-    #FIXME control variables have to be categorical?
-    #FIXME control variables can't be weighting variables?
+    #FIXME checkvars variables have to be categorical?
+    #FIXME checkvars variables can't be weighting variables?
     
 		for (v in variables(object)) {
 			if (!inherits(v, "Variable")) {
@@ -166,22 +166,22 @@ setReplaceMethod(
 	}
 )
 
-setMethod("control", "Dataset", 
+setMethod("checkvars", "Dataset", 
   definition = function (object) { 
-    #if(length(slot(object,'control')) == 0) {
-    #  message("no control variables are defined, so all are used")
+    #if(length(slot(object,'checkvars')) == 0) {
+    #  message("no checkvars variables are defined, so all are used")
     #  return(svar(rep(1, nrow(object))))
     #} else {
-      #return(variables(object)[slot(object, 'control')])
-      return(slot(object, 'control'))
+      #return(variables(object)[slot(object, 'checkvars')])
+      return(slot(object, 'checkvars'))
     #}
   }
 )
 setReplaceMethod(
-  f = "control" ,
+  f = "checkvars" ,
 	signature = "Dataset" ,
 	definition = function(object, value){
-		object@control <- value
+		object@checkvars <- value
     validObject(object)
 		return(object)
 	}
@@ -348,27 +348,27 @@ setMethod(
 			for (k in 1:length(listData)) {
 				listData[[k]] <- listData[[k]][i]
 			}
-      #representativity to control variables check
-      lc <- length(control(x))
+      #representativity to checkvars variables check
+      lc <- length(checkvars(x))
       if(lc > 0) {
        for (k in 1:lc) {
-          var <- variables(x)[[control(x)[k]]]
+          var <- variables(x)[[checkvars(x)[k]]]
           if (inherits(var, 'CategoricalVariable')) {
-            #a <- table(v(weights(x)) * v(listData[[control(x)[k]]]))
-            a <- table(v(listData[[control(x)[k]]]))
+            #a <- table(v(weights(x)) * v(listData[[checkvars(x)[k]]]))
+            a <- table(v(listData[[checkvars(x)[k]]]))
             b <- distrib(var)
             #print(a)
             #print(a/sum(a))
             #print(b)
             cs <- chisq.test(x = a, p = b)
             if(cs$p.value >= 0.05) {
-              message(paste("=> control on ", control(x)[k], ': ok', sep = ''))
+              message(paste("=> control on ", checkvars(x)[k], ': ok', sep = ''))
             } else {
               res <- cs$stdres
               res <- res[which(abs(res) > 1.96)]
               over <- which(res > 0)
               under <- which(res < 0)
-              message(paste("=> control on ", control(x)[k], ': warning, p-value < 0.05', sep = ''))
+              message(paste("=> control on ", checkvars(x)[k], ': warning, p-value < 0.05', sep = ''))
              #message(paste("=> control on ", 'sexe', ': warning, p-value < 0.05', sep = ''))
               if(length(over) > 0)
                 message(paste(paste(names(over), collapse=', '), 'is/are oversampled'))
@@ -386,7 +386,7 @@ setMethod(
 				variables = listData,
         row.names = row.names,
         weights = weighting(x),
-        control = control(x),
+        checkvars = checkvars(x),
         infos = infos(x)
 			)
 		)
@@ -559,7 +559,7 @@ setMethod(
   "quantitatives",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.quantitative))))
     variables(object) <- variables(object)[subsetvar]
@@ -577,7 +577,7 @@ setMethod(
   "scales",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.scale))))
     variables(object) <- variables(object)[subsetvar]
@@ -595,7 +595,7 @@ setMethod(
   "qualitatives",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.qualitative))))
     variables(object) <- variables(object)[subsetvar]
@@ -613,7 +613,7 @@ setMethod(
   "nominals",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.nominal))))
     variables(object) <- variables(object)[subsetvar]
@@ -631,7 +631,7 @@ setMethod(
   "ordinals",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.ordinal))))
     variables(object) <- variables(object)[subsetvar]
@@ -649,7 +649,7 @@ setMethod(
   "weightings",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.weighting))))
     variables(object) <- variables(object)[subsetvar]
@@ -667,7 +667,7 @@ setMethod(
   "times",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.time))))
     variables(object) <- variables(object)[subsetvar]
@@ -685,7 +685,7 @@ setMethod(
   "binaries",
   "Dataset",
   function (object) {
-    control(object) <- character(0)
+    checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.binary))))
     variables(object) <- variables(object)[subsetvar]
