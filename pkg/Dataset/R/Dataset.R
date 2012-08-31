@@ -330,6 +330,7 @@ setMethod(
     return(which(names(object) %in% names))
   }
 )
+# promptMethods('varid', filename = 'method-varid.Rd')
 
 setMethod(
   f ="[",
