@@ -324,6 +324,14 @@ setMethod("ncol", "Dataset",
 
 
 setMethod(
+  f = "varid",
+  signature = c("character", "Dataset"), 
+  definition = function (names, object) { 
+    return(which(names(object) %in% names))
+  }
+)
+
+setMethod(
   f ="[",
 	signature ="Dataset",
 	definition = function(x,i,j){

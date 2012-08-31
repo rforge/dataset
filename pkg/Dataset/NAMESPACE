@@ -124,7 +124,8 @@ exportMethods(
   'stdres',
   'stdres<-',
   'global',
-  'global<-'
+  'global<-',
+  'varid'
 )
 
 export(

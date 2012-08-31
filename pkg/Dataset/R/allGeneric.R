@@ -99,6 +99,8 @@ setGeneric("stdres<-", function(object, value){ standardGeneric("stdres<-" ) })
 setGeneric("global", function(object){ standardGeneric("global") })
 setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
 
+setGeneric("varid", function(names, object){ standardGeneric("varid" ) })
+
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 
 # setGeneric("sd", function(object, na.rm = FALSE){ standardGeneric("sd") })
