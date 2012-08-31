@@ -20,8 +20,8 @@
       "Please type ‘citation(\'Dataset\')‘ for citation information.\n"
 	  )
 	  packageStartupMessage(
-	    "Type ‘help(\'package = \"Dataset\"\')‘ ",
-      "for going to the index of the help.\n"
+	    "Type ‘help(package = \'Dataset\')‘ ",
+      "to show the help index.\n"
 	  )
     
 }
