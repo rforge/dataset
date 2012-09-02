@@ -1,6 +1,7 @@
 \name{summary.Statdf-class}
 \Rdversion{1.1}
 \docType{class}
+\alias{summary.Statdf}
 \alias{summary.Statdf-class}
 \alias{as.data.frame,summary.Statdf-method}
 \alias{df,summary.Statdf-method}

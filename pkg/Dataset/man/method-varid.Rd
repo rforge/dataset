@@ -1,5 +1,6 @@
 \name{varid-methods}
 \docType{methods}
+\alias{varid}
 \alias{varid-methods}
 \alias{varid,character,Dataset-method}
 \title{Get the column id of given variable names}
