@@ -1,4 +1,14 @@
-#
+# folder <- '~/SHP 2012/SHP-Data/SPSS'
+# folder <- '~/SHP 2012/SHP-Data/SPSS/'
+# variables <- c('idpers')
+# by <- 'idpers'
+# lowernames <- T
+# i <- 1
+# d1 <- get.spss.folder(
+#   folder = folder1,
+#   variables = c('idpers'),
+#   by = 'idpers'
+# )
 
 get.spss.folder <- function(
   folder,
@@ -7,27 +17,27 @@ get.spss.folder <- function(
   lowernames = TRUE
 ) {
   
-  pathToFolder <- path.expand(folder)
+  folder <- path.expand(folder)
   
   if(lowernames) {
     variables <- tolower(variables)
   }
   
   files <- list.files(
-    path = file.path(pathToFolder),
-    pattern='.\\.sav$'
+    path = file.path(folder),
+    pattern='.\\.sav$',
+    recursive = T
   )
   
   out <- NULL
   
   for (i in 1:length(files)) {
     f <- get.spss.file(
-      datadir = file.path(pathToFolder),
-      file = files[i], 
+      datadir = file.path(folder),
+      file = files[10], 
       #features,
       #tsvar,
       #ordinals,
-      max.value.labels = max.value.labels,
       lowernames = lowernames,
       summaryToPDF = FALSE
     )

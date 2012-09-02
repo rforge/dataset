@@ -36,7 +36,7 @@ cunion <- function (..., deparse.level = 1) {
 	}
 	#print(names(outData))
   
-	out <- dataset(variables = outData, row.names = row.names(y[[1]]))
+	out <- dataset(x = outData, row.names = row.names(y[[1]]))
 	return(out)
 }
 
