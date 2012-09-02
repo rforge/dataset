@@ -19,5 +19,9 @@
 \code{description} method for a \code{Variable} object. Value is a \code{character}.
 }
 }}
+\section{Examples}{
+data(dds)
+description(dds$sexe)
+}
 \keyword{methods}
 \keyword{ ~~ other possible keyword(s) ~~ }

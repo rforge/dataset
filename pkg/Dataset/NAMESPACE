@@ -147,6 +147,7 @@ export(
   is.weighting,
   dataset,
   get.spss.file,
+  get.spss.folder,
   cunion,
   runion,
   spssToDataset,

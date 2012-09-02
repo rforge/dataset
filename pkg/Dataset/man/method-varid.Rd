@@ -11,7 +11,7 @@
 \describe{
 
 \item{\code{signature(names = "character", object = "Dataset")}}{
-\code{varid} method for a \code{Dataset} object. 
+\code{varid} method for a \code{Dataset} object.
 }
 }}
 \keyword{methods}
