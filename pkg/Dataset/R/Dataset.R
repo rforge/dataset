@@ -74,6 +74,7 @@ dataset <- function(
   description,
   row.names,
   weights,
+  checkvars,
   infos,
   check.rows = FALSE # not used
 ) {
@@ -83,6 +84,7 @@ dataset <- function(
   if (missing(description)) description <- character()
   #if (missing(row.names)) row.names <- character()
   if (missing(weights)) weights <- character()
+  if (missing(checkvars)) checkvars <- character()
   if (missing(infos)) infos <- list()
   
   if (inherits(x, 'data.frame')) {
@@ -131,6 +133,7 @@ dataset <- function(
     variables = variables,
     row.names = row.names,
     weights = weights,
+    checkvars = checkvars,
     infos = infos
   ))
 }
