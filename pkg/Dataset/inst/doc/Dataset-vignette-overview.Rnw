@@ -40,6 +40,7 @@
 
 \title{Dataset -- Overview}
 \author{Emmanuel Rousseaux}
+\date{2012.09.04}
 \maketitle
 
 \section*{Introduction}
@@ -54,9 +55,9 @@ analysis. A function allowing to import data from a SPSS file
 to a Dataset object is provided.
 It is based on the R language ({\url www.r-project.org}).
 \begin{itemize}
-  \item MeasureFeature objects should be used instead of numeric vector objects
-	\item CategoricalFeature objects should be used instead of factor objects
-	\item OrdinalFeature objects should be used instead of ordered factor objects
+  \item MeasureVariable objects should be used instead of numeric vector objects
+	\item CategoricalVariable objects should be used instead of factor objects
+	\item OrdinalVariable objects should be used instead of ordered factor objects
 	\item Dataset objects should be used instead of data.frame objects
 \end{itemize}
 

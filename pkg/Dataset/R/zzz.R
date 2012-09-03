@@ -11,12 +11,12 @@
 	  packageStartupMessage('\n', 'Welcome to Dataset', '.')
 	  packageStartupMessage('You are running on version ', Dataset.version(), '.\n')
 	  packageStartupMessage(
-      'Vignette contains introductory material. To read, type ',
+      'For an introductory material, type ',
 			#"'vignette(package=\"Dataset\")'.\n"
-      "`readVignette()`.\n"
+      "`vignette('Dataset-vignette-overview')`.\n"
 	  )
 	  packageStartupMessage(
-      'If you use this package for building a data base, pre-processing data or data analysis, please reward your work by citing the package in your own one. ',
+      'If you use this package for building a data base, pre-processing data or data analysis, thank you for rewarding our work by citing the package in your own one. ',
       "Please type `citation(\'Dataset\')` for citation information.\n"
 	  )
 	  packageStartupMessage(

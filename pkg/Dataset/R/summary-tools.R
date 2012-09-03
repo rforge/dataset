@@ -4,6 +4,9 @@ totex <- function(txt){
 # totex("shp_bon")
 
 latex.head <- function(title, latexPackages, outFileCon){
+  message('Your file will be save in ', getwd())
+  message('Name of your file: ', summary(outFileCon)$description)
+  message('Writing tex file...', appendLF=F)
   cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
   
@@ -45,9 +48,14 @@ latex.write.packages <- function(packages, outFileCon){
 close.and.clean <- function(outFileCon, pdfSavingName, keepTex){
   cat("\\end{document} \n", file = outFileCon, append = T)
   close(outFileCon)
+  message(' done', appendLF=T)
+  
+  message('Processing tex to pdf...', appendLF=F)
   tools::texi2pdf(paste(pdfSavingName, '.tex', sep = ''))
+  message(' done', appendLF=T)
   
   # clean directory
+  message('Cleaning auxiliary files...', appendLF=F)
   if (keepTex) {
     extensionsToRemove <- ".(log|aux)"
   } else {
@@ -61,6 +69,14 @@ close.and.clean <- function(outFileCon, pdfSavingName, keepTex){
   )
   
   unlink(tempTex)
+  message(' done', appendLF=T)
+  
+  # opening of the pdf file
+  if (T) {
+    message('Launching PDF file...', appendLF=F)
+    message(' done', appendLF=T)
+  }
+  
 }
 
 # v a Variable
