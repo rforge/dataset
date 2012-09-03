@@ -13,14 +13,14 @@
 	  packageStartupMessage(
       'Vignette contains introductory material. To read, type ',
 			#"'vignette(package=\"Dataset\")'.\n"
-      "‘readVignette()‘.\n"
+      "`readVignette()`.\n"
 	  )
 	  packageStartupMessage(
       'If you use this package for building a data base, pre-processing data or data analysis, please reward your work by citing the package in your own one. ',
-      "Please type ‘citation(\'Dataset\')‘ for citation information.\n"
+      "Please type `citation(\'Dataset\')` for citation information.\n"
 	  )
 	  packageStartupMessage(
-	    "Type ‘help(package = \'Dataset\')‘ ",
+	    "Type `help(package = \'Dataset\')` ",
       "to show the help index.\n"
 	  )
     
