@@ -43,7 +43,7 @@ wvar <- function(
   if(Dataset.globalenv$print.io) cat(" => (in)  WeightingVariable: builder \n")
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
-  if(missing(description)) description <- character(0)
+  if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
   weighting <- numeric(0)
   

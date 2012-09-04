@@ -4,8 +4,11 @@ totex <- function(txt){
 # totex("shp_bon")
 
 latex.head <- function(title, latexPackages, outFileCon){
+  message('')
   message('Your file will be save in ', getwd())
-  message('Name of your file: ', summary(outFileCon)$description)
+  filenameTex <- summary(outFileCon)$description
+  filename <- substr(filenameTex, 0, nchar(filenameTex)-4)
+  message('Name of your file: ', filename)
   message('Writing tex file...', appendLF=F)
   cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
@@ -74,7 +77,10 @@ close.and.clean <- function(outFileCon, pdfSavingName, keepTex){
   # opening of the pdf file
   if (T) {
     message('Launching PDF file...', appendLF=F)
-    message(' done', appendLF=T)
+    path <- file.path(getwd(), paste(pdfSavingName, '.pdf', sep = ''))
+    print(path)
+    openPDF(path)
+#     message(' done', appendLF=T)
   }
   
 }

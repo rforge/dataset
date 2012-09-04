@@ -58,23 +58,27 @@ setClass(
     names(allvalues) <- c(names(values), names(missings))
     # print(allvalues)
     
-    if(any(is.na(codes))){
+    if(flag && length(description)==0){
+      print("The description of a Variable object can't be empty")
+      flag <- FALSE
+    }
+    if(flag && any(is.na(codes))){
       print("codes can't contain NA")
       print(allvalues)
       flag <- FALSE # unique allvalues codes
     }
-    if(any(is.na(allvalues))){
+    if(flag && any(is.na(allvalues))){
       print("values and missings can't contain NA")
       flag <- FALSE # unique allvalues codes
     }
     
-    if(length(unique(allvalues)) != length(allvalues)){
+    if(flag && length(unique(allvalues)) != length(allvalues)){
       print("values and missings have to be unique")
       print(allvalues)
       flag <- FALSE # unique allvalues codes
     }
     
-    if(length(allvalues) > 0){
+    if(flag && length(allvalues) > 0){
       tmp <- names(allvalues)
       if(length(na.omit(tmp)) != length(tmp)){
         print("values and missings labels can't have NA(s)")
@@ -419,15 +423,15 @@ setMethod(
   signature = "Variable", 
   definition = function (object) {
     
-    txt.weighted <- 'Weighted: no'
-    if(is.weighted(object)) txt.weighted <- 'Weighted: yes'
+#     txt.weighted <- 'Weighted: no'
+#     if(is.weighted(object)) txt.weighted <- 'Weighted: yes'
     
     txt.desc <- 'Description: no'
     if(length(description(object)) > 0)
       txt.desc <- paste('Description:', description(object))
       
     message(txt.desc)
-    message(txt.weighted)
+#     message(txt.weighted)
   }
 )
 

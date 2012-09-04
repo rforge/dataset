@@ -193,10 +193,11 @@ setReplaceMethod(
 setMethod("alldescriptions", "Dataset", 
   definition = function (object) {
     out <- mapply(description, variables(object))
+    # if one (or more or all) description is empty, a list is returned, else named character vector, because it is impossible in R to store a named vector with '' value
     out <- data.frame(out)
     if(ncol(out) > 0) {
       row.names(out) <- names(object)
-      names(out) <- "Description"
+      names(out) <- 'Description'
     }
     return(out)
   }
@@ -1083,28 +1084,11 @@ setMethod("summaryToPDF", "Dataset",
   }
     
 
-  cat("\\end{document} \n", file = outFileCon, append = T)
-  close(outFileCon)
-	tools::texi2pdf(latexFile)
-
-	# clean directory
-	if (keepTex) {
-		extensionsToRemove <- ".(log|aux)"
-	} else {
-		extensionsToRemove <- ".(log|aux|tex)"
-	}
-
-	tempTex <- list.files(
-		##paste(datadir, wavesFolder, "-SPSS", "/", i, sep = ""),
-		getwd(),
-		pattern = paste("^", pdfSavingName, extensionsToRemove, sep = "")
-	)
-	#tempTex <- tempTex[-grep(".pdf$", tempTex)]
-	# keepLatex = TRUE (false by default)
-	# tempTex <- tempTex[-grep(".tex$", tempTex)]
-	
-	unlink(tempTex)
-  unlink(plot.filename.pdf)
+    close.and.clean(outFileCon, pdfSavingName, keepTex)
+  
+    if(!keepTex) {
+      unlink(plot.filename.pdf)
+    }
   }
 )
 

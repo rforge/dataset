@@ -1,11 +1,15 @@
-readVignette <- function() {
-  path <- .find.package("Dataset")
-  vignettes.meta = file.path(path, "Meta", "vignette.rds")
-  v = readRDS(vignettes.meta)
-  # we only take the first vignette
-  v.current <- v[1,"PDF"]
-  v.current <- file.path(path, 'doc', v.current)
+openPDF <- function(file) {
+#   path <- .find.package("Dataset")
+#   vignettes.meta = file.path(path, "Meta", "vignette.rds")
+#   v = readRDS(vignettes.meta)
+#   # we only take the first vignette
+#   v.current <- v[1,"PDF"]
+#   v.current <- file.path(path, 'doc', v.current)
   # then we run the viewer
+  if(!file.exists(file)) stop("The file doesn't exist")
+  
+  v.current <- file
+  
   sys <- .Platform$OS.type
   match <- FALSE
   if (sys == "unix") {

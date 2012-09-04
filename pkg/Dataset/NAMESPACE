@@ -158,5 +158,5 @@ export(
   summaryToPDF.reglog,
   statdf,
   Dataset.version,
-  readVignette
+  openPDF
 )

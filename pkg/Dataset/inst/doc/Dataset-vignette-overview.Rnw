@@ -65,7 +65,12 @@ It is based on the R language ({\url www.r-project.org}).
 
 In this section we will present how to handle each variable type. At this end of this section you will be able to create, modify, recode the different kinds of variable, and deal with the Dataset data base format.
 
-\section{Building a data base from a survey}
+% \section{Building a data base from a survey}
+% 
+% \begin{itemize}
+% \item Fonction de création pas à pas de la structure de la base de données, le nom et la description, la liste des valeurs manquantes globales, le nombre de variables (renvoie un objet). Puis le nom des variables, type des variblas, descriptions (faire la saisie avec un outil de saisie de dataframe) (renvoit un objet), puis pour chaque variable la liste des values, missings, long label, ...
+% \item lorsque l'objet est crée, on rempli les codes avec un outil de vue de data.frame, peut-être en formulaire web, qui remplit le jeu de données, et fait des tests pour dire si l'object est Dataset est prêt à être généré (si il y a des NA, entrées incompletes, ... on ne pourra pas générer l'objet)
+% \end{itemize}
 
 \section{Importing a data base from a SPSS file}
 

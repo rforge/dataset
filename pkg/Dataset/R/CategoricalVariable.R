@@ -106,7 +106,7 @@ cvar <- function(
   
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
-  if(missing(description)) description <- character(0)
+  if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
   if(missing(weights)) weights <- numeric(0)
   

@@ -15,3 +15,5 @@ Dataset.globalenv.print.io <- function(x){
 Dataset.version <- function(){
   return(Dataset.globalenv$package.infos$Version)
 }
+
+Dataset.globalenv$Variable.description.default <- "    !!!empty!!!"

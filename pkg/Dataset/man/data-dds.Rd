@@ -6,6 +6,8 @@ Data sample for the Dataset package
 }
 \description{
 A small data base for testing purpose only. These data are under license, you can't use it in your work. Thank you for your comprehension.
+
+The \code{dds} name stands for 'Dataset Data Sample'.
 }
 \usage{data(dds)}
 \format{

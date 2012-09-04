@@ -8,7 +8,21 @@ get.spss.file
 Import a SPSS data base to a data base in format \code{Dataset}.
 }
 \usage{
-get.spss.file(datadir, file, variables, tsvar, ordinals, weightings, use.coding.order = "increasing", max.value.labels = Inf, savingName, lowernames = TRUE, name, label, summaryToPDF = TRUE)
+get.spss.file(
+  datadir,
+  file,
+  variables,
+  tsvar,
+  ordinals,
+  weightings,
+  use.coding.order = "increasing",
+  max.value.labels = Inf,
+  savingName,
+  lowernames = TRUE,
+  name,
+  label,
+  summaryToPDF = TRUE
+)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
