@@ -602,7 +602,7 @@ setMethod(
 setMethod(
   f = 'summaryToPDF',
   signature = c('Statdf'),
-  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, merge = 'no') {
+  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF, merge = 'no') {
     
     s <- summary(object, merge = merge)
     
@@ -647,7 +647,7 @@ setMethod(
     cat("\\end{center} \n", file = outFileCon, append = T)
 
     
-    close.and.clean(outFileCon, pdfSavingName, keepTex)
+    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
  
   }
 )

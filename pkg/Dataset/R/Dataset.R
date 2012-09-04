@@ -743,7 +743,7 @@ setMethod("summary", "Dataset",
 
 
 setMethod("summaryToPDF", "Dataset", 
-  definition = function (object, pdfSavingName, graphics = FALSE, description.chlength, values.chlength, dateformat, latexPackages = NULL, keepTex = FALSE) {
+  definition = function (object, pdfSavingName, graphics, description.chlength, values.chlength, dateformat, latexPackages, keepTex, openPDF) {
   require(xtable)
   nTuples <- nrow(object)
   
@@ -1084,7 +1084,7 @@ setMethod("summaryToPDF", "Dataset",
   }
     
 
-    close.and.clean(outFileCon, pdfSavingName, keepTex)
+    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
   
     if(!keepTex) {
       unlink(plot.filename.pdf)

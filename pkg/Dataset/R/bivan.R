@@ -177,7 +177,7 @@ setMethod(
 setMethod(
   f = 'summaryToPDF',
   signature = c('Bivan'),
-  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE) {
+  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF) {
     
     require(xtable)
     
@@ -253,7 +253,7 @@ setMethod(
       cat("\\end{center} \n", file = outFileCon, append = T)
     }
     
-    close.and.clean(outFileCon, pdfSavingName, keepTex)
+    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
     
   }
 )
