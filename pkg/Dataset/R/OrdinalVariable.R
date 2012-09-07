@@ -28,15 +28,13 @@ ovar <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  OrdinalVariable: builder \n")
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  if(missing(weights)) weights <- numeric(0)
   
   if (inherits(x, 'NominalVariable')) {
     out <- new(
@@ -45,7 +43,7 @@ ovar <- function(
       missings = missings(x),
       values = values(x),
       description = description(x),
-      weights = slot(x, 'weights')
+      Variable.version = slot(x, 'Variable.version')
     )
   } else {
   
@@ -54,27 +52,26 @@ ovar <- function(
       x = x,
       missings = missings,
       values = values,
-      description = description,
-      weights = weights
+      description = description
     )
     
     # we apply special treatment for nominal variable
-    variable <- nominalVariable(
+    nvariable <- nominalVariable(
       x = variable$x,
       missings = variable$missings,
       values = variable$values,
       description = variable$description,
-      weights = variable$weights
+      Variable.version = variable$Variable.version
     )
     
     if(Dataset.globalenv$print.io) cat(" => (out) OrdinalVariable: builder \n")
     out <- new(
       Class = "OrdinalVariable",
-      codes = variable$x,
-      missings = variable$missings,
-      values = variable$values,
-      description = variable$description,
-      weights = variable$weights
+      codes = nvariable$x,
+      missings = nvariable$missings,
+      values = nvariable$values,
+      description = nvariable$description,
+      Variable.version = variable$Variable.version
     )
   }
   message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))

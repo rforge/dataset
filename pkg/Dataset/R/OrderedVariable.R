@@ -35,8 +35,7 @@ setClass(
 #  x,
 #  missings,
 #  values,
-#  description,
-#  weights
+#  description
 #) {
 #  if(Dataset.globalenv$print.io) cat(" => (in)  OrderedVariable: virtual builder\n")
 #  if(Dataset.globalenv$print.io) cat(" => (out) OrderedVariable: virtual builder\n")

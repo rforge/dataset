@@ -46,7 +46,6 @@ tvar <- function(
   missings,
   values,
   description,
-  weights,
   origin = "1970-01-01",
   format = "%Y/%m/%d-%H:%M:%S"
 ) {
@@ -55,15 +54,13 @@ tvar <- function(
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  if(missing(weights)) weights <- numeric(0)
   
   # we apply special treatment for quantitative variable
   variable <- quantitativeVariable(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   
   # then we apply special treatment for a timestamp variable
@@ -76,7 +73,7 @@ tvar <- function(
     missings = variable$missings,
     values = variable$values,
     description = variable$description,
-    weights = weights,
+    Variable.version = variable$Variable.version,
     origin = origin,
     format = format
   )

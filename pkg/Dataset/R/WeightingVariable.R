@@ -37,15 +37,13 @@ wvar <- function(
   x,
   missings,
   values,
-  description,
-  Weighting
+  description
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  WeightingVariable: builder \n")
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  weighting <- numeric(0)
   
   if(inherits(x, "ScaleVariable")) {
     return(new(
@@ -53,8 +51,8 @@ wvar <- function(
         codes = codes(x),
         missings = missings(x),
         values = values(x),
-        description = description(x)
-        # weights = weighting
+        description = description(x),
+        Variable.version = slot(x, 'Variable.version')
       )
     )
   }
@@ -64,8 +62,7 @@ wvar <- function(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weighting
+    description = description
   )
   
   # then we apply special treatment for a Weighting variable
@@ -78,7 +75,7 @@ wvar <- function(
     missings = variable$missings,
     values = variable$values,
     description = variable$description,
-    weights = weighting
+    Variable.version = variable$Variable.version
   )
   message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)')) # FIXME: REMOVE
   return(out)

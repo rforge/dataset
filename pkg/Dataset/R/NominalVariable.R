@@ -33,8 +33,7 @@ nominalVariable <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ){
   if(Dataset.globalenv$print.io) cat(" => (in)  NominalVariable: builder \n")
   
@@ -42,8 +41,7 @@ nominalVariable <- function(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   
   if(Dataset.globalenv$print.io) cat(" => (out) NominalVariable: builder \n")
@@ -54,40 +52,36 @@ nvar <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ) {
   
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  if(missing(weights)) weights <- numeric(0)
   
   # we apply special treatment for categorical variable
   variable <- categoricalVariable(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   # we apply special treatment for nominal variable
-  variable <- nominalVariable(
+  nvariable <- nominalVariable(
     x = variable$x,
     missings = variable$missings,
     values = variable$values,
-    description = variable$description,
-    weights = variable$weights
+    description = variable$description
   )
   
   out <- new(
     Class = "NominalVariable",
-    codes = variable$x,
-    missings = variable$missings,
-    values = variable$values,
-    description = variable$description,
-    weights = variable$weights
+    codes = nvariable$x,
+    missings = nvariable$missings,
+    values = nvariable$values,
+    description = nvariable$description,
+    Variable.version = variable$Variable.version
   )
   message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
   return(out)

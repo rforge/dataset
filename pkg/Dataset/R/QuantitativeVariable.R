@@ -13,7 +13,7 @@ setClass(
 )
 
 
-quantitativeVariable <- function(x, values, missings, description, weights) {
+quantitativeVariable <- function(x, values, missings, description) {
   if(Dataset.globalenv$print.io) cat(" => (in)  QuantitativeVariable: virtual builder \n")
   
   if(inherits(x, 'factor')) stop("x can't be a factor")
@@ -23,8 +23,7 @@ quantitativeVariable <- function(x, values, missings, description, weights) {
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   
   # then we apply special treatment for a quantitative variable
@@ -36,7 +35,7 @@ quantitativeVariable <- function(x, values, missings, description, weights) {
     missings = variable$missings,
     values = variable$values,
     description = variable$description,
-    weights = variable$weights
+    Variable.version = variable$Variable.version
   )
   #print(out)
   if(Dataset.globalenv$print.io) cat(" => (out) QuantitativeVariable: virtual builder \n")

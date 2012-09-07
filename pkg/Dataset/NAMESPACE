@@ -125,7 +125,9 @@ exportMethods(
   'stdres<-',
   'global',
   'global<-',
-  'varid'
+  'varid',
+  'Variable.version',
+  'Dataset.version'
 )
 
 export(

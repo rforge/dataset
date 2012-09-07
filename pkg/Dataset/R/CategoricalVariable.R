@@ -15,7 +15,7 @@ setClass(
     missings <- object@missings
     values <- object@values
     description <- object@description
-    weights <- object@weights
+    Variable.version <- object@Variable.version
 
     
     if(!all(is.element(uniqueCodes, union(values, missings)))){
@@ -26,7 +26,7 @@ setClass(
 	}
 )
 
-categoricalVariable <- function(x, values, missings, description, weights) {
+categoricalVariable <- function(x, values, missings, description) {
   if(Dataset.globalenv$print.io) cat(" => (in)  CategoricalVariable: virtual builder \n")
   
   matched <- FALSE
@@ -77,8 +77,7 @@ categoricalVariable <- function(x, values, missings, description, weights) {
     x = codes,
     missings = missings,
     values = values,
-    description = description,
-    weights
+    description = description
   )
   
   # then we apply special treatment for a qualitative variable
@@ -89,7 +88,7 @@ categoricalVariable <- function(x, values, missings, description, weights) {
     missings = variable$missings,
     values = variable$values,
     description = variable$description,
-    weights = variable$weights
+    Variable.version = variable$Variable.version
   )
   #print(out)
   if(Dataset.globalenv$print.io) cat(" => (out) CategoricalVariable: virtual builder \n")
@@ -100,23 +99,20 @@ cvar <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ) {
   
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  if(missing(weights)) weights <- numeric(0)
   
   # we apply special treatment for qualitative variable
   variable <- categoricalVariable(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   
   if (length(variable$values) != 2) {
@@ -125,7 +121,7 @@ cvar <- function(
       missings = variable$missings,
       values = variable$values,
       description = variable$description,
-      weights = variable$weights
+      Variable.version = variable$Variable.version
     )
      out <- new(
       Class = "NominalVariable",
@@ -133,7 +129,7 @@ cvar <- function(
       missings = variable$missings,
       values = variable$values,
       description = variable$description,
-      weights = variable$weights
+      Variable.version = variable$Variable.version
     )
     message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
     return(out)
@@ -143,7 +139,7 @@ cvar <- function(
       missings = variable$missings,
       values = variable$values,
       description = variable$description,
-      weights = variable$weights
+      Variable.version = variable$Variable.version
     )
      out <- new(
       Class = "BinaryVariable",
@@ -151,7 +147,7 @@ cvar <- function(
       missings = variable$missings,
       values = variable$values,
       description = variable$description,
-      weights = variable$weights
+      Variable.version = variable$Variable.version
     )
     message(paste('number of missings:',nmissings(out)))
     return(out)
@@ -389,7 +385,7 @@ setMethod(
         missings = missings(object),
         values = val,
         description = description(object),
-        weights = weights(object)
+        Variable.version = Variable.version(object)
       )
     } else {
       values(object) <- val

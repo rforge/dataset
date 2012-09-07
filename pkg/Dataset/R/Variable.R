@@ -41,7 +41,7 @@ setClass(
 		missings = "numeric",
     values = "numeric",
 		description = "character",
-    weights = "numeric",
+    Variable.version = "character",
 		"VIRTUAL"
 	),
 	validity = function(object) {
@@ -52,7 +52,7 @@ setClass(
     values <- object@values
     missings <- object@missings
     description <- object@description
-    weights <- object@weights
+    Variable.version <- object@Variable.version
       
     allvalues <- c(values, missings)
     names(allvalues) <- c(names(values), names(missings))
@@ -93,17 +93,18 @@ setClass(
       }
     }
     
-    lth <- length(weights)
+    lth <- length(Variable.version)
     if(lth > 0) {
-     if(any(is.na(weights)) > 0)
-       stop("weights can't contain NAs")
-     if(lth != length(codes))
-       stop("weights doesn't have the same length as codes")
+     if(any(is.na(Variable.version)) > 0){
+       stop("Variable.version can't contain NAs")
+     }
+     if(lth > 1) {
+       stop("Variable.version length must be one")
+     }
+    } else {
+      stop("Variable.version can't be empty")
     }
 		#if (is.null(object@numericCodes)) { ## ATTENTION : il ne faut pas tester si le slot est null, car si on ne met rien dans ce slot, c'est un numeric(0) : is.null() renvoie FALSE
-		# les valeurs de value
-    #- les valeurs de NA doivent être dans codes
-    #- les valuesLabels doivent être dans codes
 		return(flag)
 	}
 )
@@ -146,7 +147,7 @@ setClass(
 # Class standard virtual builder
 #=================================================================================================
 
-variable <- function(x, values, missings, description, weights) {
+variable <- function(x, values, missings, description) {
   if(Dataset.globalenv$print.io) cat(" => (in)  Variable: virtual builder \n")
   
   #print(x)
@@ -173,7 +174,7 @@ variable <- function(x, values, missings, description, weights) {
     missings = missings,
     values = values,
     description = description,
-    weights = weights
+    Variable.version = Dataset.globalenv$Variable.version
   )
   #print(out)
   if(Dataset.globalenv$print.io) cat(" => (out) Variable: virtual builder \n")
@@ -335,35 +336,34 @@ setReplaceMethod(
 	}
 )
 
-setMethod("weights", "Variable", 
-  definition = function (object, ...) {
-    w <- slot(object, "weights")
-    l <- length(w)
-    if(l == 0) {
-      message("warning: no weights defined, equiponderation is used")
-      return(rep(1, length(object)))
-    } else {
-      return(slot(object, "weights"))
-    }
-  }
-)
+# setMethod("weights", "Variable", 
+#   definition = function (object, ...) {
+#     w <- slot(object, "Variable.version")
+#     l <- length(w)
+#     if(l == 0) {
+#       message("warning: no Variable.version defined, equiponderation is used")
+#       return(rep(1, length(object)))
+#     } else {
+#       return(slot(object, "Variable.version"))
+#     }
+#   }
+# )
 
-setReplaceMethod(
-  f = "weights" ,
-	signature = "Variable" ,
-	definition = function(object, value){
-		object@weight <- value
-    validObject(object)
-		return(object)
-	}
-)
-  
+#  
+# setMethod(
+#   f = "is.weighted",
+#   signature = "Variable", 
+#   definition = function (object) { 
+#     if(length(slot(object, 'weights')) > 0) return(TRUE)
+#     else return(FALSE)
+#   }
+# )
+
 setMethod(
-  f = "is.weighted",
+  f = "Variable.version",
   signature = "Variable", 
-  definition = function (object) { 
-    if(length(slot(object, 'weights')) > 0) return(TRUE)
-    else return(FALSE)
+  definition = function (object, ...) { 
+    return(slot(object, "Variable.version"))
   }
 )
 

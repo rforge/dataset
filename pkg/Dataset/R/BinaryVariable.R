@@ -38,8 +38,7 @@ binaryVariable <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ){
   if(Dataset.globalenv$print.io) cat(" => (in)  BinaryVariable: builder \n")
     
@@ -64,8 +63,7 @@ binaryVariable <- function(
       x = x,
       missings = missings,
       values = values,
-      description = description,
-      weights = weights
+      description = description
     )
     if(Dataset.globalenv$print.io) cat(" => (out) BinaryVariable: builder \n")
     return(out)
@@ -75,39 +73,35 @@ bvar <- function(
   x,
   missings,
   values,
-  description,
-  weights
+  description
 ) {
   if(missing(missings)) missings <- numeric(0)
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
-  if(missing(weights)) weights <- numeric(0)
   
   # we apply special treatment for categorical variable
   variable <- categoricalVariable(
     x = x,
     missings = missings,
     values = values,
-    description = description,
-    weights = weights
+    description = description
   )
   # we apply special treatment for qualitative variable
-  variable <- binaryVariable(
+  bvariable <- binaryVariable(
     x = variable$x,
     missings = variable$missings,
     values = variable$values,
-    description = variable$description,
-    weights = variable$weights
+    description = variable$description
   )
   
   out <- new(
     Class = "BinaryVariable",
-    codes = variable$x,
-    missings = variable$missings,
-    values = variable$values,
-    description = variable$description,
-    weights = variable$weights
+    codes = bvariable$x,
+    missings = bvariable$missings,
+    values = bvariable$values,
+    description = bvariable$description,
+    Variable.version = variable$Variable.version
   )
   message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
   return(out)

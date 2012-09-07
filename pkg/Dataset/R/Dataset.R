@@ -4,15 +4,16 @@
 
 
 setClass(
-  "Dataset",
+  'Dataset',
 	representation(
-		name = "character",
-		description = "character",
-		variables = "list",
-		row.names = "character",
-    weights = "character",
-    checkvars = "character",
-    infos = "list"
+		name = 'character',
+		description = 'character',
+		variables = 'list',
+		row.names = 'character',
+    weights = 'character',
+    checkvars = 'character',
+    Dataset.version = 'character',
+    infos = 'list'
 	),
 	validity = function(object) {
 		if(Dataset.globalenv$print.io) cat (" =>       Dataset: object validity check \n")
@@ -39,6 +40,19 @@ setClass(
     }
     #FIXME checkvars variables have to be categorical?
     #FIXME checkvars variables can't be weighting variables?
+    
+		version <- object@Dataset.version
+		lth <- length(version)
+		if(lth > 0) {
+		  if(any(is.na(version)) > 0){
+		    stop("Dataset.version can't contain NAs")
+		  }
+		  if(lth > 1) {
+		    stop("Dataset.version length must be one")
+		  }
+		} else {
+		  stop("Dataset.version can't be empty")
+		}
     
 		for (v in variables(object)) {
 			if (!inherits(v, "Variable")) {
@@ -134,6 +148,7 @@ dataset <- function(
     row.names = row.names,
     weights = weights,
     checkvars = checkvars,
+    Dataset.version = Dataset.globalenv$Dataset.version,
     infos = infos
   ))
 }
@@ -190,6 +205,14 @@ setReplaceMethod(
 	}
 )
 
+setMethod(
+  f = "Dataset.version",
+  signature = "Dataset", 
+  definition = function (object, ...) { 
+    return(slot(object, "Dataset.version"))
+  }
+)
+
 setMethod("alldescriptions", "Dataset", 
   definition = function (object) {
     out <- mapply(description, variables(object))
@@ -204,12 +227,8 @@ setMethod("alldescriptions", "Dataset",
 )
 
 setMethod("variables", "Dataset", 
-  definition = function (object, weighting) {
-    if (weighting) {
-      return(slot(object, "variables"))
-    } else {
-      
-    }
+  definition = function (object) {
+    return(slot(object, "variables"))
   }
 )
 setReplaceMethod(
@@ -391,6 +410,7 @@ setMethod(
         row.names = row.names,
         weights = weighting(x),
         checkvars = checkvars(x),
+        Dataset.version = Dataset.version(x),
         infos = infos(x)
 			)
 		)
@@ -444,7 +464,10 @@ setReplaceMethod(
 			} else {
 				temp <- slot(x, "data")
 				temp[j] <- value
-				return(new("Dataset", data = temp))
+				return(new(
+          "Dataset",
+          data = temp
+        ))
 			}
 	}
 )
