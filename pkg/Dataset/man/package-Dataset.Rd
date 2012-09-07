@@ -49,7 +49,7 @@ Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
 \keyword{ data }
 \keyword{ survey }
 \seealso{
-\code{\link[class?Dataset]{Dataset}}
+\code{\link[dds]{dds}}
 }
 \examples{
 # forthcoming
