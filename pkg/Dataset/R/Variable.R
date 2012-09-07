@@ -374,7 +374,11 @@ setMethod(
   return(grepl(ch, description(object), ignore.case = T))
   }
 )
-   
+# data(iris)
+# diris <- dataset(iris)
+# description(diris$Sepal.Length) <- "hello, good bye"
+# description(diris$Sepal.Width) <- "hello!"
+
 setMethod(
   f = "valid",
   signature = c("Variable"), 
