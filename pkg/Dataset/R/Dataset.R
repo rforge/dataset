@@ -1208,7 +1208,10 @@ setMethod(
   "Dataset",
   function (object, name) {
     #dir.create(name)
-    save(object, file = paste(name, ".RData", sep = ''))
+    assign(make.names(name(object)), object)
+    c <- call('save', name(object), file = paste(name, ".RData", sep = ''))
+    eval(c)
+#     save(object, file = paste(name, ".RData", sep = ''))
     summaryToPDF(object, name)
   }
 )

@@ -116,37 +116,35 @@ cvar <- function(
   )
   
   if (length(variable$values) != 2) {
-   variable <- nominalVariable(
+   nvariable <- nominalVariable(
       x = variable$x,
       missings = variable$missings,
       values = variable$values,
-      description = variable$description,
-      Variable.version = variable$Variable.version
+      description = variable$description
     )
      out <- new(
       Class = "NominalVariable",
-      codes = variable$x,
-      missings = variable$missings,
-      values = variable$values,
-      description = variable$description,
+      codes = nvariable$x,
+      missings = nvariable$missings,
+      values = nvariable$values,
+      description = nvariable$description,
       Variable.version = variable$Variable.version
     )
     message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
     return(out)
   } else {
-    variable <- binaryVariable(
+    bvariable <- binaryVariable(
       x = variable$x,
       missings = variable$missings,
       values = variable$values,
-      description = variable$description,
-      Variable.version = variable$Variable.version
+      description = variable$description
     )
      out <- new(
       Class = "BinaryVariable",
-      codes = variable$x,
-      missings = variable$missings,
-      values = variable$values,
-      description = variable$description,
+      codes = bvariable$x,
+      missings = bvariable$missings,
+      values = bvariable$values,
+      description = bvariable$description,
       Variable.version = variable$Variable.version
     )
     message(paste('number of missings:',nmissings(out)))

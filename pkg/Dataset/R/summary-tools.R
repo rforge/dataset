@@ -78,7 +78,7 @@ close.and.clean <- function(outFileCon, pdfSavingName, keepTex, openPDF){
   # opening of the pdf file
   if (openPDF) {
     message('')
-    message('Launching PDF file...', appendLF=F)
+    message('Launching PDF file...', appendLF=T)
     path <- file.path(getwd(), paste(pdfSavingName, '.pdf', sep = ''))
 #     print(path)
     openPDF(path)

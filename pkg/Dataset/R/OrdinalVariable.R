@@ -60,8 +60,7 @@ ovar <- function(
       x = variable$x,
       missings = variable$missings,
       values = variable$values,
-      description = variable$description,
-      Variable.version = variable$Variable.version
+      description = variable$description
     )
     
     if(Dataset.globalenv$print.io) cat(" => (out) OrdinalVariable: builder \n")

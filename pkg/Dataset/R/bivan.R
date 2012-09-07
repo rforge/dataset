@@ -282,7 +282,7 @@ setMethod(
     quiet
   ) {
     
-    #FIXME: type date non géré
+    #FIXME: date type non-supported
     #data.Dataset <- data
     data.df <- v(data)
     
@@ -541,7 +541,7 @@ calc.phi <- function(x)
 cv.test1 = function(x,y) {
   CV = sqrt(chisq.test(x, y, correct=FALSE)$statistic /
 		(length(x) * (min(length(unique(x)),length(unique(y))) - 1)))
-	print.noquote("Cramér V / Phi:")
+	print.noquote("Cramer V / Phi:")
 	return(as.numeric(CV))
 }
 # http://home.hib.no/ansatte/gbj/cramer_v.htm
@@ -551,7 +551,7 @@ cv.test2 <- function(x) {
 	### The result of the Pearson chi-square (without the Yates correction) is divided by the sum of table cells and...
 	### ...multiplied by the smalles number of (row or column) cells minus 1.
 	### The $statistic sends the correct value (the X^2 only) into the sqrt function
-	print.noquote("Cramér V / Phi:")
+	print.noquote("Cramer V / Phi:")
 	return(as.numeric(CV))
 }
 # =========================================================================================================
