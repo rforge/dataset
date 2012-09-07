@@ -3,19 +3,21 @@
 \alias{contains-methods}
 \alias{contains,character,Dataset-method}
 \alias{contains,character,Variable-method}
-\title{ ~~ Methods for Function \code{contains}  ~~}
+\title{Find a specific variable with keywords}
 \description{
- ~~ Methods for function \code{contains}  ~~
+\code{contains} look at the description of a Variable object and test whether the keywords are in.
+Option \code{ignore.case} allows to be case sensitive or not. Default is \code{FALSE}.
+Option \code{and} allows to ask for the presence of all keywords (and = \code{TRUE}) or just one or more (and = \code{FALSE}). Default is (and = \code{FALSE}).
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(keywords = "character", data = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{contains} method for a \code{Variable} object. Value is either a \code{Dataset} containing all the variables satisfying the condition on the existence of the keywords, or \code{NULL}.
 }
 
 \item{\code{signature(keywords = "character", data = "Variable")}}{
-%%  ~~describe this method here~~
+\code{contains} method for a \code{Variable} object. Value is a \code{logical}
 }
 }}
 \keyword{methods}
