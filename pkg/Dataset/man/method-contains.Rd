@@ -1,5 +1,6 @@
 \name{contains-methods}
 \docType{methods}
+\alias{contains}
 \alias{contains-methods}
 \alias{contains,character,Dataset-method}
 \alias{contains,character,Variable-method}
