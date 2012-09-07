@@ -1,17 +1,19 @@
 \name{alldescriptions-methods}
 \docType{methods}
+\alias{alldescriptions}
 \alias{alldescriptions-methods}
 \alias{alldescriptions,Dataset-method}
-\title{ ~~ Methods for Function \code{alldescriptions}  ~~}
+\title{Get the description label of all variables}
 \description{
- ~~ Methods for function \code{alldescriptions}  ~~
+\code{alldescriptions} returns the description label for all variables of an object storing variables. The value is a named character vector.
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(object = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{alldescriptions} method for a \code{Dataset} object.
 }
 }}
 \keyword{methods}
-\keyword{ ~~ other possible keyword(s) ~~ }
+\keyword{description}
+\keyword{label}
