@@ -4,7 +4,7 @@
 \alias{contains-methods}
 \alias{contains,character,Dataset-method}
 \alias{contains,character,Variable-method}
-\title{Find a specific variable with keywords}
+\title{Find a specific variable by keywords}
 \description{
 \code{contains} look at the description of a Variable object and test whether the keywords are in.
 Option \code{ignore.case} allows to be case sensitive or not. Default is \code{FALSE}.

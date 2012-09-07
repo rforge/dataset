@@ -49,7 +49,7 @@ Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
 \keyword{ data }
 \keyword{ survey }
 \seealso{
-\code{\link[dds]{dds}}
+\code{\link{dds}}, \code{\link{get.spss.file}}
 }
 \examples{
 # forthcoming
