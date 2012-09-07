@@ -369,15 +369,35 @@ setMethod(
 
 setMethod(
   f = "contains",
-  signature = c("Variable", "character"), 
-  definition = function (object, ch) {
-  return(grepl(ch, description(object), ignore.case = T))
+  signature = c('character', 'Variable'), 
+  definition = function (keywords, data, ignore.case, and) {
+    nkeys <- length(keywords)
+    stopifnot(nkeys > 0)
+    
+    l <- list()
+    for (i in 1:nkeys) {
+      l[[i]] <- grepl(keywords[i], description(data), ignore.case = ignore.case)
+    }
+    
+    l <- as.logical(l)
+    if(and){
+      out <- all(l)
+    } else {
+      out <- any(l)
+    }
+    return(out)
   }
 )
 # data(iris)
 # diris <- dataset(iris)
 # description(diris$Sepal.Length) <- "hello, good bye"
 # description(diris$Sepal.Width) <- "hello!"
+# description(diris$Species) <- "hello!"
+# contains('hello', diris$Sepal.Length)
+# contains(c('hello', 'good'), diris$Sepal.Length)
+# contains(c('hello', 'good'), diris$Sepal.Length, and = T)
+# contains(c('hello', 'good'), diris$Sepal.Width)
+# contains(c('hello', 'good'), diris$Sepal.Width, and = T)
 
 setMethod(
   f = "valid",

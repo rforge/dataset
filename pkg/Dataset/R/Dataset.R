@@ -704,16 +704,35 @@ setMethod(
 	}
 )
 
+
 setMethod(
   f = "contains",
-  signature = c("Dataset", "character"), 
-  definition = function (object, ch) {
-    subsetvar <- names(which(unlist(mapply(contains, variables(object), ch))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+  signature = c('character', 'Dataset'), 
+  definition = function (keywords, data, ignore.case, and) {
+    nkeys <- length(keywords)
+    stopifnot(nkeys > 0)
+    stopifnot(ncol(data) > 0)
+    
+    l <- which(mapply(contains, list(keywords), variables(data), ignore.case, and))
+    if(length(l) == 0) {
+      out <- NULL
+    } else {
+      out <- data[,l]
+    }
+    return(out)
+
   }
 )
-
+# data(iris)
+# diris <- dataset(iris)
+# description(diris$Sepal.Length) <- "hello, good bye"
+# description(diris$Sepal.Width) <- "hello!"
+# description(diris$Species) <- "hello!"
+# names(contains('hello', diris))
+# names(contains(c('hello','good'), diris))
+# names(contains(c('good'), diris))
+# names(contains(c('hello','good', 'bye'), diris, and = T))
+# names(contains(c('hqsdfqsdfello','good', 'bye'), diris, and = T))
 
     
 setMethod(
