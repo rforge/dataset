@@ -18,16 +18,16 @@ removeEmptyValueLabels <- function(values) {
 get.spss.file <- function(
   datadir,
 	file, 
-	variables,
-	tsvar,
-  ordinals,
-  weightings,
+	variables = NULL,
+	tsvar = character(0),
+  ovar = character(0),
+  wvar = character(0),
   use.coding.order = "increasing",
 	max.value.labels = Inf,
-	savingName,
+	savingName = NULL,
 	lowernames = TRUE,
-	name,
-	label,
+	name = NULL,
+	description = character(0),
 	summaryToPDF = TRUE
 ) {
 	ptm <- proc.time()
@@ -36,7 +36,7 @@ get.spss.file <- function(
 	#require('R.utils')
   
   if (missing(tsvar)) tsvar <- character(0)
-  if (missing(ordinals)) ordinals <- character(0)
+  if (missing(ovar)) ovar <- character(0)
 	
   #sub(paste(.Platform$file.sep,'$', sep=''), '', 'cc//')
   if(missing(datadir)) datadir <- getwd()
@@ -52,7 +52,7 @@ get.spss.file <- function(
 	variable.labels <- attr(spssdata, "variable.labels")
 	
 	#on converti les noms de variable en noms de variables valides pour R (remplacement des $$ en particulier) (déjà fait par read.spss ?)
-	if(!missing(variables)) {
+	if(!is.null(variables)) {
 		variablesExist <- variables %in% tolower(names(spssdata))
 		if(FALSE %in% variablesExist)
 			stop(paste("Dataset::getSPSSfile    ", variables[which(variablesExist == FALSE)], "contain(s) some names not in the file"));
@@ -71,6 +71,8 @@ get.spss.file <- function(
 	
 	if(missing(variables)) variables <- names(spssdata)
 	for (v in variables) {
+    flag <- F
+    
     message(paste("Loading", v))
     
 		counter <- counter + 1;
@@ -91,58 +93,78 @@ get.spss.file <- function(
     #  value.labels[which(value.labels < 0)] # negative codes appearing in values
     #)
     missings <- value.labels.all[which(value.labels.all < 0)] # negative codes appearing in values
+    
     if (is.element(v, tsvar)) {
 			l[[counter]] <- tvar(
 				x = codes,
 				description = description,
 				values = value.labels,
 				missings = missings,
-				origin = "1582-10-14")
-		} else {
-			if (length(uval) > max.value.labels) { # then scale
+				origin = "1582-10-14"
+      )
+      flag <- T
+		}
+    
+    if (is.element(v, wvar)) {
+      l[[counter]] <- wvar(
+        x = codes,
+        description = description,
+        values = value.labels,
+        missings = missings
+      )
+      flag <- T
+    } else {    
+  		if (length(uval) > max.value.labels) { # then scale
         
-				l[[counter]] <- svar(
-					x = codes,
-					description = description,
-					values = value.labels,
-					missings = missings)
-			} else {
-				if (all(uval %in% union(value.labels, missings))) {# then qualitative
+  			l[[counter]] <- svar(
+  				x = codes,
+  				description = description,
+  				values = value.labels,
+  				missings = missings)
+  			flag <- T
+        
+  		} else {
+  			if (all(uval %in% union(value.labels, missings))) {# then qualitative
           if (length(value.labels) == 2) { #then binary
     				l[[counter]] <- bvar(
     					x = codes,
     					description = description,
     					values = value.labels,
     					missings = missings)
+    				flag <- T
           } else { # then not binary
-            if (is.element(v, ordinals)) { # then ordinal
+            if (is.element(v, ovar)) { # then ordinal
               l[[counter]] <- ovar( 
         			x = codes,
       				description = description,
       				values = value.labels,
       				missings = missings)
+              flag <- T
             } else { # then nominal
               l[[counter]] <- nvar( 
           		x = codes,
       				description = description,
       				values = value.labels,
       				missings = missings)
+              flag <- T
             }
           }
-				} else {
-				l[[counter]] <- svar(
-					x = codes,
-					description = description,
-					values = value.labels,
-					missings = missings)
-			  }
-			}
-		}
+  			} else { #nothing matched, we try scale
+  			l[[counter]] <- svar(
+  				x = codes,
+  				description = description,
+  				values = value.labels,
+  				missings = missings)
+  			flag <- T
+  		  }
+  		}
+    }
+    stopifnot(flag)
 	}
 
   names(l) <- variables
 	
-	if (!missing(name)){
+	if (!is.null(name)){
 		outName <- name
 	} else {
 		outName <- file
@@ -150,12 +172,13 @@ get.spss.file <- function(
 		
 	out <- dataset(
 		x = l,
-		name = outName
+		name = outName,
+    description = description
 	)
 	
 	
 	# sauvegarde dans un fichier si demandé
-	if (!missing(savingName)) {
+	if (!is.null(savingName)) {
 		fileName <- paste(savingName, ".RData", sep="")
 		.localStuff <- new.env()
 		assign(savingName, out, envir = .localStuff)

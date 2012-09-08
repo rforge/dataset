@@ -8,7 +8,7 @@ latex.head <- function(title, latexPackages, outFileCon){
   message('Your file will be save in ', getwd())
   filenameTex <- summary(outFileCon)$description
   filename <- substr(filenameTex, 0, nchar(filenameTex)-4)
-  message('Name of your file: ', filename)
+  message('Name of your file: ', filename, '.pdf')
   message('')
   message('Writing tex file...', appendLF=F)
   cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)

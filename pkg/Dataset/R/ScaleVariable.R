@@ -47,7 +47,7 @@ svar <- function(
   )
   
   # then we apply special treatment for a scale variable
-  # (nothing)
+  # (nothing), but warning, if a add something I have to add it in weightingVariable
   
   if(Dataset.globalenv$print.io) cat(" => (out) ScaleVariable: builder \n")
   out <- new(

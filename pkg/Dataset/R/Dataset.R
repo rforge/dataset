@@ -21,29 +21,40 @@ setClass(
     n <- length(row.names(object))
     
     lw <- length(slot(object, 'weights'))
-    if(lw > 1){
-      message("Only one weights variable name is expected")
+    if(flag && lw > 1){
+      message("Only one weighting variable name is expected")
       flag <- FALSE
     }
-    if(lw == 1){
+    if(flag && lw == 1){
       if(!is.element(weighting(object), names(object))){
-        message("The weights variable name given is not in the dataset")
+        message("The weighting variable name given is not in the dataset")
         flag <- FALSE
       }
     }
     
-    if (length(checkvars(object)) > 0) {
-      if(!all(checkvars(object) %in% names(object))) {
+    if (flag && length(checkvars(object)) > 0) {
+      if(flag && !all(checkvars(object) %in% names(object))) {
         message("All checkvars variables have to exist in the Dataset")
         flag <- FALSE
       }
+#       if(flag && !all(mapply('inherits', variables(object[,checkvars(object)]), 'CategoricalVariable'))) {
+#         message("All checkvars variables have to be categorical")
+#         flag <- FALSE
+#       }
+      if(flag) {
+        for (i in checkvars(object)){ # don't use a mapply here, loop in subscript with checkvars
+          if(!inherits(object[[i]], 'CategoricalVariable')) {
+            message("All checkvars variables have to be categorical")
+            flag <- FALSE
+            break
+          }
+        }
+      }
     }
-    #FIXME checkvars variables have to be categorical?
-    #FIXME checkvars variables can't be weighting variables?
     
 		version <- object@Dataset.version
 		lth <- length(version)
-		if(lth > 0) {
+		if(flag && lth > 0) {
 		  if(any(is.na(version)) > 0){
 		    stop("Dataset.version can't contain NAs")
 		  }
@@ -55,7 +66,7 @@ setClass(
 		}
     
 		for (v in variables(object)) {
-			if (!inherits(v, "Variable")) {
+			if (flag && !inherits(v, "Variable")) {
 				message(paste("One or more variable is a", class(v), "object. It should be a Variable object"))
 				flag = FALSE
         break
@@ -70,7 +81,7 @@ setClass(
       }
 
       
-  		if (length(unique(names(object@variables))) != length(names(object@variables))) {
+  		if (flag && length(unique(names(object@variables))) != length(names(object@variables))) {
   			message("names of column have to be unique")
   			message(paste("names are : ", paste(names(object@variables), collapse=', '), sep=""))
   			flag = FALSE
@@ -137,7 +148,11 @@ dataset <- function(
       row.names <- character(0)
     }
   }
-  if(is.null(names(variables))) names(variables) <- 1:length(variables)
+  if(is.null(names(variables))) {
+    if(length(variables) > 0) {
+      names(variables) <- 1:length(variables)
+    } 
+  }
   names(variables) <- make.names(names(variables), unique = T)
       
   if(Dataset.globalenv$print.io) cat(" => (out) Dataset: builder \n")
@@ -359,15 +374,36 @@ setMethod(
   f ="[",
 	signature ="Dataset",
 	definition = function(x,i,j){
-    #print('i');print(i)
-    #print('j');print(j)
+#     if(!missing(i)) {print('i');print(i)}
+#     if(!missing(j)) {print('j');print(j)}
+#     if(missing(i) || missing(j)) {
+#      stop("You have to specify rows and columns index. Don't forget the ','") 
+#     }
 		listData <- variables(x)
     row.names <- row.names(x)
 		if (!missing(j)) {
+      wv <- weighting(x)
+      cv <- checkvars(x)
+      print(cv)
+      # if wv or cv are defined, we keep them in the subscript
+      if(inherits(j, 'character')) {
+        j <- varid(j, x)
+      }
+      if(length(cv) > 0) {j <- c(varid(cv,x),j)}
+      if(length(wv) > 0) {j <- c(varid(wv,x),j)}
+      j <- unique(j)
+      print(j)
 			listData <- listData[j]
 		}
 		if (!missing(i)){
-      row.names <- row.names[i]
+		  row.names <- row.names[i]
+      if (inherits(i, 'character')) {
+        i <- which(row.names(x) %in% i)
+        if(length(i) == 0) {
+          message("Your 'i' argument doesn't match any row name") 
+          return(dataset())
+        }
+      }
 			for (k in 1:length(listData)) {
 				listData[[k]] <- listData[[k]][i]
 			}
@@ -552,9 +588,14 @@ setMethod(
       
     message(txt.desc)
     message(txt.weighted)
-    out <- as.data.frame(object)
-    names(out) <- str.names(object, parenthesis = T)
-    print(out)
+    
+    if(ncol(object) == 0) {
+      message('Dataset with 0 columns and 0 rows')
+    } else {
+      out <- as.data.frame(object)
+      names(out) <- str.names(object, parenthesis = T)
+      print(out)
+    }
   }
 )
 
@@ -589,8 +630,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.quantitative))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
   }
 )
 setMethod(
@@ -607,8 +652,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.scale))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
 	}
 )
 setMethod(
@@ -625,8 +674,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.qualitative))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
   }
 )
 setMethod(
@@ -643,8 +696,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.nominal))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
 	}
 )
 setMethod(
@@ -661,8 +718,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.ordinal))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
 	}
 )
 setMethod(
@@ -679,8 +740,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.weighting))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
   }
 )
 setMethod(
@@ -697,8 +762,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.time))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
 	}
 )
 setMethod(
@@ -715,8 +784,12 @@ setMethod(
     checkvars(object) <- character(0)
     weighting(object) <- character(0)
     subsetvar <- names(which(unlist(lapply(variables(object), is.binary))))
-    variables(object) <- variables(object)[subsetvar]
-    return(object)
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
   }
 )
 setMethod(
@@ -736,11 +809,15 @@ setMethod(
     stopifnot(nkeys > 0)
     stopifnot(ncol(data) > 0)
     
+    checkvars(data) <- character(0)
+    weighting(data) <- character(0)
+    
     l <- which(mapply(contains, list(keywords), variables(data), ignore.case, and))
     if(length(l) == 0) {
       out <- NULL
     } else {
       out <- data[,l]
+      print(alldescriptions(out))
     }
     return(out)
 

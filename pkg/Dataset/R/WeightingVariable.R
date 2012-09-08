@@ -14,6 +14,10 @@ setClass(
     
     if(any(is.na(v(object)))) {
       flag <- FALSE
+      print(v(object))
+      print(codes(object))
+      print(missings(object))
+      print(description(object))
       message("A WeightingVariable can't have missings values")
     }
     
