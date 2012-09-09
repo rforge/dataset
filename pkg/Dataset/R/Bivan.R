@@ -52,6 +52,11 @@ setClass(
   representation(
     target = 'Dataset',
     predictors = 'Dataset',
+    weighting = 'Dataset',
+#     observed = 'data.frame',
+#     expected = 'data.frame',
+    observed = 'matrix',
+    expected = 'matrix',    
     stdres = 'Statdf',
     global = 'Statdf'
   ),
@@ -93,6 +98,48 @@ setReplaceMethod(
   signature = 'Bivan' ,
   definition = function(object, value){
     object@predictors <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('weighting', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'weighting'))
+          }
+)
+setReplaceMethod(
+  f = 'weighting' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@weighting <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('observed', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'observed'))
+          }
+)
+setReplaceMethod(
+  f = 'observed' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@observed <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod('expected', 'Bivan', 
+          definition = function (object) { 
+            return(slot(object, 'expected'))
+          }
+)
+setReplaceMethod(
+  f = 'expected' ,
+  signature = 'Bivan' ,
+  definition = function(object, value){
+    object@expected <- value
     validObject(object)
     return(object)
   }
@@ -148,6 +195,19 @@ setMethod(
       }
       message("")
     }
+    message("")
+    
+    message("Weighting")
+    wvarname <- names(weighting(x))
+    if(length(wvarname) > 0) {
+      message(wvarname, appendLF = F)
+      if (length(description(target(x)[[1]])) > 0) {
+        message(paste(":", description(weighting(x)[[1]])), appendLF = F)
+      }
+    } else {
+      message("No weighting variable defined, equi-weighting is used")
+    }
+    message("")
     message("")
     #for (i in xnames) {
     #  message(paste(i, " is ", str.typevar(data[[i]]), ".", sep = ""))
@@ -215,6 +275,19 @@ setMethod(
     }
     cat("\\end{itemize*}", " \n", file = outFileCon, append = T)
     
+    
+    cat("\\textbf{Weighting} ", file = outFileCon, append = T)
+    wvarname <- names(weighting(object))
+    if(length(wvarname) > 0) {
+      cat(wvarname, file = outFileCon, append = T)
+      if (length(description(target(object)[[1]])) > 0) {
+        cat(paste(":", description(weighting(object)[[1]])), " \n", file = outFileCon, append = T)
+      }
+    } else {
+      cat("No weighting variable defined, equi-weighting is used", " \n", file = outFileCon, append = T)
+    }
+    
+    
     # stdres --------------------------------------
     if(ncol(stdres(object)) > 0) {
       s <- summary(stdres(object), merge = 'left')
@@ -261,7 +334,7 @@ setMethod(
 
 
 
-calc.pval <- function(x) {
+calc.pval <- function(x) { # for std. residuals
   return(pnorm(-abs(x))*2)
 }
 
@@ -284,6 +357,10 @@ setMethod(
     
     #FIXME: date type non-supported
     #data.Dataset <- data
+    data.without.checks <- data
+    weighting(data.without.checks) <- character(0)
+    checkvars(data.without.checks) <- character(0)
+#     data.df <- v(data.without.checks)
     data.df <- v(data)
     
     if (any(attr(terms(formula, data = data.df), "order") > 1)) 
@@ -298,6 +375,13 @@ setMethod(
     yname <- variables[attr(t, "response")]
     xnames <- variables[-attr(t, "response")]
     nbxnames <- length(xnames)
+    
+    if(!all(yname %in% names(data.df))) {
+      stop("The target isn't in the Dataset")
+    }
+    if(!all(xnames %in% names(data.df))) {
+      stop("Some predictors aren't in the Dataset")
+    }
     
     y <- data.df[[yname]]
     ncat <- nlevels(y)
@@ -448,11 +532,24 @@ setMethod(
     )
     # -------------------------
     # out
+    
+#     observed <- as.data.frame(chisq$observed)
+#     expected <- as.data.frame(chisq$expected)
+    obs <- as.matrix(chisq$observed)
+    obs <- cbind(obs, margin.table(obs, 1))
+    obs <- rbind(obs, margin.table(obs, 2))
+  
+    exp <- chisq$expected
+    exp <- cbind(exp, margin.table(exp, 1))
+    exp <- rbind(exp, margin.table(exp, 2))
           
     out <- new(
       'Bivan',
-      target = data[,yname],
-      predictors = data[,xnames],
+      target = data.without.checks[,yname],
+      predictors = data.without.checks[,xnames],
+      weighting = data.without.checks[, weighting(data)],
+      observed = obs,
+      expected = exp,
       stdres = out.stdres,
       global = out.global
     )

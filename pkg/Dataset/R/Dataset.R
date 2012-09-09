@@ -347,7 +347,14 @@ setReplaceMethod(
 	signature = "Dataset" ,
 	definition = function(x, value){
 		listData <- variables(x)
-		names(listData) <- value
+		oldnames <- names(listData)
+    if(length(weighting(x))>0) {
+      x@weights <- value[varid(weighting(x),x)]
+    }
+    if(length(checkvars(x))>0) {
+      x@checkvars <- value[varid(checkvars(x),x)]
+    }
+    names(listData) <- value
     variables(x) <- listData
     return(x)
 	}
@@ -384,7 +391,6 @@ setMethod(
 		if (!missing(j)) {
       wv <- weighting(x)
       cv <- checkvars(x)
-      print(cv)
       # if wv or cv are defined, we keep them in the subscript
       if(inherits(j, 'character')) {
         j <- varid(j, x)
@@ -392,7 +398,6 @@ setMethod(
       if(length(cv) > 0) {j <- c(varid(cv,x),j)}
       if(length(wv) > 0) {j <- c(varid(wv,x),j)}
       j <- unique(j)
-      print(j)
 			listData <- listData[j]
 		}
 		if (!missing(i)){

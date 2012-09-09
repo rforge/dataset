@@ -11,17 +11,17 @@ Import a SPSS data base to a data base in format \code{Dataset}.
 get.spss.file(
   datadir,
   file, 
-	variables = NULL,
-	tsvar = character(0),
+  variables = NULL,
+  tsvar = character(0),
   ovar = character(0),
   wvar = character(0),
   use.coding.order = "increasing",
-	max.value.labels = Inf,
-	savingName = NULL,
-	lowernames = TRUE,
-	name = NULL,
-	description = character(0),
-	summaryToPDF = TRUE
+  max.value.labels = Inf,
+  savingName = NULL,
+  lowernames = TRUE,
+  name = NULL,
+  description = character(0),
+  summaryToPDF = TRUE
 )
 }
 %- maybe also 'usage' for other objects documented here.

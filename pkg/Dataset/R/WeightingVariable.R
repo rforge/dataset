@@ -88,25 +88,25 @@ wvar <- function(
 # ww <- wvar(c(1,2,3))
 # str.typevar(ww, parenthesis = T)
 
-setMethod(
-  f = "show",
-  signature = "WeightingVariable", 
-  definition = function (object) {
-    txt.desc <- 'Description: no'
-    if(length(description(object)) > 0)
-      txt.desc <- paste('Description:', description(object))
-      
-    message(txt.desc)
-	  print(as.numeric(object))
-  }
-)
-
-# print
-setMethod("print", "WeightingVariable", 
-  definition = function (x, ...) {
-	show(x)
-  }
-)
+# setMethod(
+#   f = "show",
+#   signature = "WeightingVariable", 
+#   definition = function (object) {
+#     txt.desc <- 'Description: no'
+#     if(length(description(object)) > 0)
+#       txt.desc <- paste('Description:', description(object))
+#       
+#     message(txt.desc)
+# 	  print(as.numeric(object))
+#   }
+# )
+# 
+# # print
+# setMethod("print", "WeightingVariable", 
+#   definition = function (x, ...) {
+# 	show(x)
+#   }
+# )
 
 is.weighting <- function(x){
   if(inherits(x, "WeightingVariable")){
