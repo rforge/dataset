@@ -1,11 +1,10 @@
 \name{bivan}
 \alias{bivan}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Compute some bivariate analysis
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\code{bivan} returns the results of the bivariate analysis requested by the user.
 }
 \usage{
   bivan(
@@ -19,67 +18,55 @@
   quiet = FALSE
 )
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{formula}{
-%%     ~~Describe \code{formula} here~~
+a \code{formula}
 }
   \item{data}{
-%%     ~~Describe \code{data} here~~
+a \code{Dataset}
 }
   \item{chi2}{
-%%     ~~Describe \code{chi2} here~~
+a \code{logical}
 }
   \item{cramer.v}{
-%%     ~~Describe \code{cramer.v} here~~
+a \code{logical}
 }
   \item{gk.tau}{
-%%     ~~Describe \code{gk.tau} here~~
+a \code{logical}
 }
   \item{somer.d}{
-%%     ~~Describe \code{somer.d} here~~
+a \code{logical}
 }
   \item{stdres}{
-%%     ~~Describe \code{stdres} here~~
+a \code{logical}
 }
   \item{quiet}{
-%%     ~~Describe \code{quiet} here~~
+a \code{logical}
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+...
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+A \code{Bivan} object.
 }
 \references{
-%% ~put references to the literature/web site here ~
+Put papers for GK tau, Somer's D, ...
 }
 \author{
-%%  ~~who you are~~
+Emmanuel Rousseaux
 }
 \note{
-%%  ~~further notes~~
+...
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+...
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-"bivan"
+##
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{bivariate}
+\keyword{chisq}% __ONLY ONE__ keyword per line

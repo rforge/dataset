@@ -1,11 +1,10 @@
 \name{summaryToPDF}
 \alias{summaryToPDF}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-%%  ~~function to do ... ~~
+Produce a summary in a PDF file
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\code{summaryToPDF} produces a summary of the object in a PDF file.
 }
 \usage{
 summaryToPDF(
@@ -24,70 +23,55 @@ summaryToPDF(
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{
-%%     ~~Describe \code{object} here~~
+See the help of the method (PUT LINK)
 }
   \item{pdfSavingName}{
-%%     ~~Describe \code{pdfSavingName} here~~
+a \code{character}
 }
   \item{graphics}{
-%%     ~~Describe \code{graphics} here~~
+a \code{logical}
 }
   \item{description.chlength}{
-%%     ~~Describe \code{description.chlength} here~~
+a \code{numeric}
 }
   \item{values.chlength}{
-%%     ~~Describe \code{values.chlength} here~~
+a \code{numeric}
 }
   \item{dateformat}{
-%%     ~~Describe \code{dateformat} here~~
+a \code{character}
 }
   \item{latexPackages}{
-%%     ~~Describe \code{latexPackages} here~~
+a \code{character}. You can add LaTeX packages you need for the compilation here, especially for supporting other languages than english.
 }
   \item{keepTex}{
-%%     ~~Describe \code{keepTex} here~~
+a \code{logical}
 }
   \item{openPDF}{
-%%     ~~Describe \code{openPDF} here~~
+a \code{logical}
 }
   \item{\dots}{
-%%     ~~Describe \code{\dots} here~~
+...
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+...
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
+NULL (to check)
 }
 \author{
-%%  ~~who you are~~
+Emmanuel Rousseaux
 }
 \note{
-%%  ~~further notes~~
+...
 }
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-"summaryToPDF"
+##
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{PDF}
