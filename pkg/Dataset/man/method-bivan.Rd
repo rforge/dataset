@@ -2,16 +2,16 @@
 \docType{methods}
 \alias{bivan-methods}
 \alias{bivan,formula,Dataset-method}
-\title{ ~~ Methods for Function \code{bivan}  ~~}
+\title{Compute some bivariate analysis}
 \description{
- ~~ Methods for function \code{bivan}  ~~
+\code{bivan} returns the results of the bivariate analysis requested by the user.
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(formula = "formula", data = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{bivan} method for a \code{Dataset} object.
 }
 }}
 \keyword{methods}
-\keyword{ ~~ other possible keyword(s) ~~ }
+\keyword{bivariate}

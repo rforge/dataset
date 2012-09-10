@@ -1,22 +1,23 @@
 \name{weighting-methods}
 \docType{methods}
+\alias{weighting}
 \alias{weighting-methods}
 \alias{weighting,Bivan-method}
 \alias{weighting,Dataset-method}
-\title{ ~~ Methods for Function \code{weighting}  ~~}
+\title{Get the variable used as weighting}
 \description{
- ~~ Methods for function \code{weighting}  ~~
+\code{weighting} return the name of the variable used as weighting.
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(object = "Bivan")}}{
-%%  ~~describe this method here~~
+\code{weighting} method for a \code{Bivan} object.
 }
 
 \item{\code{signature(object = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{weighting} method for a \code{Dataset} object.
 }
 }}
 \keyword{methods}
-\keyword{ ~~ other possible keyword(s) ~~ }
+\keyword{weights}

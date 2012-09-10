@@ -1,5 +1,6 @@
 \name{weightings-methods}
 \docType{methods}
+\alias{weightings}
 \alias{weightings-methods}
 \alias{weightings,Dataset-method}
 \title{ ~~ Methods for Function \code{weightings}  ~~}
@@ -14,4 +15,4 @@
 }
 }}
 \keyword{methods}
-\keyword{ ~~ other possible keyword(s) ~~ }
+\keyword{weights, weighting}

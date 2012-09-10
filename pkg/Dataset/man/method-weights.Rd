@@ -1,22 +1,23 @@
 \name{weights-methods}
 \docType{methods}
+\alias{weights}
 \alias{weights-methods}
 \alias{weights,ANY-method}
 \alias{weights,Dataset-method}
-\title{ ~~ Methods for Function \code{weights} in Package \pkg{stats} ~~}
+\title{Methods for Function \code{weights} in Packages \pkg{stats} and \pkg{Dataset}}
 \description{
- ~~ Methods for function \code{weights} in package \pkg{stats} ~~
+\code{weights} allows the handling of weights in statistics computations.
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(object = "ANY")}}{
-%%  ~~describe this method here~~
+See the documentation in the \pkg{stats} package.
 }
 
 \item{\code{signature(object = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{weights} method for a \code{Dataset} object. Returns the variable containing weights used in the object.
 }
 }}
 \keyword{methods}
-\keyword{ ~~ other possible keyword(s) ~~ }
+\keyword{weighting}

@@ -4,23 +4,23 @@
 \alias{summaryToPDF,Bivan-method}
 \alias{summaryToPDF,Dataset-method}
 \alias{summaryToPDF,Statdf-method}
-\title{ ~~ Methods for Function \code{summaryToPDF}  ~~}
+\title{Produce a summary in a PDF file}
 \description{
- ~~ Methods for function \code{summaryToPDF}  ~~
+\code{summaryToPDF} produces a summary of the object in a PDF file.
 }
 \section{Methods}{
 \describe{
 
 \item{\code{signature(object = "Bivan")}}{
-%%  ~~describe this method here~~
+\code{summaryToPDF} method for a \code{Bivan} object.
 }
 
 \item{\code{signature(object = "Dataset")}}{
-%%  ~~describe this method here~~
+\code{summaryToPDF} method for a \code{Dataset} object.
 }
 
 \item{\code{signature(object = "Statdf")}}{
-%%  ~~describe this method here~~
+\code{summaryToPDF} method for a \code{Statdf} object.
 }
 }}
 \keyword{methods}
