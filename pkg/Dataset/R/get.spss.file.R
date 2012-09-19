@@ -28,7 +28,8 @@ get.spss.file <- function(
 	lowernames = TRUE,
 	name = NULL,
 	description = character(0),
-	summaryToPDF = TRUE
+	summaryToPDF = TRUE,
+  reencode = TRUE,
 ) {
 	ptm <- proc.time()
 
@@ -46,7 +47,8 @@ get.spss.file <- function(
 		path,
 		use.value.labels = FALSE,
 		to.data.frame = TRUE,
-		use.missings = FALSE
+		use.missings = FALSE,
+		reencode = reencode
 	)
 	
 	variable.labels <- attr(spssdata, "variable.labels")

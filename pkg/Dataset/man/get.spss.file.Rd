@@ -21,7 +21,8 @@ get.spss.file(
   lowernames = TRUE,
   name = NULL,
   description = character(0),
-  summaryToPDF = TRUE
+  summaryToPDF = TRUE,
+  reencode = TRUE
 )
 }
 %- maybe also 'usage' for other objects documented here.
@@ -64,6 +65,9 @@ a character. A description of the database.
 }
   \item{summaryToPDF}{
 a logical. If \code{TRUE} the summary in PDF of the data base is created.
+}
+  \item{reencode}{
+a logical: should character strings be re-encoded to the current locale. Default is \code{TRUE}. Alternatively character, specifying an encoding to assume.
 }
 }
 %\details{
