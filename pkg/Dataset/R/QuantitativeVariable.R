@@ -76,3 +76,25 @@ setMethod(
     return(out)
   }
 )
+
+setMethod("Ops", signature(e1="QuantitativeVariable", e2="QuantitativeVariable"),
+          function(e1, e2) {
+            e1@codes=callGeneric(codes(e1), codes(e2))
+            validObject(e1)
+            return(e1)
+          }
+)
+setMethod("Ops", signature(e1="QuantitativeVariable", e2="numeric"),
+          function(e1, e2) {
+            e1@codes=callGeneric(codes(e1), e2)
+            validObject(e1)
+            return(e1)
+          }
+)
+setMethod("Ops", signature(e1="numeric", e2="QuantitativeVariable"),
+          function(e1, e2) {
+            e2@codes=callGeneric(e1, codes(e2))
+            validObject(e2)
+            return(e2)
+          }
+)

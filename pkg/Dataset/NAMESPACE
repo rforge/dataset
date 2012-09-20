@@ -133,7 +133,15 @@ exportMethods(
   'global<-',
   'varid',
   'Variable.version',
-  'Dataset.version'
+  'Dataset.version',
+  ## Group Methods
+  "Arith",
+  "Compare",
+  "Logic",
+  "Math",
+  "Math2",
+  "Ops",
+  "Summary"
 )
 
 export(
