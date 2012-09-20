@@ -29,7 +29,7 @@ get.spss.file <- function(
 	name = NULL,
 	description = character(0),
 	summaryToPDF = TRUE,
-  reencode = TRUE,
+  reencode = "latin1"
 ) {
 	ptm <- proc.time()
 

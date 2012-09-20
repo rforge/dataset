@@ -22,7 +22,7 @@ get.spss.file(
   name = NULL,
   description = character(0),
   summaryToPDF = TRUE,
-  reencode = TRUE
+  reencode = "latin1"
 )
 }
 %- maybe also 'usage' for other objects documented here.
