@@ -604,50 +604,54 @@ setMethod(
   signature = c('Statdf'),
   definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF, merge = 'no') {
     
-    s <- summary(object, merge = merge)
-    
-    require(xtable)
-    
-    outName <- name(object)
-    
-    outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
-    
-    if(missing(pdfSavingName)) {		
-      pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
+    if(!is.installed.pkg('xtable')) {
+      exit.by.uninstalled.pkg('xtable')
+    } else {
+      
+      require(xtable)
+      
+      s <- summary(object, merge = merge)
+      
+      outName <- name(object)
+      
+      outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+      
+      if(missing(pdfSavingName)) {		
+        pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
+      }
+      
+      latexFile <- paste(pdfSavingName, ".tex", sep="")
+      
+      outFileCon <- file(latexFile, "w", encoding="UTF-8")
+      
+      latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
+      
+      #cat("\\section*{Overview} \n", file = outFileCon, append = T)
+      
+      object.xtable <- xtable(
+        sdf(s),
+        #label='validCasesSummary',
+        #caption='Number of variables by percent of valid cases',
+        caption=thresholds(s),
+        #digits = 3,
+        align = c("l", rep('c', ncol(sdf(s)))),
+        #display = c("d","d","d")
+      )
+      
+      cat("\\begin{center} \n", file = outFileCon, append = T)
+      print(object.xtable, file=outFileCon , append=T,
+        #tabular.environment='longtable',
+        table.placement = "htb",
+        floating=F
+      )
+      
+      cat("\\newline ", " \n", file = outFileCon, append = T)
+      cat(thresholds(s), " \n", file = outFileCon, append = T)
+      
+      cat("\\end{center} \n", file = outFileCon, append = T)
+  
+      
+      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
     }
-    
-    latexFile <- paste(pdfSavingName, ".tex", sep="")
-    
-    outFileCon <- file(latexFile, "w", encoding="UTF-8")
-    
-    latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
-    
-    #cat("\\section*{Overview} \n", file = outFileCon, append = T)
-    
-    object.xtable <- xtable(
-      sdf(s),
-      #label='validCasesSummary',
-      #caption='Number of variables by percent of valid cases',
-      caption=thresholds(s),
-      #digits = 3,
-      align = c("l", rep('c', ncol(sdf(s)))),
-      #display = c("d","d","d")
-    )
-    
-    cat("\\begin{center} \n", file = outFileCon, append = T)
-    print(object.xtable, file=outFileCon , append=T,
-      #tabular.environment='longtable',
-      table.placement = "htb",
-      floating=F
-    )
-    
-    cat("\\newline ", " \n", file = outFileCon, append = T)
-    cat(thresholds(s), " \n", file = outFileCon, append = T)
-    
-    cat("\\end{center} \n", file = outFileCon, append = T)
-
-    
-    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
- 
   }
 )

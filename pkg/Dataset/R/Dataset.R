@@ -868,350 +868,353 @@ setMethod("summary", "Dataset",
 
 setMethod("summaryToPDF", "Dataset", 
   definition = function (object, pdfSavingName, graphics, description.chlength, values.chlength, dateformat, latexPackages, keepTex, openPDF) {
-  require(xtable)
-  nTuples <- nrow(object)
   
-  require(xtable)
-
-	if (length(name(object)) == 0) { outName <- "Untitled Dataset" } else { outName <- name(object) }
-	outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
-	
-	if(missing(pdfSavingName)) {		
-		pdfSavingName <- paste("Summary-", outName, sep = "") # no spaces for Unix/Texlive compilation ?
-	}
-	
-	latexFile <- paste(pdfSavingName, ".tex", sep="")
-	
-  outFileCon <- file(latexFile, "w", encoding="UTF-8")
+  if(!is.installed.pkg('xtable')) {
+    exit.by.uninstalled.pkg('xtable')
+  } else {
+    require(xtable)
+    nTuples <- nrow(object)
   
-	latex.head(title = paste("Summary of the", totex(name(object)), "dataset"), latexPackages, outFileCon)
-                         
-	cat("\\section*{Overview} \n", file = outFileCon, append = T)
-	cat("\\begin{itemize} \n", file = outFileCon, append = T)
-	cat("\\item Name:", totex(name(object)), "\n", file = outFileCon, append = T)
-	cat("\\item Description:", description(object), "\n", file = outFileCon, append = T)
-	#cat("\\item Object version:", oversion(object), "\n", file = outFileCon, append = T)
-	#cat("\\item Created by Dataset version:", pversion(object), "\n", file = outFileCon, append = T)
-	cat("\\item Number of variables: ", ncol(object), " (",
-      nbinaries(object), " binaries, ",
-      nordinals(object), " ordinals, ",
-      nnominals(object), " nominals, ",
-      nscales(object), " scales, ",
-      ntimes(object), " timestamps",
-      ")", "\n", sep = "", file = outFileCon, append = T)
-  cat("\\item Number of rows:", nTuples, "\n", file = outFileCon, append = T)
-  cat("\\item Percent of missing values:", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
-	cat("\\end{itemize} \n", file = outFileCon, append = T)
-  
-  percents <- seq(from = 0, to = 100, by = 10)
-  val <- c()
-  for (i in percents) {
-    val <- c(val, ncol(valid(object, percent = i)))
-  }
-  valdf <- data.frame(percents,val)
-  names(valdf) <- c("Percents of valid cases", "Number of variables")
-  
-  object.xtable <- xtable(
-    	valdf,
-  		label='validCasesSummary',
-  		caption='Number of variables by percent of valid cases',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","d","d")
-  	)
-  
-  plot.filename <- paste(pdfSavingName, ".validcasesRplot", sep = "")
-  plot.filename <- gsub("\\.", "-", plot.filename)
-  plot.filename.pdf <- paste(plot.filename, ".pdf", sep = "")
-  pdf(file = plot.filename.pdf)
-  plot(
-    percents,
-    val,
-    type = "l",
-    main = "Number of variables by percent of valid cases",
-    xlab = "Percentage of valid cases",
-    ylab = "Number of variables"
-  )
-  polygon(c(0,percents,100),c(0,val,0), col="gray")
-  dev.off()
-       
-  cat("\\begin{center} \n", file = outFileCon, append = T)
-  cat("\\begin{minipage}[c]{.35\\linewidth} \n", file = outFileCon, append = T)
-  print(object.xtable, file=outFileCon , append=T, include.rownames = F, table.placement = "htb", floating=F) 
-  cat("\\end{minipage} \n", file = outFileCon, append = T)
-  cat("\\begin{minipage}[c]{.40\\linewidth} \n", file = outFileCon, append = T)
-  cat("\\includegraphics[scale=0.40]{", plot.filename.pdf, "} \n", file = outFileCon, append = T, sep = "")
-  cat("\\end{minipage} \n", file = outFileCon, append = T)
-	cat("\\end{center} \n", file = outFileCon, append = T)
-       
-  
-  cat("\\newpage \n", file = outFileCon, append = T)
-  flag.newpage <- FALSE
-	cat("\\section*{Feature summary} \n", file = outFileCon, append = T)
-  
-  if(nbinaries(object) > 0 ) {
-    if (flag.newpage) {
-      cat("\\newpage \n", file = outFileCon, append = T)
+  	if (length(name(object)) == 0) { outName <- "Untitled Dataset" } else { outName <- name(object) }
+  	outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+  	
+  	if(missing(pdfSavingName)) {		
+  		pdfSavingName <- paste("Summary-", outName, sep = "") # no spaces for Unix/Texlive compilation ?
+  	}
+  	
+  	latexFile <- paste(pdfSavingName, ".tex", sep="")
+  	
+    outFileCon <- file(latexFile, "w", encoding="UTF-8")
+    
+  	latex.head(title = paste("Summary of the", totex(name(object)), "dataset"), latexPackages, outFileCon)
+                           
+  	cat("\\section*{Overview} \n", file = outFileCon, append = T)
+  	cat("\\begin{itemize} \n", file = outFileCon, append = T)
+  	cat("\\item Name:", totex(name(object)), "\n", file = outFileCon, append = T)
+  	cat("\\item Description:", description(object), "\n", file = outFileCon, append = T)
+  	#cat("\\item Object version:", oversion(object), "\n", file = outFileCon, append = T)
+  	#cat("\\item Created by Dataset version:", pversion(object), "\n", file = outFileCon, append = T)
+  	cat("\\item Number of variables: ", ncol(object), " (",
+        nbinaries(object), " binaries, ",
+        nordinals(object), " ordinals, ",
+        nnominals(object), " nominals, ",
+        nscales(object), " scales, ",
+        ntimes(object), " timestamps",
+        ")", "\n", sep = "", file = outFileCon, append = T)
+    cat("\\item Number of rows:", nTuples, "\n", file = outFileCon, append = T)
+    cat("\\item Percent of missing values:", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
+  	cat("\\end{itemize} \n", file = outFileCon, append = T)
+    
+    percents <- seq(from = 0, to = 100, by = 10)
+    val <- c()
+    for (i in percents) {
+      val <- c(val, ncol(valid(object, percent = i)))
     }
-    cat("\\subsection*{Binary variables} \n", file = outFileCon, append = T)
-    scvar <- binaries(object)
-    scvar.names <- names(scvar)
+    valdf <- data.frame(percents,val)
+    names(valdf) <- c("Percents of valid cases", "Number of variables")
     
-    descriptions <- c()
-    nbNA <- c()
-    theDistrib <- c()   
+    object.xtable <- xtable(
+      	valdf,
+    		label='validCasesSummary',
+    		caption='Number of variables by percent of valid cases',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","d","d")
+    	)
     
-    for (i in scvar.names ) {
-  		vtemp <- scvar[[i]]
-
-      desc.temp <- description(vtemp)
-      if (nchar(desc.temp) > description.chlength)
-        desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
-      
-  		descriptions <- c(descriptions, desc.temp)
-  		nbNA <- c(nbNA, nmissings(vtemp))
-  		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
-  		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
-	  }
-  
-    nbNA[which(is.na(nbNA))] <- 0
-    N <- rep(nTuples, nbinaries(object)) - nbNA
-    NApourcent <- nbNA / nTuples * 100
-  
-  	df <- data.frame(scvar.names, descriptions,N, NApourcent, theDistrib)
-  	names(df) <- c("Variable", "Description", "N", "NA (%)", "Distribution (%)")
-    row.names(df) <- index(object, scvar.names)
-    cat("{\\footnotesize \n", file = outFileCon, append = T)
-
-  	object.xtable <- xtable(
-  		df,
-  		label='featureSummary',
-  		caption='Binary variables summary',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","s","s","d","fg","s")
-  	)
-
-	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
-    cat("} \n", file = outFileCon, append = T)
-    flag.newpage <- TRUE
-  }
-  
-  if(nordinals(object) > 0 ) {
-    if (flag.newpage) {
-      cat("\\newpage \n", file = outFileCon, append = T)
-    }
-    cat("\\subsection*{Ordinal variables} \n", file = outFileCon, append = T)
-    scvar <- ordinals(object)
-    scvar.names <- names(scvar)
+    plot.filename <- paste(pdfSavingName, ".validcasesRplot", sep = "")
+    plot.filename <- gsub("\\.", "-", plot.filename)
+    plot.filename.pdf <- paste(plot.filename, ".pdf", sep = "")
+    pdf(file = plot.filename.pdf)
+    plot(
+      percents,
+      val,
+      type = "l",
+      main = "Number of variables by percent of valid cases",
+      xlab = "Percentage of valid cases",
+      ylab = "Number of variables"
+    )
+    polygon(c(0,percents,100),c(0,val,0), col="gray")
+    dev.off()
+         
+    cat("\\begin{center} \n", file = outFileCon, append = T)
+    cat("\\begin{minipage}[c]{.35\\linewidth} \n", file = outFileCon, append = T)
+    print(object.xtable, file=outFileCon , append=T, include.rownames = F, table.placement = "htb", floating=F) 
+    cat("\\end{minipage} \n", file = outFileCon, append = T)
+    cat("\\begin{minipage}[c]{.40\\linewidth} \n", file = outFileCon, append = T)
+    cat("\\includegraphics[scale=0.40]{", plot.filename.pdf, "} \n", file = outFileCon, append = T, sep = "")
+    cat("\\end{minipage} \n", file = outFileCon, append = T)
+  	cat("\\end{center} \n", file = outFileCon, append = T)
+         
     
-    descriptions <- c()
-    nbNA <- c()
-    theNlevels <- c()
-    theDistrib <- c()   
+    cat("\\newpage \n", file = outFileCon, append = T)
+    flag.newpage <- FALSE
+  	cat("\\section*{Feature summary} \n", file = outFileCon, append = T)
     
-  	for (i in scvar.names ) {
-  		vtemp <- scvar[[i]]
-
-  		desc.temp <- description(vtemp)
-      if (nchar(desc.temp) > description.chlength)
-        desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
-      
-    	descriptions <- c(descriptions, desc.temp)
-  		nbNA <- c(nbNA, nmissings(vtemp))
-  		theNlevels <- c(theNlevels, nvalues(vtemp))
-  		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
-  		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
-	  }
-  
-    nbNA[which(is.na(nbNA))] <- 0
-    N <- rep(nTuples, nordinals(object)) - nbNA
-    NApourcent <- nbNA / nTuples * 100
-  
-  	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
-  	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
-    row.names(df) <- index(object, scvar.names)
-    cat("{\\footnotesize \n", file = outFileCon, append = T)
-
-  	object.xtable <- xtable(
-  		df,
-  		label='featureSummary',
-  		caption='Ordinal variables summary',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","s","s","d","fg","d","s")
-  	)
-
-	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
-    cat("} \n", file = outFileCon, append = T)
-    flag.newpage <- TRUE
-  }
-  
-  if(nnominals(object) > 0 ) {
-    if (flag.newpage) {
-      cat("\\newpage \n", file = outFileCon, append = T)
-    }
-    cat("\\subsection*{Nominal variables} \n", file = outFileCon, append = T)
-    scvar <- nominals(object)
-    scvar.names <- names(scvar)
-    
-    descriptions <- c()
-    nbNA <- c()
-    theNlevels <- c()
-    theDistrib <- c()   
-    
-    for (i in scvar.names ) {
-      #print(i)
-  		vtemp <- scvar[[i]]
-
-  		desc.temp <- description(vtemp)
-      #print(desc.temp)
-      if (nchar(desc.temp) > description.chlength)
-        desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
-      
-    	descriptions <- c(descriptions, desc.temp)
-  		nbNA <- c(nbNA, nmissings(vtemp))
-  		theNlevels <- c(theNlevels, nvalues(vtemp))
-  		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
-  		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
-	  }
-  
-    nbNA[which(is.na(nbNA))] <- 0
-    N <- rep(nTuples, nnominals(object)) - nbNA
-    NApourcent <- nbNA / nTuples * 100
-  
-  	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
-  	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
-    row.names(df) <- index(object, scvar.names)
-    cat("{\\footnotesize \n", file = outFileCon, append = T)
-
-  	object.xtable <- xtable(
-  		df,
-  		label='featureSummary',
-  		caption='Nominal variables summary',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","s","s","d","fg","d","s")
-  	)
-
-	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
-    cat("} \n", file = outFileCon, append = T)
-    flag.newpage <- TRUE
-  }
-  
-  if(nscales(object) > 0 ) {
-    if (flag.newpage) {
-      cat("\\newpage \n", file = outFileCon, append = T)
-    }
-    cat("\\subsection*{Scale variables} \n", file = outFileCon, append = T)
-    scvar <- scales(object)
-    scvar.names <- names(scvar)
-    
-    descriptions <- c()
-    nbNA <- c()
-  	theMin <- c()
-  	theMax <- c()
-  	theMean <- c()
-  	theSD <- c()
-    
-  	for (i in scvar.names ) {
-  		vtemp <- scvar[[i]]
-  		
-  		desc.temp <- description(vtemp)
-      if (nchar(desc.temp) > description.chlength)
-        desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
-      
-    	descriptions <- c(descriptions, desc.temp)
-  		nbNA <- c(nbNA, nmissings(vtemp))
-  		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
-  		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
-  		theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
-  		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
-	  }
-  
-    nbNA[which(is.na(nbNA))] <- 0
-    N <- rep(nTuples, nscales(object)) - nbNA
-    NApourcent <- nbNA / nTuples * 100
-  
-  	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean)
-  	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean")
-    # row.names(df) <- 1:nrow(df)
-    row.names(df) <- index(object, scvar.names)
-    cat("{\\footnotesize \n", file = outFileCon, append = T)
-
-  	object.xtable <- xtable(
-  		df,
-  		label='featureSummary',
-  		caption='Scale variables summary',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","s","s","d","fg","fg","fg","fg")
-  	)
-
-	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
-    cat("} \n", file = outFileCon, append = T)
-    flag.newpage <- TRUE
-  }
-     
-  if(ntimes(object) > 0 ) {
-    cat("\\subsection*{Timestamp variables} \n", file = outFileCon, append = T)
-    scvar <- times(object)
-    scvar.names <- names(scvar)
-    
-    descriptions <- c()
-    nbNA <- c()
-    theMin <- c()
-  	theMax <- c()
-    theMed <- c()
-  	theMean <- c()  	
-    
-  	for (i in scvar.names ) {
-  		vtemp <- scvar[[i]]
-  		if(!missing(dateformat)){
-        format(vtemp) <- dateformat
+    if(nbinaries(object) > 0 ) {
+      if (flag.newpage) {
+        cat("\\newpage \n", file = outFileCon, append = T)
       }
-
-  		desc.temp <- description(vtemp)
-      if (nchar(desc.temp) > description.chlength)
-        desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+      cat("\\subsection*{Binary variables} \n", file = outFileCon, append = T)
+      scvar <- binaries(object)
+      scvar.names <- names(scvar)
       
-    	descriptions <- c(descriptions, desc.temp)
-  		nbNA <- c(nbNA, nmissings(vtemp))
-  		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
-  		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
-      theMed <- c(theMed, median(vtemp, na.rm = TRUE))
-  		theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
-  		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
-	  }
+      descriptions <- c()
+      nbNA <- c()
+      theDistrib <- c()   
+      
+      for (i in scvar.names ) {
+    		vtemp <- scvar[[i]]
   
-    nbNA[which(is.na(nbNA))] <- 0
-    N <- rep(nTuples, ntimes(object)) - nbNA
-    NApourcent <- nbNA / nTuples * 100
-  
-  	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMed, theMean)
-  	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Median", "Mean")
-    row.names(df) <- index(object, scvar.names)
-    cat("{\\footnotesize \n", file = outFileCon, append = T)
-
-  	object.xtable <- xtable(
-  		df,
-  		label='featureSummary',
-  		caption='Timestamp variables summary',
-  		digits = 3,
-  		#align = c("l","l","l","c","c"),
-  		display = c("d","s","s","d","fg","fg","fg","fg","fg")
-  	)
-
-	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
-    cat("} \n", file = outFileCon, append = T)
-    flag.newpage <- TRUE
-  }
+        desc.temp <- description(vtemp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+    		descriptions <- c(descriptions, desc.temp)
+    		nbNA <- c(nbNA, nmissings(vtemp))
+    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+  	  }
     
-
-    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, nbinaries(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+    
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theDistrib)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Distribution (%)")
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
   
-    if(!keepTex) {
-      unlink(plot.filename.pdf)
+    	object.xtable <- xtable(
+    		df,
+    		label='featureSummary',
+    		caption='Binary variables summary',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","s","s","d","fg","s")
+    	)
+  
+  	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+    
+    if(nordinals(object) > 0 ) {
+      if (flag.newpage) {
+        cat("\\newpage \n", file = outFileCon, append = T)
+      }
+      cat("\\subsection*{Ordinal variables} \n", file = outFileCon, append = T)
+      scvar <- ordinals(object)
+      scvar.names <- names(scvar)
+      
+      descriptions <- c()
+      nbNA <- c()
+      theNlevels <- c()
+      theDistrib <- c()   
+      
+    	for (i in scvar.names ) {
+    		vtemp <- scvar[[i]]
+  
+    		desc.temp <- description(vtemp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+      	descriptions <- c(descriptions, desc.temp)
+    		nbNA <- c(nbNA, nmissings(vtemp))
+    		theNlevels <- c(theNlevels, nvalues(vtemp))
+    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+  	  }
+    
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, nordinals(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+    
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
+  
+    	object.xtable <- xtable(
+    		df,
+    		label='featureSummary',
+    		caption='Ordinal variables summary',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","s","s","d","fg","d","s")
+    	)
+  
+  	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+    
+    if(nnominals(object) > 0 ) {
+      if (flag.newpage) {
+        cat("\\newpage \n", file = outFileCon, append = T)
+      }
+      cat("\\subsection*{Nominal variables} \n", file = outFileCon, append = T)
+      scvar <- nominals(object)
+      scvar.names <- names(scvar)
+      
+      descriptions <- c()
+      nbNA <- c()
+      theNlevels <- c()
+      theDistrib <- c()   
+      
+      for (i in scvar.names ) {
+        #print(i)
+    		vtemp <- scvar[[i]]
+  
+    		desc.temp <- description(vtemp)
+        #print(desc.temp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+      	descriptions <- c(descriptions, desc.temp)
+    		nbNA <- c(nbNA, nmissings(vtemp))
+    		theNlevels <- c(theNlevels, nvalues(vtemp))
+    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+  	  }
+    
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, nnominals(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+    
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
+  
+    	object.xtable <- xtable(
+    		df,
+    		label='featureSummary',
+    		caption='Nominal variables summary',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","s","s","d","fg","d","s")
+    	)
+  
+  	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+    
+    if(nscales(object) > 0 ) {
+      if (flag.newpage) {
+        cat("\\newpage \n", file = outFileCon, append = T)
+      }
+      cat("\\subsection*{Scale variables} \n", file = outFileCon, append = T)
+      scvar <- scales(object)
+      scvar.names <- names(scvar)
+      
+      descriptions <- c()
+      nbNA <- c()
+    	theMin <- c()
+    	theMax <- c()
+    	theMean <- c()
+    	theSD <- c()
+      
+    	for (i in scvar.names ) {
+    		vtemp <- scvar[[i]]
+    		
+    		desc.temp <- description(vtemp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+      	descriptions <- c(descriptions, desc.temp)
+    		nbNA <- c(nbNA, nmissings(vtemp))
+    		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+    		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+    		theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+  	  }
+    
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, nscales(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+    
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean")
+      # row.names(df) <- 1:nrow(df)
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
+  
+    	object.xtable <- xtable(
+    		df,
+    		label='featureSummary',
+    		caption='Scale variables summary',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","s","s","d","fg","fg","fg","fg")
+    	)
+  
+  	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+       
+    if(ntimes(object) > 0 ) {
+      cat("\\subsection*{Timestamp variables} \n", file = outFileCon, append = T)
+      scvar <- times(object)
+      scvar.names <- names(scvar)
+      
+      descriptions <- c()
+      nbNA <- c()
+      theMin <- c()
+    	theMax <- c()
+      theMed <- c()
+    	theMean <- c()  	
+      
+    	for (i in scvar.names ) {
+    		vtemp <- scvar[[i]]
+    		if(!missing(dateformat)){
+          format(vtemp) <- dateformat
+        }
+  
+    		desc.temp <- description(vtemp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+      	descriptions <- c(descriptions, desc.temp)
+    		nbNA <- c(nbNA, nmissings(vtemp))
+    		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+    		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+        theMed <- c(theMed, median(vtemp, na.rm = TRUE))
+    		theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+  	  }
+    
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, ntimes(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+    
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMed, theMean)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Median", "Mean")
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
+  
+    	object.xtable <- xtable(
+    		df,
+    		label='featureSummary',
+    		caption='Timestamp variables summary',
+    		digits = 3,
+    		#align = c("l","l","l","c","c"),
+    		display = c("d","s","s","d","fg","fg","fg","fg","fg")
+    	)
+  
+  	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+      
+  
+      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+    
+      if(!keepTex) {
+        unlink(plot.filename.pdf)
+      }
     }
   }
 )

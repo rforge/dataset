@@ -325,7 +325,7 @@ setMethod(
   f = "recode",
   signature = c("CategoricalVariable", "list"),
   definition = function (object, recoding, ...) {
-    require('Hmisc')
+
     args <- list(...)
     object.init <- object
     

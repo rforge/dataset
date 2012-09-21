@@ -239,95 +239,98 @@ setMethod(
   signature = c('Bivan'),
   definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF) {
     
-    require(xtable)
-    
-    outName <- 'Bivariate analysis'
-    
-    outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
-    
-    if(missing(pdfSavingName)) {  	
-      pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
-    }
-    
-    latexFile <- paste(pdfSavingName, ".tex", sep="")
-    
-    outFileCon <- file(latexFile, "w", encoding="UTF-8")
-    
-    latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
-    
-    cat("\\section*{Variables} \n", file = outFileCon, append = T)
-    
-    cat("\\textbf{Target}", names(target(object))[1], file = outFileCon, append = T)
-    if (length(description(target(object)[[1]])) > 0) {
-      cat(paste(":", description(target(object)[[1]])), " \n", file = outFileCon, append = T)
-    }
-    
-    cat("\\newline \n", file = outFileCon, append = T)
-    cat("\\textbf{Predictor(s)}", " \n", file = outFileCon, append = T)
-    cat("\\begin{itemize*}", " \n", file = outFileCon, append = T)
-    preds <- names(predictors(object))
-    for (i in preds) {
-      cat("\\item ", i, file = outFileCon, append = T)
-      if(length(description(predictors(object)[[i]])) > 0) {
-        cat(paste(":", description(predictors(object)[[i]])), file = outFileCon, append = T)
-      }
-      cat(" \n", file = outFileCon, append = T)
-    }
-    cat("\\end{itemize*}", " \n", file = outFileCon, append = T)
-    
-    
-    cat("\\textbf{Weighting} ", file = outFileCon, append = T)
-    wvarname <- names(weighting(object))
-    if(length(wvarname) > 0) {
-      cat(wvarname, file = outFileCon, append = T)
-      if (length(description(target(object)[[1]])) > 0) {
-        cat(paste(":", description(weighting(object)[[1]])), " \n", file = outFileCon, append = T)
-      }
+    if(!is.installed.pkg('xtable')) {
+      exit.by.uninstalled.pkg('xtable')
     } else {
-      cat("No weighting variable defined, equi-weighting is used", " \n", file = outFileCon, append = T)
+      require(xtable)
+      
+      outName <- 'Bivariate analysis'
+      
+      outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+      
+      if(missing(pdfSavingName)) {  	
+        pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
+      }
+      
+      latexFile <- paste(pdfSavingName, ".tex", sep="")
+      
+      outFileCon <- file(latexFile, "w", encoding="UTF-8")
+      
+      latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
+      
+      cat("\\section*{Variables} \n", file = outFileCon, append = T)
+      
+      cat("\\textbf{Target}", names(target(object))[1], file = outFileCon, append = T)
+      if (length(description(target(object)[[1]])) > 0) {
+        cat(paste(":", description(target(object)[[1]])), " \n", file = outFileCon, append = T)
+      }
+      
+      cat("\\newline \n", file = outFileCon, append = T)
+      cat("\\textbf{Predictor(s)}", " \n", file = outFileCon, append = T)
+      cat("\\begin{itemize*}", " \n", file = outFileCon, append = T)
+      preds <- names(predictors(object))
+      for (i in preds) {
+        cat("\\item ", i, file = outFileCon, append = T)
+        if(length(description(predictors(object)[[i]])) > 0) {
+          cat(paste(":", description(predictors(object)[[i]])), file = outFileCon, append = T)
+        }
+        cat(" \n", file = outFileCon, append = T)
+      }
+      cat("\\end{itemize*}", " \n", file = outFileCon, append = T)
+      
+      
+      cat("\\textbf{Weighting} ", file = outFileCon, append = T)
+      wvarname <- names(weighting(object))
+      if(length(wvarname) > 0) {
+        cat(wvarname, file = outFileCon, append = T)
+        if (length(description(target(object)[[1]])) > 0) {
+          cat(paste(":", description(weighting(object)[[1]])), " \n", file = outFileCon, append = T)
+        }
+      } else {
+        cat("No weighting variable defined, equi-weighting is used", " \n", file = outFileCon, append = T)
+      }
+      
+      
+      # stdres --------------------------------------
+      if(ncol(stdres(object)) > 0) {
+        s <- summary(stdres(object), merge = 'left')
+        object.xtable <- xtable(
+          sdf(s),
+          align = c("l", rep('c', ncol(sdf(s)))),
+          caption=thresholds(s),
+        )
+        cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
+        cat("\\begin{center} \n", file = outFileCon, append = T)
+        print(object.xtable, file=outFileCon , append=T,
+              table.placement = "htb",
+              floating=F
+        )
+        cat("\\newline ", " \n", file = outFileCon, append = T)
+        cat(thresholds(s), " \n", file = outFileCon, append = T)
+        cat("\\end{center} \n", file = outFileCon, append = T)
+      }
+      
+      # global --------------------------------------
+      if(ncol(global(object)) > 0) {
+        s <- summary(global(object), merge = 'left')
+        object.xtable <- xtable(
+          sdf(s),
+          align = c("l", rep('c', ncol(sdf(s)))),
+          caption=thresholds(s),
+        )
+        cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
+        cat("\\begin{center} \n", file = outFileCon, append = T)
+        print(object.xtable, file=outFileCon , append=T,
+              table.placement = "htb",
+              floating=F
+        )
+        cat("\\newline ", " \n", file = outFileCon, append = T)
+        cat(thresholds(s), " \n", file = outFileCon, append = T)
+        cat("\\end{center} \n", file = outFileCon, append = T)
+      }
+      
+      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
     }
-    
-    
-    # stdres --------------------------------------
-    if(ncol(stdres(object)) > 0) {
-      s <- summary(stdres(object), merge = 'left')
-      object.xtable <- xtable(
-        sdf(s),
-        align = c("l", rep('c', ncol(sdf(s)))),
-        caption=thresholds(s),
-      )
-      cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
-      cat("\\begin{center} \n", file = outFileCon, append = T)
-      print(object.xtable, file=outFileCon , append=T,
-            table.placement = "htb",
-            floating=F
-      )
-      cat("\\newline ", " \n", file = outFileCon, append = T)
-      cat(thresholds(s), " \n", file = outFileCon, append = T)
-      cat("\\end{center} \n", file = outFileCon, append = T)
-    }
-    
-    # global --------------------------------------
-    if(ncol(global(object)) > 0) {
-      s <- summary(global(object), merge = 'left')
-      object.xtable <- xtable(
-        sdf(s),
-        align = c("l", rep('c', ncol(sdf(s)))),
-        caption=thresholds(s),
-      )
-      cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
-      cat("\\begin{center} \n", file = outFileCon, append = T)
-      print(object.xtable, file=outFileCon , append=T,
-            table.placement = "htb",
-            floating=F
-      )
-      cat("\\newline ", " \n", file = outFileCon, append = T)
-      cat(thresholds(s), " \n", file = outFileCon, append = T)
-      cat("\\end{center} \n", file = outFileCon, append = T)
-    }
-    
-    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
-    
   }
 )
 

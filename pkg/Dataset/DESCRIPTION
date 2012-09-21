@@ -20,7 +20,7 @@ LazyLoad: yes
 LazyData: yes
 ZipData: no
 License: GPL (>= 2)
-Collate: environments.R allGeneric.R summary-tools.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R reglog.R zzz.R
+Collate: environments.R tools.global.R allGeneric.R summary-tools.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R reglog.R zzz.R
 URL: http://rforge.fr/Dataset
 Repository: NA
 Date/Publication:
