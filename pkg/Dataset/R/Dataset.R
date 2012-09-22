@@ -680,6 +680,21 @@ setMethod(
     } else {
       return(dataset())
     }
+  }
+)
+setMethod(
+  "scales.exact",
+  "Dataset",
+  function (object) {
+    checkvars(object) <- character(0)
+    weighting(object) <- character(0)
+    subsetvar <- names(which(unlist(lapply(variables(object), is.scale.exact))))
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
 	}
 )
 setMethod(
@@ -688,6 +703,13 @@ setMethod(
   function (object) {
     return(ncol(scales(object)))
 	}
+)
+setMethod(
+  "nscales.exact",
+  "Dataset",
+  function (object) {
+    return(ncol(scales.exact(object)))
+  }
 )
 setMethod(
   "qualitatives",
@@ -727,11 +749,33 @@ setMethod(
 	}
 )
 setMethod(
+  "nominals.exact",
+  "Dataset",
+  function (object) {
+    checkvars(object) <- character(0)
+    weighting(object) <- character(0)
+    subsetvar <- names(which(unlist(lapply(variables(object), is.nominal.exact))))
+    if(length(subsetvar) > 0) {
+      variables(object) <- variables(object)[subsetvar]
+      return(object)
+    } else {
+      return(dataset())
+    }
+  }
+)
+setMethod(
   "nnominals",
   "Dataset",
   function (object) {
     return(ncol(nominals(object)))
 	}
+)
+setMethod(
+  "nnominals.exact",
+  "Dataset",
+  function (object) {
+    return(ncol(nominals.exact(object)))
+  }
 )
 setMethod(
   "ordinals",
@@ -914,9 +958,10 @@ setMethod("summaryToPDF", "Dataset",
   	cat("\\item Number of variables: ", ncol(object), " (",
         nbinaries(object), " binaries, ",
         nordinals(object), " ordinals, ",
-        nnominals(object), " nominals, ",
+        nnominals.exact(object), " nominals, ",
         nscales(object), " scales, ",
-        ntimes(object), " timestamps",
+        ntimes(object), " timestamps, ",
+  	    nweightings(object), " weightings",
         ")", "\n", sep = "", file = outFileCon, append = T)
     cat("\\item Number of rows:", nTuples, "\n", file = outFileCon, append = T)
     cat("\\item Percent of missing values:", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
