@@ -30,8 +30,8 @@ exit.by.uninstalled.pkg <- function(pkg) {
     '\'))'
   )
 }
-exit.by.uninstalled.pkg('foreign')
-exit.by.uninstalled.pkg(c('foreign', 'xtable'))
+# exit.by.uninstalled.pkg('foreign')
+# exit.by.uninstalled.pkg(c('foreign', 'xtable'))
 
 all.is.numeric <- function (x) {
   warn.user <- options(warn = -1) # suppress warnings

@@ -141,7 +141,8 @@ exportMethods(
   "Math",
   "Math2",
   "Ops",
-  "Summary"
+  "Summary",
+  'subset'
 )
 
 export(
@@ -151,10 +152,12 @@ export(
   is.qualitative,
   svar,
   is.scale,
+  is.scale.root,
   tvar,
   is.time,
   nvar,
   is.nominal,
+  is.nominal.root,
   bvar,
   is.binary,
   ovar,

@@ -26,6 +26,9 @@ setClass(
 
 # x <- c(10,53,24,96,85,77,12,NA)
 # y <- svar(x)
+# t <- svar(1:10)
+# u <- wvar(t)
+# v <- svar(u)
 svar <- function(
   x,
   missings,
@@ -37,6 +40,18 @@ svar <- function(
   if(missing(values)) values <- numeric(0)
   if(missing(description)) description <- Dataset.globalenv$Variable.description.default
   if(missing(x)) x <- numeric(0)
+  
+  if(inherits(x, "WeightingVariable")) {
+    return(new(
+      Class = "ScaleVariable",
+      codes = codes(x),
+      missings = missings(x),
+      values = values(x),
+      description = description(x),
+      Variable.version = slot(x, 'Variable.version')
+    )
+    )
+  }
   
   # we apply special treatment for quantitative variable
   variable <- quantitativeVariable(
@@ -160,6 +175,14 @@ setMethod("var", "ScaleVariable",
 
 is.scale <- function(x){
   if(inherits(x, "ScaleVariable")){
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+is.scale.root <- function(x){
+  if(is.scale(x) && !inherits(x, "WeightingVariable")){
     return(TRUE)
   } else {
     return(FALSE)

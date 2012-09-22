@@ -131,6 +131,7 @@ setGeneric("recode", function(object, recoding, ...){ standardGeneric("recode") 
 #setGeneric("as.Variable", function(x, ...){ standardGeneric("as.Variable") })
 setGeneric("cut", function(x, ...){ cut })
 setGeneric("Ops")
+setGeneric("subset")
 
 # if (!isGeneric("sd")) {
 	# if (is.function("sd"))

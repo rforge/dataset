@@ -20,6 +20,18 @@ setClass(
 		flag = TRUE
     n <- length(row.names(object))
     
+		if(flag && any(is.na(row.names(object)))) {
+		  message("row.names argument can't contain NA")
+      print(row.names(object))
+		  flag <- FALSE
+		}
+
+		if(flag && (n != length(unique(row.names(object))))) {
+		  message("row.names have to be unique")
+		  print(row.names(object))
+		  flag <- FALSE
+		}
+    
     lw <- length(slot(object, 'weights'))
     if(flag && lw > 1){
       message("Only one weighting variable name is expected")
@@ -56,19 +68,22 @@ setClass(
 		lth <- length(version)
 		if(flag && lth > 0) {
 		  if(any(is.na(version)) > 0){
-		    stop("Dataset.version can't contain NAs")
+		    message("Dataset.version can't contain NAs")
+		    flag <- FALSE
 		  }
 		  if(lth > 1) {
-		    stop("Dataset.version length must be one")
+		    message("Dataset.version length must be one")
+		    flag <- FALSE
 		  }
 		} else {
-		  stop("Dataset.version can't be empty")
+		  message("Dataset.version can't be empty")
+		  flag <- FALSE
 		}
     
 		for (v in variables(object)) {
 			if (flag && !inherits(v, "Variable")) {
 				message(paste("One or more variable is a", class(v), "object. It should be a Variable object"))
-				flag = FALSE
+				flag <- FALSE
         break
 			}
 			# tester que toutes les variables ont le même nombre d'individus
@@ -397,20 +412,22 @@ setMethod(
       }
       if(length(cv) > 0) {j <- c(varid(cv,x),j)}
       if(length(wv) > 0) {j <- c(varid(wv,x),j)}
-      j <- unique(j)
+      j <- unique(j) # to avoid doulons with weighting and checkvars
 			listData <- listData[j]
 		}
-		if (!missing(i)){
-		  row.names <- row.names[i]
-      if (inherits(i, 'character')) {
-        i <- which(row.names(x) %in% i)
-        if(length(i) == 0) {
+		if (!missing(i)){ # i have to be understood as row.names
+      # ask i to be unique? data.frame do a make.names, I do either
+      row.id <- match(i, row.names)
+		  row.names.new <- make.unique(row.names[row.id])
+#       if (inherits(i, 'character')) {
+#         i <- which(row.names(x) %in% i)
+        if(length(row.id) == 0) {
           message("Your 'i' argument doesn't match any row name") 
           return(dataset())
         }
-      }
+#       }
 			for (k in 1:length(listData)) {
-				listData[[k]] <- listData[[k]][i]
+				listData[[k]] <- listData[[k]][row.id]
 			}
       #representativity to checkvars variables check
       lc <- length(checkvars(x))
@@ -443,12 +460,12 @@ setMethod(
         }
       }
 		}
-		# print(listData)
+# 		print(row.names.new)
 		return(new("Dataset", 
         name = name(x),
         description = description(x),
 				variables = listData,
-        row.names = row.names,
+        row.names = row.names.new,
         weights = weighting(x),
         checkvars = checkvars(x),
         Dataset.version = Dataset.version(x),
@@ -1300,3 +1317,23 @@ setMethod(
     summaryToPDF(object, name)
   }
 )
+
+setMethod(
+  "subset",
+  "Dataset",
+  function (x, ...) {
+    
+    rnames.ini <- row.names(x)
+    y <- v(x)
+    s <- subset(y, ... = ...)
+    rnames.sub <- row.names(s)
+    out <- x[rnames.sub,]
+#     message("Select option isn't implemented yet.")
+    return(out)
+  }
+)
+# data(iris)
+# ir <- dataset(iris)
+# t <- ir[1:3,]
+# t <- ir[as.character(1:3),]
+# t <- subset(ir, Species == 'versicolor')
