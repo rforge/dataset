@@ -106,7 +106,7 @@ is.nominal <- function(x){
     return(FALSE)
   }
 }
-is.nominal.root <- function(x){
+is.nominal.exact <- function(x){
   if(is.scale(x) && !inherits(x, "OrdinalVariable")){
     return(TRUE)
   } else {

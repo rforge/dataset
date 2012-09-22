@@ -181,7 +181,7 @@ is.scale <- function(x){
   }
 }
 
-is.scale.root <- function(x){
+is.scale.exact <- function(x){
   if(is.scale(x) && !inherits(x, "WeightingVariable")){
     return(TRUE)
   } else {
