@@ -326,6 +326,9 @@ setMethod(
   signature = c("CategoricalVariable", "list"),
   definition = function (object, recoding, ...) {
 
+    newcat <- names(recoding)
+    stopifnot(length(newcat) != length(unique(newcat))) #new cat has to be unique
+    
     args <- list(...)
     object.init <- object
     
