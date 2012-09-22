@@ -418,7 +418,7 @@ setMethod(
 		if (!missing(i)){ # i have to be understood as row.names
       # ask i to be unique? data.frame do a make.names, I do either
       row.id <- match(i, row.names)
-		  row.names.new <- make.unique(row.names[row.id])
+		  row.names <- make.unique(row.names[row.id])
 #       if (inherits(i, 'character')) {
 #         i <- which(row.names(x) %in% i)
         if(length(row.id) == 0) {
@@ -465,7 +465,7 @@ setMethod(
         name = name(x),
         description = description(x),
 				variables = listData,
-        row.names = row.names.new,
+        row.names = row.names,
         weights = weighting(x),
         checkvars = checkvars(x),
         Dataset.version = Dataset.version(x),
