@@ -21,7 +21,7 @@ as.value.gnl.num <- function(x,i) {
 
 #methods
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("NominalVariable", "numeric"),
     definition = function(x,i){
       l <- as.value.gnl.num(x,i)
@@ -29,13 +29,12 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
 	}
 )
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("NominalVariable", "character"),
     definition = function(x,i){
       l <- as.value.gnl.char(x,i)
@@ -43,8 +42,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -52,7 +50,7 @@ setMethod(
 
 
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("BinaryVariable", "numeric"),
     definition = function(x,i){
       l <- as.value.gnl.num(x,i)
@@ -60,13 +58,12 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("BinaryVariable", "character"),
     definition = function(x,i){
       l <- as.value.gnl.char(x,i)
@@ -74,8 +71,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -83,7 +79,7 @@ setMethod(
 
 
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("OrdinalVariable", "numeric"),
     definition = function(x,i){
       l <- as.value.gnl.num(x,i)
@@ -91,13 +87,12 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("OrdinalVariable", "character"),
     definition = function(x,i){
       l <- as.value.gnl.char(x,i)
@@ -105,8 +100,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -114,7 +108,7 @@ setMethod(
 
 
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("ScaleVariable", "numeric"),
     definition = function(x,i){
       l <- as.value.gnl.num(x,i)
@@ -122,13 +116,12 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("ScaleVariable", "character"),
     definition = function(x,i){
       l <- as.value.gnl.char(x,i)
@@ -136,15 +129,14 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
 
 
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("TimestampVariable", "numeric"),
     definition = function(x,i){
       l <- as.value.gnl.num(x,i)
@@ -152,13 +144,12 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
 setMethod(
-  f ="as.value",
+  f ="as.valid",
   signature =c("TimestampVariable", "character"),
     definition = function(x,i){
       l <- as.value.gnl.char(x,i)
@@ -166,8 +157,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )

@@ -33,8 +33,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -47,8 +46,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -64,8 +62,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -78,8 +75,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -95,8 +91,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -109,8 +104,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -126,8 +120,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -140,8 +133,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -156,8 +148,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
@@ -170,8 +161,7 @@ setMethod(
         x = codes(x),
         missings = l$mis,
         values = l$val,
-        description = description(x),
-        weights = weights(x)
+        description = description(x)
       ))
   }
 )
