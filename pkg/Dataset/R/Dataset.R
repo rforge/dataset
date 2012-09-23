@@ -1101,7 +1101,7 @@ setMethod("summaryToPDF", "Dataset",
         
       	descriptions <- c(descriptions, desc.temp)
     		nbNA <- c(nbNA, nmissings(vtemp))
-    		theNlevels <- c(theNlevels, nvalues(vtemp))
+    		theNlevels <- c(theNlevels, nvalids(vtemp))
     		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
     		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }
@@ -1153,7 +1153,7 @@ setMethod("summaryToPDF", "Dataset",
         
       	descriptions <- c(descriptions, desc.temp)
     		nbNA <- c(nbNA, nmissings(vtemp))
-    		theNlevels <- c(theNlevels, nvalues(vtemp))
+    		theNlevels <- c(theNlevels, nvalids(vtemp))
     		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
     		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }

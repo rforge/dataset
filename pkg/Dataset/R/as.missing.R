@@ -1,8 +1,16 @@
+# data(iris)
+# ir <- dataset(iris)
+# a <- ir$Species
+# b <- ir$Sepal.Lentgh
+# a1 <- as.missing('setosa', a)
+
+
+
 # generic functions
 as.missing.gnl.char <- function(x,i) {
-  t <- which(names(values(x)) == i)
-  temp.mis <- c(missings(x), values(x)[t])
-  temp.val <- values(x)[-t]
+  t <- which(names(valids(x)) == i)
+  temp.mis <- c(missings(x), valids(x)[t])
+  temp.val <- valids(x)[-t]
   #print(temp.mis)
   #print(temp.val)
   return(list(
@@ -12,9 +20,9 @@ as.missing.gnl.char <- function(x,i) {
 }
 
 as.missing.gnl.num <- function(x,i) {
-  t <- which(values(x) == i)
-  temp.mis <- c(missings(x), values(x)[t])
-  temp.val <- values(x)[-t]
+  t <- which(valids(x) == i)
+  temp.mis <- c(missings(x), valids(x)[t])
+  temp.val <- valids(x)[-t]
   #print(temp.mis)
   #print(temp.val)
   return(list(
@@ -26,10 +34,10 @@ as.missing.gnl.num <- function(x,i) {
 #methods
 setMethod(
   f ="as.missing",
-  signature =c("NominalVariable", "numeric"),
-    definition = function(x,i){
+  signature =c("numeric", "NominalVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
-      return(nvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -39,10 +47,10 @@ setMethod(
 )
 setMethod(
   f ="as.missing",
-  signature =c("NominalVariable", "character"),
-    definition = function(x,i){
+  signature =c("character", "NominalVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
-      return(nvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -55,10 +63,10 @@ setMethod(
 
 setMethod(
   f ="as.missing",
-  signature =c("BinaryVariable", "numeric"),
-    definition = function(x,i){
+  signature =c("numeric", "BinaryVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
-      return(bvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -68,10 +76,10 @@ setMethod(
 )
 setMethod(
   f ="as.missing",
-  signature =c("BinaryVariable", "character"),
-    definition = function(x,i){
+  signature =c("character", "BinaryVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
-      return(bvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -84,28 +92,46 @@ setMethod(
 
 setMethod(
   f ="as.missing",
-  signature =c("OrdinalVariable", "numeric"),
-    definition = function(x,i){
+  signature =c("numeric", "OrdinalVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
-      return(ovar(
-        x = codes(x),
-        missings = l$mis,
-        values = l$val,
-        description = description(x)
-      ))
+      if(length(l$val) > 2) {
+        return(ovar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      } else {
+        return(bvar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      }
   }
 )
 setMethod(
   f ="as.missing",
-  signature =c("OrdinalVariable", "character"),
-    definition = function(x,i){
+  signature =c("character", "OrdinalVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
-      return(ovar(
-        x = codes(x),
-        missings = l$mis,
-        values = l$val,
-        description = description(x)
-      ))
+      if(length(l$val) > 2) {
+        return(ovar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      } else {
+        return(bvar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      }
   }
 )
 
@@ -113,8 +139,8 @@ setMethod(
 
 setMethod(
   f ="as.missing",
-  signature =c("ScaleVariable", "numeric"),
-    definition = function(x,i){
+  signature =c("numeric", "ScaleVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
       return(svar(
         x = codes(x),
@@ -126,8 +152,8 @@ setMethod(
 )
 setMethod(
   f ="as.missing",
-  signature =c("ScaleVariable", "character"),
-    definition = function(x,i){
+  signature =c("character", "ScaleVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
       return(svar(
         x = codes(x),
@@ -141,8 +167,8 @@ setMethod(
 
 setMethod(
   f ="as.missing",
-  signature =c("TimestampVariable", "numeric"),
-    definition = function(x,i){
+  signature =c("numeric", "TimestampVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
       return(tvar(
         x = codes(x),
@@ -154,8 +180,8 @@ setMethod(
 )
 setMethod(
   f ="as.missing",
-  signature =c("TimestampVariable", "character"),
-    definition = function(x,i){
+  signature =c("character", "TimestampVariable"),
+    definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
       return(tvar(
         x = codes(x),
@@ -165,3 +191,32 @@ setMethod(
       ))
   }
 )
+
+
+## doesn't make sens for a weighting variable, as it can't contain missing
+# setMethod(
+#   f ="as.missing",
+#   signature =c("numeric", "WeightingVariable"),
+#   definition = function(i,x){
+#     l <- as.missing.gnl.num(x,i)
+#     return(wvar(
+#       x = codes(x),
+#       missings = l$mis,
+#       values = l$val,
+#       description = description(x)
+#     ))
+#   }
+# )
+# setMethod(
+#   f ="as.missing",
+#   signature =c("character", "WeightingVariable"),
+#   definition = function(i,x){
+#     l <- as.missing.gnl.char(x,i)
+#     return(wvar(
+#       x = codes(x),
+#       missings = l$mis,
+#       values = l$val,
+#       description = description(x)
+#     ))
+#   }
+# )

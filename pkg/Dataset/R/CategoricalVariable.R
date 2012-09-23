@@ -167,13 +167,13 @@ setMethod(
   definition = function (x) {
     out <- factor(codes(x), exclude = missings(x)) #factor with codes
     codelevels <- levels(out)
-    valuelevels <- names(values(x))[na.omit(match(codelevels, values(x)))] #we match levels with values
+    valuelevels <- names(valids(x))[na.omit(match(codelevels, valids(x)))] #we match levels with values
     levels(out) <- valuelevels
     out <- as.character(out) # we get a character vector using the values
     
     # then we create the factor with all values as levels in the same order as given in the values slot (without missing values)
-    #out <- factor(out, levels = names(values(x)), labels = names(values(x)))
-    out <- factor(out, levels = names(values(x)))
+    #out <- factor(out, levels = names(validsx)), labels = names(validsx)))
+    out <- factor(out, levels = names(valids(x)))
     return(out)
   }
 )
@@ -316,7 +316,7 @@ setMethod("as.data.frame", "CategoricalVariable",
 #)
 setMethod("nvalues", "CategoricalVariable", 
   definition = function (object) {
-  	length(values(object))
+  	length(valids(object))
   }
 )
 
@@ -332,7 +332,7 @@ setMethod(
     args <- list(...)
     object.init <- object
     
-    val <- values(object)
+    val <- valids(object)
     names <- names(recoding)
     
     if (all.is.numeric(names)) { #user gives codes
@@ -389,7 +389,7 @@ setMethod(
         Variable.version = Variable.version(object)
       )
     } else {
-      values(object) <- val
+      valids(object) <- val
     }
     
     if(is.null(args$silent) || (args$silent == FALSE))

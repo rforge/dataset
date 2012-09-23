@@ -220,10 +220,52 @@ setReplaceMethod(
 )
 
 setMethod(
+  f = "nmissings",
+  signature = "Variable", 
+  definition = function (object) { 
+    return(length(slot(object, "missings")))
+  }
+)
+
+setMethod(
+  f = "valids",
+  signature = "Variable", 
+  definition = function (object) { 
+    return(c(slot(object, "values")))
+  }
+)
+
+setReplaceMethod(
+  f = "valids" ,
+  signature = "Variable" ,
+  definition = function(object, value){
+    object@values <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod(
+  f = "nvalids",
+  signature = "Variable", 
+  definition = function (object) { 
+    return(length(slot(object, "values")))
+  }
+)
+
+setMethod(
   f = "values",
   signature = "Variable", 
   definition = function (object) { 
-  return(slot(object, "values"))
+  return(c(slot(object, "missings"),slot(object, "values")))
+  }
+)
+
+setMethod(
+  f = "nvalues",
+  signature = "Variable", 
+  definition = function (object) { 
+    return(length(c(slot(object, "missings"),slot(object, "values"))))
   }
 )
 
@@ -269,54 +311,46 @@ setMethod(
 )
 
 setMethod(
-  f = "values.reverse",
+  f = "valids.reverse",
   signature = c("Variable"), 
   definition = function (object) {
     #names <- names(values(object))
-    new <- rev(values(object))
+    new <- rev(valids(object))
     #names(new) <- names
-    values(object) <- new
+    valids(object) <- new
     return(object)
   }
 )
 
 setMethod(
-  f = "values.permut",
+  f = "valids.permut",
   signature = c("Variable", "numeric", "numeric"), 
   definition = function (object, i, j) {
-    val <- values(object)
+    val <- valids(object)
     temp <- val[i]
     temp.name <- names(val)[i]
     val[i] <- val[j]
     names(val)[i] <- names(val)[j]
     val[j] <- temp
     names(val)[j] <- temp.name
-    values(object) <- val
+    valids(object) <- val
     return(object)
   }
 )
 setMethod(
-  f = "values.permut",
+  f = "valids.permut",
   signature = c("Variable", "character", "character"), 
   definition = function (object, i, j) {
-    val <- values(object)
+    val <- valids(object)
     val.i <- val[which(names(val) == i)]
     val.j <- val[which(names(val) == j)]
     
-    out <- do.call(findMethods('values.permut', classes = c("numeric"))[[1]], list(object, val.i, val.j))
+    out <- do.call(findMethods('valids.permut', classes = c("numeric"))[[1]], list(object, val.i, val.j))
     return(out)
   }
 )
 
-setReplaceMethod(
-	f = "values" ,
-	signature = "Variable" ,
-	definition = function(object, value){
-		object@values <- value
-    validObject(object)
-		return(object)
-	}
-)
+
 
 setMethod(
   f = "description",

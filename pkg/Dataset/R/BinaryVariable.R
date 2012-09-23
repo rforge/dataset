@@ -10,13 +10,13 @@ setClass(
     if(Dataset.globalenv$print.io) cat (" =>       BinaryVariable: object validity check \n")
   	flag = TRUE
   
-    if (nvalues(object) != 2) {
+    if (nvalids(object) != 2) {
       message("The variable must have exactly two values")
       flag <- FALSE
     }
-    if (!all(values(object) %in% c(0, 1))) {
+    if (!all(valids(object) %in% c(0, 1))) {
       message("Codes have to be 0 and 1 for binary variables")
-      message(paste("Codes are:", values(object, type = "values")))
+      message(paste("Codes are:", valids(object, type = "values")))
       flag <- FALSE
     }
      
@@ -47,6 +47,26 @@ binaryVariable <- function(
     #values <- variable$values
     m <- min(values)
     M <- max(values)
+  
+  # as we recode it may happen collision if a missing take value 0 or 1
+  if (0 %in% missings) {
+    mis <- which(missings == 0)
+    codemis <- missings[mis]
+    
+    mintotal <- min(values, missings, 0)
+    missings[mis] <- mintotal - 1
+    
+    x[which(x == 0)] <- mintotal - 1
+  }
+  if (1 %in% missings) {
+    mis <- which(missings == 1)
+    codemis <- missings[mis]
+    
+    mintotal <- min(values, missings, 0)
+    missings[mis] <- mintotal - 1
+    
+    x[which(x == 1)] <- mintotal - 1
+  }
     
     if (m != 0) {
       x[which(x == m)] <- 0
@@ -59,6 +79,13 @@ binaryVariable <- function(
       message("the higher value must be 1 in a BinaryVariable object, a recodage has been performed")
     }
 
+  
+#   data(iris)
+#   ir <- dataset(iris)
+#   a <- ir$Species
+#   a1 <- as.missing('setosa', a)
+#   a1 <- as.missing('versicolor', a)
+  
     out <- list(
       x = x,
       missings = missings,

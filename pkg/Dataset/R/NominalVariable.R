@@ -10,7 +10,7 @@ setClass(
     if(Dataset.globalenv$print.io) cat (" =>       NominalVariable: object validity check \n")
   	flag = TRUE
         
-    if (nvalues(object) <= 2) {
+    if (nvalids(object) <= 2) {
       message("The variable must have at least three values")
       flag <- FALSE
     }
@@ -65,7 +65,7 @@ nvar <- function(
       Class = "NominalVariable",
       codes = codes(x),
       missings = missings(x),
-      values = values(x),
+      values = valids(x),
       description = description(x),
       Variable.version = slot(x, 'Variable.version')
     )

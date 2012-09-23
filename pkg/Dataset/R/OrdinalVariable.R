@@ -41,7 +41,7 @@ ovar <- function(
       Class = "OrdinalVariable",
       codes = codes(x),
       missings = missings(x),
-      values = values(x),
+      values = valids(x),
       description = description(x),
       Variable.version = slot(x, 'Variable.version')
     )
