@@ -42,6 +42,10 @@ setClass(
         message("The weighting variable name given is not in the dataset")
         flag <- FALSE
       }
+      if(!is.weighting(object[[varid(weighting(object), object)]])){
+        message("The weighting variable must be a WeightingVariable object")
+        flag <- FALSE
+      }
     }
     
     if (flag && length(checkvars(object)) > 0) {
@@ -307,11 +311,25 @@ setReplaceMethod(
   f = "weighting" ,
   signature = c("Dataset", "character") ,
   definition = function(object, value){
-		object@weights <- value
+    if(length(value) == 0) {
+      object@weights <- value
+    } else {
+      if(is.weighting(object[[value]])) {
+        object@weights <- value
+      } else {
+  #       message("The argument given isn't a WeightingVariable object")
+  #       message("I'll try to perform a conversion...", appendLF=F)
+  #       print(deparse(substitute(object)))
+  #       .GlobalEnv$object[[value]] <- wvar(object[[value]])
+  #       message("success!")
+      }
+    }
     validObject(object)
 		return(object)
 	}
 )
+# weighting(ir) <- 'Sepal.Length'
+# head(ir)
 
 setReplaceMethod(
   f = "weighting" ,
@@ -959,7 +977,7 @@ setMethod("summaryToPDF", "Dataset",
         nbinaries(object), " binaries, ",
         nordinals(object), " ordinals, ",
         nnominals.exact(object), " nominals, ",
-        nscales(object), " scales, ",
+        nscales.exact(object), " scales, ",
         ntimes(object), " timestamps, ",
   	    nweightings(object), " weightings",
         ")", "\n", sep = "", file = outFileCon, append = T)
