@@ -67,6 +67,7 @@ setGeneric("as.Dataset", function(object){ standardGeneric("as.Dataset") })
 setGeneric("contains", function(keywords, data, ignore.case = T, and = F){ standardGeneric("contains") })
 setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
 setGeneric("alldescriptions", function(object){ standardGeneric("alldescriptions") })
+setGeneric("allvalues", function(object){ standardGeneric("allvalues") })
 setGeneric("v", function(x){ standardGeneric("v") })
 setGeneric("export", function(object, name){ standardGeneric("export") })
 

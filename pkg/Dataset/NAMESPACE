@@ -58,6 +58,7 @@ exportMethods(
   'origin',
   'distrib',
   'alldescriptions',
+  'allvalues',
   'binaries',
   'head',
   'index',

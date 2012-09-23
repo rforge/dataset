@@ -260,6 +260,25 @@ setMethod("alldescriptions", "Dataset",
   }
 )
 
+setMethod("allvalues", "Dataset", 
+  definition = function (object) {
+    valids <- mapply(valids, variables(object))
+    missings <- mapply(missings, variables(object))
+    
+    nvar <- length(valids)
+    
+    out <- vector("list", nvar)
+    for(i in 1:nvar) {
+      out[[i]] <- list(
+        'valids' = valids[[i]],
+        'missings' = missings[[i]]
+      )            
+    }
+    names(out) <- names(object)
+    return(out)
+  }
+)
+
 setMethod("variables", "Dataset", 
   definition = function (object) {
     return(slot(object, "variables"))
