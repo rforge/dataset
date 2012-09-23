@@ -16,8 +16,8 @@ removeEmptyValueLabels <- function(values) {
 # removeEmptyValueLabels(vl3)
 
 get.spss.file <- function(
-  datadir,
-	file, 
+  file,
+  datadir, 
 	variables = NULL,
 	tsvar = character(0),
   ovar = character(0),

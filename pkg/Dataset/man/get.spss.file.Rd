@@ -9,8 +9,8 @@ Import a SPSS data base to a data base in format \code{Dataset}.
 }
 \usage{
 get.spss.file(
-  datadir,
-  file, 
+  file,
+  datadir, 
   variables = NULL,
   tsvar = character(0),
   ovar = character(0),
@@ -27,11 +27,11 @@ get.spss.file(
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{datadir}{
-the directory where your SPSS file is. If missing the working directory is used.
-}
   \item{file}{
 the full name of the file you want to import.
+}
+  \item{datadir}{
+the directory where your SPSS file is. If missing the working directory is used.
 }
   \item{variables}{
 the list of variables you want to import. If missing all variables in the SPSS file are imported.

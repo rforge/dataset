@@ -1391,9 +1391,23 @@ setMethod(
   "export",
   "Dataset",
   function (object, name) {
+    
     #dir.create(name)
-    assign(make.names(name(object)), object)
-    c <- call('save', name(object), file = paste(name, ".RData", sep = ''))
+    if(!missing(name)) {
+      outname <- make.names(name)
+    } else {
+      if(length(name(object)) > 0) {
+        outname <- make.names(name(object))
+      } else {
+        outname <- 'untitled.bdd'
+      }
+    }
+    
+    message('Your file will be save in ', getwd())
+    message('Name of your file: ', outname, '.RData')
+    
+    assign(outname, object)
+    c <- call('save', outname, file = paste(name, ".RData", sep = ''))
     eval(c)
 #     save(object, file = paste(name, ".RData", sep = ''))
     summaryToPDF(object, name)
