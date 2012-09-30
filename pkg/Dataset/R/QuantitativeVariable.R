@@ -61,19 +61,46 @@ setMethod(
   signature = "QuantitativeVariable", 
   definition = function (x, ...) {
     args <- list(...)
-    out <- cut(as.vector(x), ... = ...)
+    if('include.lowest' %in% names(args)) {
+      out <- cut(as.vector(x), ... = ...)
+    } else {
+      out <- cut(as.vector(x), include.lowest=T, ... = ...)
+    }
     
-    # print(levels(out))
+    valids.names <- levels(out)
+    min.valid.code <- max(max(missings(x)),0) + 1 
+    # we want first valid case start at 1
+    valids <- min.valid.code:(min.valid.code+nlevels(out)-1)
+#     valids <- 1:nlevels(out)
+    names(valids) <- valids.names
+    
+    out <- as.numeric(out) ## FIXME pb missing collision ?
+    
+    diff.min.code <- min(out, na.rm=T) - min.valid.code
+#     print(diff.min.code)
+#     print(out[1:20])
+    out <- out - diff.min.code
+#     print(out[1:20])
+#     print(valids)
+    
+    for (i in missings(x)){
+      out[which(codes(x) == i)] <- i
+    }
     
     if (nlevels(out) == 2) out <- bvar(out)
-    else out <- ovar(out)
+    else out <- ovar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
     
-    description(out) <- paste(description(x),'- cutted')
-    missings(out) <- missings(x)
-
     if(is.null(args$silent) || (args$silent == FALSE))
       print(table(v(x), v(out)))
     
+    nmissings.before <- nmissings(x)
+    nmissings.after <- nmissings(out)
+    if(nmissings.before != nmissings.after) {
+      message('Sorry, a problem occurs, data consistency lost. Please report this bug to the package maintainer.')
+      message(paste('nmissings.before', nmissings.before))
+      message(paste('nmissings.after', nmissings.after))
+      stop()
+    }
     return(out)
   }
 )

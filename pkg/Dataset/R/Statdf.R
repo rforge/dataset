@@ -90,7 +90,11 @@ setMethod('as.data.frame', 'summary.Statdf',
             return(sdf(x))
           }
 )
-
+setMethod('v', 'summary.Statdf', 
+          definition = function (x) {
+            return(sdf(x))
+          }
+)
 setMethod('name', 'summary.Statdf', 
           definition = function (object) { 
             return(slot(object, 'name'))
@@ -299,6 +303,18 @@ setMethod('sdf', 'Statdf',
     return(out)
   }
 )
+
+setMethod('as.data.frame', 'Statdf', 
+          definition = function (x) {
+            return(sdf(x))
+          }
+)
+setMethod('v', 'Statdf', 
+          definition = function (x) {
+            return(sdf(x))
+          }
+)
+
 setReplaceMethod(
   f = 'sdf' ,
   signature = c('Statdf', 'data.frame') ,

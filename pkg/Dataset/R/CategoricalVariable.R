@@ -70,7 +70,11 @@ categoricalVariable <- function(x, values, missings, description) {
     codes <- x
   }
   
-  stopifnot(matched)
+  if(!matched) {
+    print(x)
+    stop("x argument is not suppored")
+  }
+      
   
   # we apply special treatment for variable
   variable <- variable(
@@ -373,7 +377,7 @@ setMethod(
 
     recoding <- list(...)
     newcat <- names(recoding)
-    stopifnot(length(newcat) != length(unique(newcat))) #new cat has to be unique
+    stopifnot(length(newcat) == length(unique(newcat))) #new cat has to be unique
     
     args <- list(...)
     object.init <- object
@@ -442,6 +446,100 @@ setMethod(
       print(table(v(object.init), v(object)))
       
     return(object)
+  }
+)
+
+
+setMethod(
+  f = "frequencies",
+  signature = "CategoricalVariable", 
+  definition = function (x, ...) {
+    
+    format <- 'f'
+    digits <- 2
+    
+    l <- list(...)
+    if(! 'weights' %in% names(l)) {
+      message('Warning: no weights defined! Equi-weighting will be used.')
+      message('Prefer use the method for Dataset objects to take weights into account.')
+      weights <- rep(1, length(x))
+    } else {
+      weights <- l$weights
+      stopifnot(length(weights) == length(x))
+    }
+    
+    vali <- valids(x)
+    mis <- missings(x)
+    valu <- c(vali, mis)
+    
+    n <- length(valu)
+    names <- c('Coding', 'Missing', 'Label', 'N', 'N total', 'Percent', 'Percent (all)', 'Percent total')
+    p <- length(names)
+    
+    out <- as.data.frame(matrix(rep(-1, (n)*p), ncol=p))
+    names(out) <- names
+    out[,'Coding'] <- c(valu)
+    out[,'Label'] <- c(names(valu))
+    
+    miscol <- rep('', n)
+    miscol[which(valu %in% mis)] <- 'x'
+    out[,'Missing'] <- c(miscol)
+    
+    N <- numeric(0)
+    for (i in valu) {
+      N <- c(N, sum(weights[which(codes(x) == i)]))
+    }
+    N.valids <- N[1:length(vali)]
+    N.missings <- N[(length(vali)+1):length(N)]
+    N.total <- sum(N)
+    N.valids.total <- sum(N.valids)
+    N.missings.total <- sum(N.missings)
+    
+    N.valids.order <- order(N.valids, decreasing=T)
+    N.missings.order <- order(N.missings, decreasing=T)
+    N.missings.order.out <- ((length(vali)+1):length(N))[N.missings.order]
+    
+    values.new.order <- c(N.valids.order,N.missings.order.out)
+    
+
+    out <- out[values.new.order,]
+    
+    N <- N[values.new.order]
+    out[,'N'] <- formatC(N, format='d')
+    
+    N.total.col <- rep('', n)
+    N.total.col[length(vali)] <- formatC(N.valids.total, format='d')
+    N.total.col[n] <- formatC(N.missings.total, format='d')
+    out[,'N total'] <- N.total.col
+    
+    percent.total.col <- rep('', n)
+    percent.total.col[length(vali)] <- formatC(N.valids.total/N.total*100, format=format, digits=digits)
+    percent.total.col[n] <- formatC(N.missings.total/N.total*100, format=format, digits=digits)
+    out[,'Percent total'] <- percent.total.col
+   
+    percent <- N/N.total*100
+    percent <- formatC(percent, format=format, digits=digits)
+    out[,'Percent (all)'] <- percent
+    
+    percent.sep <- c(N[1:length(vali)]/N.valids.total,N[(length(vali)+1):length(N)]/N.missings.total)*100
+    percent.sep <- formatC(percent.sep, format=format, digits=digits)
+    out[,'Percent'] <- percent.sep
+    
+    last.line <- data.frame(
+      'Coding' = '',
+      'Missing' = '',
+      'Label' = '',
+      'N' = '',
+      'N total' = formatC(N.total, format='d'),
+      'Percent' = '',
+      'Percent (all)' = '',
+      'Percent total' = N.valids.total/N.total*100 + N.missings.total/N.total*100,
+      check.names = F
+    )
+
+    out <- rbind(out, last.line)
+    
+    return(out)
   }
 )
 

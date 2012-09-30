@@ -8,12 +8,12 @@
 \code{recode} performs a recoding of an object inheriting of a \code{CategoricalVariable} object.
 }
 \usage{
-recode(object, recoding, ...)
+recode(object, ...)
 }
 \section{Methods}{
 \describe{
 
-\item{\code{signature(object = "CategoricalVariable", recoding = "list")}}{
+\item{\code{signature(object = "CategoricalVariable")}}{
 \code{recode} method for a \code{CategoricalVariable} object.
 }
 }}
@@ -21,11 +21,8 @@ recode(object, recoding, ...)
   \item{object}{
 an object inheriting of the class \code{CategoricalVariable}
 }
-  \item{recoding}{
-a \code{list} with the new values as names, and for each element a vector specifying the old values to be merged to create the new value. If a vector of old values is \code{numeric} the function expects codes, and if \code{character} the function expects short value labels.
-}
   \item{\dots}{
-Not used.
+Enter each new value as an option name, and for each element give a vector specifying the old values to be merged to create the new value. If a vector of old values is \code{numeric} the function expects codes, and if \code{character} the function expects short value labels.
 }
 }
 \details{
@@ -43,7 +40,13 @@ Emmanuel Rousseaux
 }
 \examples{
 data(dds)
-#TO WRITE
+valids(dds$connaissetcomp.acquis.1)
+dds$connaissetcomp.acquis.1.in3 <- recode(
+  dds$connaissetcomp.acquis.1,
+  'no' = 1:2,
+  'average' = 3,
+  'yes' = 4:5
+)
 }
 \keyword{methods}
 \keyword{categorical}

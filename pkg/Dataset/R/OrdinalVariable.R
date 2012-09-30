@@ -31,22 +31,33 @@ ovar <- function(
   description
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  OrdinalVariable: builder \n")
-  if(missing(missings)) missings <- numeric(0)
-  if(missing(values)) values <- numeric(0)
-  if(missing(description)) description <- Dataset.globalenv$Variable.description.default
-  if(missing(x)) x <- numeric(0)
   
   if (inherits(x, 'NominalVariable')) {
+    if(missing(missings)) {
+      missings <- Dataset::missings(x) 
+      
+    }
+    if(missing(values)) {
+      valids <- Dataset::valids(x) 
+    }
+    if(missing(description)) {
+      description <- Dataset::description(x) 
+    }
     out <- new(
       Class = "OrdinalVariable",
       codes = codes(x),
-      missings = missings(x),
-      values = valids(x),
-      description = description(x),
+      missings = missings,
+      values = valids,
+      description = description,
       Variable.version = slot(x, 'Variable.version')
     )
   } else {
   
+    if(missing(missings)) missings <- numeric(0)
+    if(missing(values)) values <- numeric(0)
+    if(missing(description)) description <- Dataset.globalenv$Variable.description.default
+    if(missing(x)) x <- numeric(0)
+    
     # we apply special treatment for categorical variable
     variable <- categoricalVariable(
       x = x,

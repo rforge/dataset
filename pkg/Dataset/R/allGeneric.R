@@ -154,6 +154,8 @@ setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
 
 setGeneric("varid", function(names, object){ standardGeneric("varid" ) })
 
+setGeneric("frequencies", function(x, ...){ standardGeneric("frequencies" ) })
+
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 
 # setGeneric("sd", function(object, na.rm = FALSE){ standardGeneric("sd") })
@@ -177,7 +179,8 @@ setGeneric("rbind",  function(..., deparse.level = 1){  standardGeneric("rbind")
 setGeneric("recode", function(object, ...){ standardGeneric("recode") })
 #setGeneric("cut", function(x, ...){ standardGeneric("cut") })
 #setGeneric("as.Variable", function(x, ...){ standardGeneric("as.Variable") })
-setGeneric("cut", function(x, ...){ cut })
+# setGeneric("cut", function(x, ...){ cut })
+setGeneric("cut")
 setGeneric("Ops")
 setGeneric("subset")
 

@@ -2,9 +2,9 @@
 \docType{methods}
 \alias{bivan-methods}
 \alias{bivan,formula,Dataset-method}
-\title{Compute some bivariate analysis}
+\title{ Bivariate analysis measures computation }
 \description{
-\code{bivan} returns the results of the bivariate analysis requested by the user.
+\code{bivan} computes some main bivariate analysis measures.
 }
 \section{Methods}{
 \describe{
@@ -14,4 +14,6 @@
 }
 }}
 \keyword{methods}
+\keyword{bivan}
 \keyword{bivariate}
+\keyword{analysis}

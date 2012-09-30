@@ -150,7 +150,8 @@ exportMethods(
   "Math2",
   "Ops",
   "Summary",
-  'subset'
+  'subset',
+  'frequencies'
 )
 
 export(

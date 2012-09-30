@@ -1173,17 +1173,21 @@ calc.somer.d <- function(x)
   asympt.var <- asympt.var.numerator/(n*(1-sc$sum.pXj.squared)^4)
   
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
 #   pvalue <- pnorm(abs(stat)/std.error, mean = 0, sd = 1, lower.tail = F)*2 # il faut mettre la stat en valeur absolue ?
   # le calcul pnorm(abs(-0.10667)/0.062592, mean = 0, sd = 1, lower.tail = F)*2
   # tombe juste avec para
-  message('somer.d')
-  message(paste('stat',stat))
-  message(paste('asympt.var',asympt.var))
-  message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
-  message(paste('std.error',std.error))
-  message(paste('test statistic',stat/std.error))
-  message(paste('pvalue', pvalue))
+#   message('somer.d')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
   
   return(list(
     statistic = stat,
@@ -1217,7 +1221,12 @@ calc.kendall.tau.a <- function(x)
   }
   asympt.var <- 4/n*( asympt.var - stat^2)
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
   
 #   message('tau.a')
 #   message(paste('stat',stat))
@@ -1285,7 +1294,11 @@ calc.kendall.tau.b <- function(x)
   
 #   std.error <- sqrt(asympt.var)/sqrt(n)
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
   
 #   message('tau.b')
 #   message(paste('stat',stat))
@@ -1319,7 +1332,11 @@ calc.stuart.tau.c <- function(x)
   asympt.var <- (mindim/(1-mindim))^2 * calc.kendall.tau.a(x)$asympt.var
   
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
   
 #   message('tau.c')
 #   message(paste('stat',stat))
@@ -1363,7 +1380,11 @@ calc.gk.gamma <- function(x)
   }
   asympt.var <- 16/(n*(c+d)^4) * asympt.var
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
   
 #   message('\n gamma')
 #   message(paste('stat',stat))
@@ -1413,7 +1434,11 @@ calc.wilson.e <- function(x)
   }
   asympt.var <- 4 * asympt.var/(n*(1-sc$sum.pij.squared)^4)
   std.error <- sqrt(asympt.var)
-  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  if(stat < 0) {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  } else {
+    pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = F)*2
+  }
   
 #   message('\n wilson.e')
 #   message(paste('stat',stat))
