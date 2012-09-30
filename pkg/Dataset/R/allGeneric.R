@@ -1,7 +1,9 @@
 setGeneric("name", function(object){ standardGeneric("name") })
 setGeneric("name<-", function(object, value){ standardGeneric("name<-") })
+setGeneric("nroww", function(object, ...){ standardGeneric("nroww") })
 setGeneric("missings", function(object){ standardGeneric("missings") })
 setGeneric("nmissings", function(object){ standardGeneric("nmissings") })
+setGeneric("nmissingsw", function(object, weights){ standardGeneric("nmissingsw") })
 setGeneric("missings<-", function(object, value){ standardGeneric("missings<-" ) })
 setGeneric("description", function(object){ standardGeneric("description") })
 setGeneric("description<-", function(object, value){ standardGeneric("description<-" ) })
@@ -26,10 +28,9 @@ setGeneric("format")
 setGeneric("format<-", function(object, value){ standardGeneric("format<-" ) })
 setGeneric("as.valid", function(i, x){ standardGeneric("as.valid") })
 setGeneric("as.missing", function(i, x){ standardGeneric("as.missing") })
-setGeneric("distrib", function(object, missings.omit = TRUE, percent = FALSE, sorting, format = FALSE, digits = 2, chlength = 6, sep, cut = 40){ standardGeneric("distrib") })
-#setGeneric("sd", function(x, na.rm){stats::sd})
-#setGeneric("sd", function(x, na.rm){stats::sd})
+setGeneric("distrib", function(object, weights, missings.omit = TRUE, percent = FALSE, sorting, format = FALSE, digits = 2, chlength = 6, sep, cut = 40, cut.percent = 0){ standardGeneric("distrib") })
 setGeneric("sd")
+setGeneric("sum")
 setGeneric("variables", function(object){ standardGeneric("variables") })
 setGeneric("variables<-", function(object, value){ standardGeneric("variables<-" ) })
 setGeneric("Variable.version", function(object, ...){ standardGeneric("Variable.version") })
@@ -62,7 +63,32 @@ setGeneric("nbinaries", function(object){ standardGeneric("nbinaries") })
 setGeneric("weightings", function(object){ standardGeneric("weightings" ) })
 setGeneric("nweightings", function(object){ standardGeneric("nweightings" ) })
 setGeneric("index", function(object, names){ standardGeneric("index") })
-setGeneric("summaryToPDF", function(object, pdfSavingName, graphics = F, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = F, openPDF = T, ...){ standardGeneric("summaryToPDF") })
+setGeneric("rename", function(object, names){ standardGeneric("rename") })
+setGeneric("summaryToPDF", function(
+  object,
+  pdfSavingName,
+  graphics = F,
+  description.chlength = 300,
+  valids.chlength = 40,
+  valids.cut.percent = 0.5,
+  sorting = "decreasing",
+  dateformat,
+  latexPackages = NULL,
+  width.id = 0.5,
+  width.varname = 1.5,
+  width.description = 10.5,
+  width.n = 0.8,
+  width.na = 1.2,
+  width.valids = 5,
+  width.valids.nao.inc = 5,
+  width.min = 1.25,
+  width.max = 1.25,
+  width.mean = 1.25,
+  width.stddev = 1.25,
+  keepTex = F,
+  openPDF = T,
+  ...
+){ standardGeneric("summaryToPDF") })
 setGeneric("as.Dataset", function(object){ standardGeneric("as.Dataset") })
 setGeneric("contains", function(keywords, data, ignore.case = T, and = F){ standardGeneric("contains") })
 setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
@@ -92,12 +118,26 @@ setGeneric("formatc<-", function(object, value){ standardGeneric("formatc<-" ) }
 setGeneric("bivan", function(
   formula,
   data,
-  chi2 = TRUE,
-  cramer.v = TRUE,
-  gk.tau = TRUE,
-  somer.d = TRUE,
-  stdres = TRUE,
-  quiet = FALSE
+  chi2 = T,
+  phi = F,
+  tschuprow = F, # 1918
+  cramer.v = T, # 1946
+  pearson.contingency = F, # 1948
+  likelihood.ratio = F,
+  gk.lambda = F, # 1954
+  gk.tau = F, # 1954
+  gk.tau.sqrt = T,
+  theil.u = F,
+  theil.u.sqrt = F,
+  kendall.tau.a = F, # 1938
+  kendall.tau.b = F, # 1945
+  stuart.tau.c = F, # 1953
+  gk.gamma = F, # 1954
+  somer.d = T, # 1962
+  wilson.e = F, # 1974
+  calc.spearman.rho = F,
+  stdres = T,
+  quiet = F
 ){ standardGeneric("bivan") })
 setGeneric("target", function(object){ standardGeneric("target") })
 setGeneric("target<-", function(object, value){ standardGeneric("target<-" ) })
@@ -133,7 +173,8 @@ setGeneric("merge")
 setGeneric("cbind",  function(..., deparse.level = 1){  standardGeneric("cbind") })
 setGeneric("rbind",  function(..., deparse.level = 1){  standardGeneric("rbind") })
 
-setGeneric("recode", function(object, recoding, ...){ standardGeneric("recode") })
+# setGeneric("recode", function(object, recoding, ...){ standardGeneric("recode") })
+setGeneric("recode", function(object, ...){ standardGeneric("recode") })
 #setGeneric("cut", function(x, ...){ standardGeneric("cut") })
 #setGeneric("as.Variable", function(x, ...){ standardGeneric("as.Variable") })
 setGeneric("cut", function(x, ...){ cut })

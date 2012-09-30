@@ -123,6 +123,12 @@ dataset <- function(
   check.rows = FALSE # not used
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  Dataset: builder \n")
+  
+  print.comments.user <- Dataset.globalenv$print.comments
+  if(print.comments.user < Dataset.globalenv$monitoring) {
+    Dataset.globalenv$print.comments <- Dataset.globalenv$monitoring
+  }
+  
   if (missing(x)) x <- list()
   if (missing(name)) name <- character()
   if (missing(description)) description <- character()
@@ -173,7 +179,11 @@ dataset <- function(
     } 
   }
   names(variables) <- make.names(names(variables), unique = T)
-      
+  
+  
+  
+  Dataset.globalenv$print.comments <- print.comments.user
+  
   if(Dataset.globalenv$print.io) cat(" => (out) Dataset: builder \n")
   return(new(
     Class = "Dataset",
@@ -216,6 +226,12 @@ setReplaceMethod(
     validObject(object)
 		return(object)
 	}
+)
+
+setMethod("nroww", "Dataset", 
+          definition = function (object) { 
+            return(sum(weights(object)))
+          }
 )
 
 setMethod("checkvars", "Dataset", 
@@ -336,7 +352,7 @@ setReplaceMethod(
       if(is.weighting(object[[value]])) {
         object@weights <- value
       } else {
-  #       message("The argument given isn't a WeightingVariable object")
+        message("The argument given isn't a WeightingVariable object")
   #       message("I'll try to perform a conversion...", appendLF=F)
   #       print(deparse(substitute(object)))
   #       .GlobalEnv$object[[value]] <- wvar(object[[value]])
@@ -965,13 +981,75 @@ setMethod("summary", "Dataset",
 
 
 setMethod("summaryToPDF", "Dataset", 
-  definition = function (object, pdfSavingName, graphics, description.chlength, values.chlength, dateformat, latexPackages, keepTex, openPDF) {
+  definition = function (
+    object,
+    pdfSavingName,
+    graphics,
+    description.chlength,
+    valids.chlength,
+    valids.cut.percent,
+    sorting,
+    dateformat,
+    latexPackages,
+    width.id,
+    width.varname,
+    width.description,
+    width.n,
+    width.na,
+    width.valids,
+    width.valids.nao.inc,
+    width.min,
+    width.max,
+    width.mean,
+    width.stddev,
+    keepTex,
+    openPDF
+  ) {
   
   if(!is.installed.pkg('xtable')) {
     exit.by.uninstalled.pkg('xtable')
   } else {
     require(xtable)
-    nTuples <- nrow(object)
+    
+    #TAILLE IDEALE 19.5cm
+    align.common <-  c(
+      paste("p{",width.id,"cm}",sep=''),
+      paste("p{",width.varname,"cm}",sep=''),
+      paste("p{",width.description,"cm}",sep=''),
+      paste("p{",width.n,"cm}",sep=''),
+      paste("p{",width.na,"cm}",sep='')
+    ) # 14.5cm
+    align.bin    <-  c(
+      align.common,
+      paste("p{",width.valids,"cm}",sep='')
+    )
+    align.nom    <-  c(
+      align.common,
+      paste("p{",0.5,"cm}",sep=''),
+      paste("p{",width.valids-0.5,"cm}",sep='')
+    )
+    align.nom[3] <- paste("p{",width.description - width.valids.nao.inc,"cm}",sep='')
+    align.nom[7] <- paste("p{",width.valids + width.valids.nao.inc,"cm}",sep='')
+    align.ord    <-  align.nom
+    align.scale  <-  c(
+      align.common,
+      paste("p{",width.min,"cm}",sep=''),
+      paste("p{",width.max,"cm}",sep=''),
+      paste("p{",width.mean,"cm}",sep=''),
+      paste("p{",width.stddev,"cm}",sep='')
+    ) 
+    align.wvar   <-  align.scale
+    align.ts   <-  align.scale
+#     align.ts     <-  c(
+#       align.common,
+#       paste("p{"width.min"cm}",sep=''),
+#       paste("p{"width.min"cm}",sep=''),
+#       paste("p{"width.min"cm}",sep=''),
+#       paste("p{"1.5"cm}",sep='')
+#     )
+    
+    nTuples <- nroww(object)
+    weights <- weights(object)
   
   	if (length(name(object)) == 0) { outName <- "Untitled Dataset" } else { outName <- name(object) }
   	outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
@@ -1017,7 +1095,7 @@ setMethod("summaryToPDF", "Dataset",
     		label='validCasesSummary',
     		caption='Number of variables by percent of valid cases',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
+#     		align = c("l","p{4cm}","l"),
     		display = c("d","d","d")
     	)
     
@@ -1047,12 +1125,83 @@ setMethod("summaryToPDF", "Dataset",
          
     
     cat("\\newpage \n", file = outFileCon, append = T)
+    cat("\\section*{Configuration} \n", file = outFileCon, append = T)
+    cat("\\begin{itemize} \n", file = outFileCon, append = T)
+    cat("\\item Variable descriptions are cutted above", description.chlength, "characters. \n", file = outFileCon, append = T)
+    cat("\\item Valid value descriptions are cutted above", valids.chlength, "characters. \n", file = outFileCon, append = T)
+    if (valids.cut.percent > 0) {
+      cat("\\item For categorical variables, valids cases are cutted when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
+    }
+    cat("\\end{itemize} \n", file = outFileCon, append = T)
+    cat("\\newpage \n", file = outFileCon, append = T)
     flag.newpage <- FALSE
-  	cat("\\section*{Feature summary} \n", file = outFileCon, append = T)
+  	cat("\\section*{Variable summary} \n", file = outFileCon, append = T)
+    
+    
+    if(nweightings(object) > 0 ) {
+      if (flag.newpage) {
+#         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+      }
+      cat("\\subsection*{Weighting variable(s)} \n", file = outFileCon, append = T)
+      scvar <- weightings(object)
+      scvar.names <- names(scvar)
+      
+      
+      descriptions <- c()
+      nbNA <- c()
+      theMin <- c()
+      theMax <- c()
+      theMean <- c()
+      theSD <- c()
+      
+      for (i in scvar.names ) {
+        vtemp <- scvar[[i]]
+        
+        desc.temp <- description(vtemp)
+        if (nchar(desc.temp) > description.chlength)
+          desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+        
+        descriptions <- c(descriptions, desc.temp)
+        nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+        theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+        theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+        theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+        theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+      }
+      
+      nbNA[which(is.na(nbNA))] <- 0
+      N <- rep(nTuples, nweightings(object)) - nbNA
+      NApourcent <- nbNA / nTuples * 100
+      
+      df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)
+
+      names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean", "Std dev.")
+      # row.names(df) <- 1:nrow(df)
+      
+      
+      row.names(df) <- index(object, scvar.names)
+      cat("{\\footnotesize \n", file = outFileCon, append = T)
+      
+      object.xtable <- xtable(
+        df,
+        label='featureSummary',
+        caption='Weighting variable(s) summary',
+        digits = 3,
+        align = align.wvar,
+        display = c("d","s","s","d","fg","fg","fg","fg","fg")
+      )
+      
+      print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+      cat("} \n", file = outFileCon, append = T)
+      flag.newpage <- TRUE
+    }
+    
     
     if(nbinaries(object) > 0 ) {
       if (flag.newpage) {
-        cat("\\newpage \n", file = outFileCon, append = T)
+#         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Binary variables} \n", file = outFileCon, append = T)
       scvar <- binaries(object)
@@ -1070,8 +1219,8 @@ setMethod("summaryToPDF", "Dataset",
           desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
         
     		descriptions <- c(descriptions, desc.temp)
-    		nbNA <- c(nbNA, nmissings(vtemp))
-    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+    		theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
     		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }
     
@@ -1089,7 +1238,7 @@ setMethod("summaryToPDF", "Dataset",
     		label='featureSummary',
     		caption='Binary variables summary',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
+    		align = align.bin,
     		display = c("d","s","s","d","fg","s")
     	)
   
@@ -1100,7 +1249,8 @@ setMethod("summaryToPDF", "Dataset",
     
     if(nordinals(object) > 0 ) {
       if (flag.newpage) {
-        cat("\\newpage \n", file = outFileCon, append = T)
+#         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Ordinal variables} \n", file = outFileCon, append = T)
       scvar <- ordinals(object)
@@ -1119,9 +1269,9 @@ setMethod("summaryToPDF", "Dataset",
           desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
         
       	descriptions <- c(descriptions, desc.temp)
-    		nbNA <- c(nbNA, nmissings(vtemp))
+    		nbNA <- c(nbNA, nmissingsw(vtemp, weights))
     		theNlevels <- c(theNlevels, nvalids(vtemp))
-    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
     		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }
     
@@ -1139,7 +1289,7 @@ setMethod("summaryToPDF", "Dataset",
     		label='featureSummary',
     		caption='Ordinal variables summary',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
+    		align = align.ord,
     		display = c("d","s","s","d","fg","d","s")
     	)
   
@@ -1148,9 +1298,10 @@ setMethod("summaryToPDF", "Dataset",
       flag.newpage <- TRUE
     }
     
-    if(nnominals(object) > 0 ) {
+    if(nnominals.exact(object) > 0 ) {
       if (flag.newpage) {
-        cat("\\newpage \n", file = outFileCon, append = T)
+#         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Nominal variables} \n", file = outFileCon, append = T)
       scvar <- nominals(object)
@@ -1171,9 +1322,9 @@ setMethod("summaryToPDF", "Dataset",
           desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
         
       	descriptions <- c(descriptions, desc.temp)
-    		nbNA <- c(nbNA, nmissings(vtemp))
+    		nbNA <- c(nbNA, nmissingsw(vtemp, weights))
     		theNlevels <- c(theNlevels, nvalids(vtemp))
-    		theDistrib <- c(theDistrib, distrib(vtemp, percent = T, format = T, chlength = values.chlength))
+    		theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
     		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }
     
@@ -1191,7 +1342,7 @@ setMethod("summaryToPDF", "Dataset",
     		label='featureSummary',
     		caption='Nominal variables summary',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
+    		align = align.nom,
     		display = c("d","s","s","d","fg","d","s")
     	)
   
@@ -1200,9 +1351,10 @@ setMethod("summaryToPDF", "Dataset",
       flag.newpage <- TRUE
     }
     
-    if(nscales(object) > 0 ) {
+    if(nscales.exact(object) > 0 ) {
       if (flag.newpage) {
-        cat("\\newpage \n", file = outFileCon, append = T)
+#         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Scale variables} \n", file = outFileCon, append = T)
       scvar <- scales(object)
@@ -1223,19 +1375,19 @@ setMethod("summaryToPDF", "Dataset",
           desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
         
       	descriptions <- c(descriptions, desc.temp)
-    		nbNA <- c(nbNA, nmissings(vtemp))
+    		nbNA <- c(nbNA, nmissingsw(vtemp, weights))
     		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
     		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
     		theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
-    		#theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+    		theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
   	  }
     
       nbNA[which(is.na(nbNA))] <- 0
       N <- rep(nTuples, nscales(object)) - nbNA
       NApourcent <- nbNA / nTuples * 100
     
-    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean)
-    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean")
+    	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)
+    	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean", "Std dev.")
       # row.names(df) <- 1:nrow(df)
       row.names(df) <- index(object, scvar.names)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
@@ -1245,8 +1397,8 @@ setMethod("summaryToPDF", "Dataset",
     		label='featureSummary',
     		caption='Scale variables summary',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
-    		display = c("d","s","s","d","fg","fg","fg","fg")
+    		align = align.scale,
+    		display = c("d","s","s","d","fg","fg","fg","fg","fg")
     	)
   
   	  print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
@@ -1255,6 +1407,10 @@ setMethod("summaryToPDF", "Dataset",
     }
        
     if(ntimes(object) > 0 ) {
+      if (flag.newpage) {
+        #         cat("\\newpage \n", file = outFileCon, append = T)
+        cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+      }
       cat("\\subsection*{Timestamp variables} \n", file = outFileCon, append = T)
       scvar <- times(object)
       scvar.names <- names(scvar)
@@ -1277,7 +1433,7 @@ setMethod("summaryToPDF", "Dataset",
           desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
         
       	descriptions <- c(descriptions, desc.temp)
-    		nbNA <- c(nbNA, nmissings(vtemp))
+    		nbNA <- c(nbNA, nmissingsw(vtemp, weights))
     		theMin <- c(theMin, min(vtemp, na.rm = TRUE))
     		theMax <- c(theMax, max(vtemp, na.rm = TRUE))
         theMed <- c(theMed, median(vtemp, na.rm = TRUE))
@@ -1299,7 +1455,7 @@ setMethod("summaryToPDF", "Dataset",
     		label='featureSummary',
     		caption='Timestamp variables summary',
     		digits = 3,
-    		#align = c("l","l","l","c","c"),
+    		align = align.ts,
     		display = c("d","s","s","d","fg","fg","fg","fg","fg")
     	)
   
@@ -1345,15 +1501,18 @@ setAs("Dataset", "data.frame",
 setMethod(
   f = "distrib",
   signature = "Dataset", 
-  definition = function (object, missings.omit, percent, sorting, format, digits, chlength, sep, cut) {
+  definition = function (object, weights, missings.omit, percent, sorting, format, digits, chlength, sep, cut) {
     out <- qualitatives(object)
     names <- names(out)
+    
+    weights <- weights(object)
     
     m <- getMethod("distrib", "CategoricalVariable")
     if (missing(sorting)) {
       out <- mapply(
         m,
         variables(out),
+        weights = weights,
         missings.omit = missings.omit,
         percent = percent,
         format = format,
@@ -1366,6 +1525,7 @@ setMethod(
       out <- mapply(
         m,
         variables(out),
+        weights = weights,
         missings.omit = missings.omit,
         percent = percent,
         sorting = sorting,

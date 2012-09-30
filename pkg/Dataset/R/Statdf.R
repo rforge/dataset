@@ -602,7 +602,31 @@ setMethod(
 setMethod(
   f = 'summaryToPDF',
   signature = c('Statdf'),
-  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF, merge = 'no') {
+  definition = function (
+    object,
+    pdfSavingName,
+    graphics = F,
+    description.chlength,
+    valids.chlength,
+    valids.cut.percent,
+    sorting,
+    dateformat,
+    latexPackages,
+    width.id,
+    width.varname,
+    width.description,
+    width.n,
+    width.na,
+    width.valids,
+    width.valids.nao.inc,
+    width.min,
+    width.max,
+    width.mean,
+    width.stddev,
+    keepTex,
+    openPDF,
+    merge = 'no'
+  ) {
     
     if(!is.installed.pkg('xtable')) {
       exit.by.uninstalled.pkg('xtable')

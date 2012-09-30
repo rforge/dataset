@@ -27,6 +27,7 @@ exportMethods(
   'contains',
   'description<-',
   'description' ,
+  'nroww',
   'length',
   'missings<-',
   'missings',

@@ -165,9 +165,20 @@ variable <- function(x, values, missings, description) {
     names(missings) <- c(names, missinglabel)
     warning(paste("One or more NA value(s) found, a missing value has been created, with code", m, "and label", missinglabel))
   }
-    
-  if(length(values) > 0 && is.null(names(values))) names(values) <- make.names(1:length(values))
-  if(length(missings) > 0 && is.null(names(missings))) names(missings) <- make.names(1:length(missings))
+  
+#   print(values)
+  if(length(values) > 0) {
+    misvalidlabs <- which(nchar(names(values)) == 0)
+    if (length(misvalidlabs) > 0) {
+      valnames <- names(values)
+      valnames[misvalidlabs] <- as.character(values[misvalidlabs])
+      names(values) <- valnames
+      warning("one or more value label missing, the code will be used as label")
+    }
+  }
+#   print(values)
+  
+  if(length(missings) > 0 && any(is.null(names(missings)))) names(missings) <- make.names(1:length(missings))
   
   out <- list(
     x = x,
@@ -224,6 +235,15 @@ setMethod(
   signature = "Variable", 
   definition = function (object) { 
     return(length(slot(object, "missings")))
+  }
+)
+setMethod(
+  f = "nmissingsw",
+  signature = "Variable", 
+  definition = function (object, weights) {
+    stopifnot(length(object) == length(weights))
+    out <- which(codes(object) %in% missings(object))
+    return(sum(weights[out]))
   }
 )
 

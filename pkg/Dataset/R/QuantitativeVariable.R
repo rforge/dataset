@@ -69,6 +69,7 @@ setMethod(
     else out <- ovar(out)
     
     description(out) <- paste(description(x),'- cutted')
+    missings(out) <- missings(x)
 
     if(is.null(args$silent) || (args$silent == FALSE))
       print(table(v(x), v(out)))
@@ -97,4 +98,12 @@ setMethod("Ops", signature(e1="numeric", e2="QuantitativeVariable"),
             validObject(e2)
             return(e2)
           }
+)
+
+setMethod(
+  f ="sum",
+  signature =c("QuantitativeVariable"),
+  definition = function(x, na.rm=FALSE){
+    return(sum(as.numeric(x), na.rm=na.rm))
+  }
 )

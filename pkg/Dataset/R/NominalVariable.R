@@ -10,8 +10,10 @@ setClass(
     if(Dataset.globalenv$print.io) cat (" =>       NominalVariable: object validity check \n")
   	flag = TRUE
         
-    if (nvalids(object) <= 2) {
-      message("The variable must have at least three values")
+#     if (nvalids(object) <= 2) {
+#       message("The variable must have at least three values")
+    if (nvalids(object) == 2) {
+      message("A nominal variable can't have exactly two values, it should be defined as a binary variable")
       flag <- FALSE
     }
      
@@ -95,7 +97,17 @@ nvar <- function(
       Variable.version = variable$Variable.version
     )
   }
-  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
+  
+  if(Dataset.globalenv$print.comments <= Dataset.globalenv$important){
+    message(paste(
+      'number of missings:',
+      nmissings(out),
+      '(',
+      round(nmissings(out)/length(out)*100,2),
+      '%)'
+    ))
+  }
+  
   return(out)
 }
 

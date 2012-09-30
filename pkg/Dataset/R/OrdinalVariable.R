@@ -73,7 +73,17 @@ ovar <- function(
       Variable.version = variable$Variable.version
     )
   }
-  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
+  
+  if(Dataset.globalenv$print.comments <= Dataset.globalenv$important){
+    message(paste(
+      'number of missings:',
+      nmissings(out),
+      '(',
+      round(nmissings(out)/length(out)*100,2),
+      '%)'
+    ))
+  }
+  
   return(out)
 }
 

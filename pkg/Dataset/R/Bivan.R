@@ -55,8 +55,8 @@ setClass(
     weighting = 'Dataset',
 #     observed = 'data.frame',
 #     expected = 'data.frame',
-    observed = 'matrix',
-    expected = 'matrix',    
+    observed = 'list',
+    expected = 'list',    
     stdres = 'Statdf',
     global = 'Statdf'
   ),
@@ -107,6 +107,7 @@ setMethod('weighting', 'Bivan',
             return(slot(object, 'weighting'))
           }
 )
+
 setReplaceMethod(
   f = 'weighting' ,
   signature = 'Bivan' ,
@@ -237,7 +238,30 @@ setMethod(
 setMethod(
   f = 'summaryToPDF',
   signature = c('Bivan'),
-  definition = function(object, pdfSavingName, graphics = FALSE, description.chlength = 120, values.chlength = 6, dateformat, latexPackages = NULL, keepTex = FALSE, openPDF) {
+  definition = function (
+    object,
+    pdfSavingName,
+    graphics = F,
+    description.chlength,
+    valids.chlength,
+    valids.cut.percent,
+    sorting,
+    dateformat,
+    latexPackages,
+    width.id,
+    width.varname,
+    width.description,
+    width.n,
+    width.na,
+    width.valids,
+    width.valids.nao.inc,
+    width.min,
+    width.max,
+    width.mean,
+    width.stddev,
+    keepTex,
+    openPDF
+  ) {
     
     if(!is.installed.pkg('xtable')) {
       exit.by.uninstalled.pkg('xtable')
@@ -351,9 +375,23 @@ setMethod(
     formula,
     data,
     chi2,
+    phi,
+    tschuprow,
     cramer.v,
+    pearson.contingency,
+    likelihood.ratio,
+    gk.lambda,
     gk.tau,
+    gk.tau.sqrt,
+    theil.u,
+    theil.u.sqrt,
+    kendall.tau.a,
+    kendall.tau.b,
+    stuart.tau.c,
+    gk.gamma,
     somer.d,
+    wilson.e,
+    calc.spearman.rho,
     stdres,
     quiet
   ) {
@@ -386,11 +424,15 @@ setMethod(
       stop("Some predictors aren't in the Dataset")
     }
     
-    y <- data.df[[yname]]
+    y <- data.df[[yname]] # the target
     ncat <- nlevels(y)
-    x <- data.df[xnames]
+    x <- data.df[xnames] # all the descriptors
     
+    weights <- weights(data)
+  
     alltests <- bivan.tests()
+    obs.list <- list()
+    exp.list <- list()
     
     # -------------------------
     # stdres
@@ -398,9 +440,23 @@ setMethod(
     if(stdres) {
       res <- NULL
       for (i in xnames) {
-        #i <- 1
-        tablexy <- table(x[,i], y)
-        chisq <- chisq.test(tablexy, correct=FALSE)
+        y.nlev <- nlevels(y)
+        x.nlev <- nlevels(x[,i])
+        ncases <- x.nlev*y.nlev
+        tbl <- matrix(rep(-1,ncases), ncol = y.nlev)
+        dimnames(tbl) <- list(levels(x[,i]), levels(y))
+        for(k in 1:x.nlev){#row
+          for(l in 1:y.nlev){
+            ids <- intersect(
+              which(x[,i]==levels(x[,i])[k]),
+              which(y==levels(y)[l])
+            )
+            tbl[k,l] <- sum(weights[ids])
+          }
+        }
+        
+        obs.no.margin <- tbl
+        chisq <- chisq.test(obs.no.margin, correct=TRUE)
         res.temp <- chisq$stdres
         row.names(res.temp) <- paste(paste(i, '/'), row.names(res.temp))
         if(is.null(res)) {
@@ -429,9 +485,23 @@ setMethod(
     userTests <- character(0)
     # SPOT1
     if (chi2) userTests <- c(userTests, 'chi2')
+    if (phi) userTests <- c(userTests, 'phi')
+    if (tschuprow) userTests <- c(userTests, 'tschuprow')
     if (cramer.v) userTests <- c(userTests, 'cramer.v')
+    if (pearson.contingency) userTests <- c(userTests, 'pearson.contingency')
+    if (likelihood.ratio) userTests <- c(userTests, 'likelihood.ratio')
+    if (gk.lambda) userTests <- c(userTests, 'gk.lambda')
     if (gk.tau) userTests <- c(userTests, 'gk.tau')
+    if (gk.tau.sqrt) userTests <- c(userTests, 'gk.tau.sqrt')
+    if (theil.u) userTests <- c(userTests, 'theil.u')
+    if (theil.u.sqrt) userTests <- c(userTests, 'theil.u.sqrt')
+    if (kendall.tau.a) userTests <- c(userTests, 'kendall.tau.a')
+    if (kendall.tau.a) userTests <- c(userTests, 'kendall.tau.b')
+    if (stuart.tau.c) userTests <- c(userTests, 'stuart.tau.c')
+    if (gk.gamma) userTests <- c(userTests, 'gk.gamma')
     if (somer.d) userTests <- c(userTests, 'somer.d')
+    if (wilson.e) userTests <- c(userTests, 'wilson.e')
+    if (calc.spearman.rho) userTests <- c(userTests, 'calc.spearman.rho')
     
     userTestsSignif <- addSignif(userTests)
     
@@ -442,9 +512,50 @@ setMethod(
     row.names(mes) <- xnames
     names(mes) <- userTestsSignif
     
+    counter.var <- 0
     for (i in xnames) {
-      tablexy <- table(x[,i], y)
-      chisq <- chisq.test(tablexy, correct=FALSE)
+      counter.var <- counter.var + 1
+      y.nlev <- nlevels(y)
+      x.nlev <- nlevels(x[,i])
+      ncases <- x.nlev*y.nlev
+      tbl <- matrix(rep(-1,ncases), ncol = y.nlev)
+      dimnames(tbl) <- list(levels(x[,i]), levels(y))
+      for(k in 1:x.nlev){#row
+        for(l in 1:y.nlev){
+          ids <- intersect(
+            which(x[,i]==levels(x[,i])[k]),
+            which(y==levels(y)[l])
+          )
+          tbl[k,l] <- sum(weights[ids])
+        }
+      }
+      
+      obs.no.margin <- tbl
+      obs <- obs.no.margin
+      obs <- cbind(obs, margin.table(obs, 1))
+      obs <- rbind(obs, margin.table(obs, 2))
+      obs.list[[counter.var]] <- obs
+      
+      n.total <- obs[x.nlev+1,y.nlev+1]
+      
+      tbl <- matrix(rep(-1,ncases), ncol = y.nlev)
+      dimnames(tbl) <- list(levels(x[,i]), levels(y))
+      for(k in 1:x.nlev){#row
+        for(l in 1:y.nlev){
+          tbl[k,l] <- obs[k,y.nlev+1]*obs[x.nlev+1,l]/n.total
+        }
+      }
+      
+      exp <- tbl
+      exp <- cbind(exp, margin.table(exp, 1))
+      exp <- rbind(exp, margin.table(exp, 2))
+      exp.list[[counter.var]] <- exp
+      
+      
+      chisq <- chisq.test(obs.no.margin, correct=TRUE)
+      n <- nrow(obs.no.margin)
+      p <- ncol(obs.no.margin)
+        
       
       j <- 0
       
@@ -454,75 +565,109 @@ setMethod(
         j <- j+1; mes[i, j] <- chisq$p.value
       }
       
-      if (is.element("Phi", userTests)) {
-        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / sum(tablexy));
+      if (is.element("phi", userTests)) {
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / n.total);
+        j <- j+1; mes[i, j] <- chisq$p.value
+      }
+      
+      if (is.element("tschuprow", userTests)) {
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic/ (n.total * sqrt((n-1)*(p-1))))
         j <- j+1; mes[i, j] <- chisq$p.value
       }
       
       if (is.element("cramer.v", userTests)) {
-        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / (sum(tablexy) * min(dim(tablexy) - 1 )))
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic / (n.total * min(dim(obs.no.margin) - 1 )))
         j <- j+1; mes[i, j] <- chisq$p.value
       }
       
-      if (is.element("GK's Lambda", userTests)) {
-        temp <- calc.GK.lambda(tablexy)
+      if (is.element("pearson.contingency", userTests)) {
+        j <- j+1; mes[i, j] <- sqrt(chisq$statistic/(n.total + chisq$statistic))
+        j <- j+1; mes[i, j] <- chisq$p.value
+      }
+      
+      if (is.element("likelihood.ratio", userTests)) {
+        temp <- calc.chisq.likelihood.ratio(obs.no.margin)
+        j <- j+1; mes[i, j] <- temp$statistic
+        j <- j+1; mes[i, j] <- temp$pvalue
+      }
+      
+      if (is.element("gk.lambda", userTests)) {
+        temp <- calc.gk.lambda(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
-        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
         j <- j+1; mes[i, j] <- temp$pvalue;
-        # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
       }
       
       if (is.element("gk.tau", userTests)) {
-        temp <- GK.tau(tablexy)
+        temp <- GK.tau(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$tau.CR;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
         j <- j+1; mes[i, j] <- temp$p.tau.CR;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
       }
-      if (is.element("GK's Tau sqrt", userTests)) {
-        temp <- GK.tau(tablexy)
+      if (is.element("gk.tau.sqrt", userTests)) {
+        temp <- GK.tau(obs.no.margin)
         j <- j+1; mes[i, j] <- sqrt(temp$tau.CR);
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
         j <- j+1; mes[i, j] <- temp$p.tau.CR;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
       }
       
-      if (is.element("Theil's u", userTests)) {
-        temp <- calc.Theil.u(tablexy)
+      if (is.element("theil.u", userTests)) {
+        temp <- calc.Theil.u(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
         j <- j+1; mes[i, j] <- temp$pvalue;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
       }
-      if (is.element("Theil's u sqrt", userTests)) {
-        temp <- calc.Theil.u(tablexy)
+      if (is.element("theil.u.sqrt", userTests)) {
+        temp <- calc.Theil.u(obs.no.margin)
         j <- j+1; mes[i, j] <- sqrt(temp$statistic);
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$tau.CR
         j <- j+1; mes[i, j] <- temp$pvalue;
         # j <- j+1; mes[i, j] <- GK.tau(tablexy)$p.tau.CR
       }
       
-      if (is.element("Kendall's A Tau", userTests)) {
-        temp <- calc.Kendall.tauA(tablexy)
+      if (is.element("kendall.tau.a", userTests)) {
+        temp <- calc.kendall.tau.a(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
       }
       
-      if (is.element("Stuart's C Tau", userTests)) {
-        temp <- calc.Stuart.tauC(tablexy)
+      if (is.element("kendall.tau.b", userTests)) {
+        temp <- calc.kendall.tau.b(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
       }
       
-      if (is.element("GK's gamma", userTests)) {
-        temp <- calc.GK.gamma(tablexy)
+      if (is.element("stuart.tau.c", userTests)) {
+        temp <- calc.stuart.tau.c(obs.no.margin)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+      }
+      
+      if (is.element("gk.gamma", userTests)) {
+        temp <- calc.gk.gamma(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
       }
       
       if (is.element("somer.d", userTests)) {
-        temp <- calc.Sd(tablexy)
-        j <- j+1; mes[i, j] <- temp$Sd.CR;
+        temp <- calc.somer.d(obs.no.margin)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
+      }
+      
+      if (is.element("wilson.e", userTests)) {
+        temp <- calc.wilson.e(obs.no.margin)
+        j <- j+1; mes[i, j] <- temp$statistic;
+        j <- j+1; mes[i, j] <- temp$pvalue;
+        # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
+      }
+      
+      if (is.element("calc.spearman.rho", userTests)) {
+        temp <- calc.spearman.rho(obs.no.margin)
+        j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
         # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
       }
@@ -536,23 +681,16 @@ setMethod(
     # -------------------------
     # out
     
-#     observed <- as.data.frame(chisq$observed)
-#     expected <- as.data.frame(chisq$expected)
-    obs <- as.matrix(chisq$observed)
-    obs <- cbind(obs, margin.table(obs, 1))
-    obs <- rbind(obs, margin.table(obs, 2))
-  
-    exp <- chisq$expected
-    exp <- cbind(exp, margin.table(exp, 1))
-    exp <- rbind(exp, margin.table(exp, 2))
-          
+    names(obs.list) <- xnames
+    names(exp.list) <- xnames
+    
     out <- new(
       'Bivan',
       target = data.without.checks[,yname],
       predictors = data.without.checks[,xnames],
       weighting = data.without.checks[, weighting(data)],
-      observed = obs,
-      expected = exp,
+      observed = obs.list,
+      expected = exp.list,
       stdres = out.stdres,
       global = out.global
     )
@@ -569,7 +707,7 @@ setMethod(
 
 
 # =========================================================================================================
-# Statistics
+# Statistics, Pearson and Likelihood chi2
 # =========================================================================================================
 
 nij.under.H0 <- function(x) { # x : table of contingency
@@ -610,6 +748,17 @@ statistic.chisq.pearson <- function(x){ # x : table of contingency
   G <- G
   return(G)
 }
+
+calc.chisq.likelihood.ratio <- function(x){
+  n <- nrow(x)
+  p <- ncol(x)
+  stat <- statistic.chisq.likelihood.ratio(x)
+  pval <- pchisq(stat, df = (n-1)*(p-1), lower.tail = F)
+  return(list(
+    'statistic' = stat,
+    'pvalue' = pval
+  ))
+}
 # =========================================================================================================
 # Phi
 # =========================================================================================================
@@ -634,35 +783,100 @@ calc.phi <- function(x)
 }
 
 # =========================================================================================================
-# Cramer's V
+# subformulas common
 # =========================================================================================================
-
-# http://www.r-bloggers.com/example-8-39-calculating-cramers-v/
-cv.test1 = function(x,y) {
-  CV = sqrt(chisq.test(x, y, correct=FALSE)$statistic /
-		(length(x) * (min(length(unique(x)),length(unique(y))) - 1)))
-	print.noquote("Cramer V / Phi:")
-	return(as.numeric(CV))
+subformulas.common <- function(x){
+  
+  n <- sum(x)
+  
+  sum.piX.squared <- 0
+  for (i in 1:nrow(x)){
+    sum.piX.squared <- sum.piX.squared + (sum(x[i,])/n)^2
+  }
+  
+  sum.pXj.squared <- 0
+  for (j in 1:ncol(x)){
+    sum.pXj.squared <- sum.pXj.squared + (sum(x[,j])/n)^2
+  }
+  
+  sum.pij.squared <- 0
+  for(i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      sum.pij.squared <- sum.pij.squared + (x[i,j]/n)^2
+    }
+  }
+  
+  return(list(
+    'sum.piX.squared' = sum.piX.squared,
+    'sum.pXj.squared' = sum.pXj.squared,
+    'sum.pij.squared' = sum.pij.squared
+  ))
 }
-# http://home.hib.no/ansatte/gbj/cramer_v.htm
-cv.test2 <- function(x) {
-	CV <- sqrt(chisq.test(x, correct = FALSE)$statistic / 
-	(sum(x) * min(dim(x) - 1 )))
-	### The result of the Pearson chi-square (without the Yates correction) is divided by the sum of table cells and...
-	### ...multiplied by the smalles number of (row or column) cells minus 1.
-	### The $statistic sends the correct value (the X^2 only) into the sqrt function
-	print.noquote("Cramer V / Phi:")
-	return(as.numeric(CV))
+subformulas.common.ij <- function(x,i,j){
+  
+  n <- sum(x)
+  pij <- x[i,j]/n
+  piX <- sum(x[i,])/n
+  pXj <- sum(x[,j])/n
+  
+  pi.ij.c <- 0
+  if (i > 1 && j > 1) {
+    for(k in 1:(i-1)){
+      for(l in 1:(j-1)){
+        #             if ((k %in% 1:nrow(x)) && (l %in% 1:ncol(x))){
+        pi.ij.c <- pi.ij.c + x[k,l]/n
+        #             }
+      }
+    }
+  }
+  
+  if (i < nrow(x) && j < ncol(x)) {
+    for(k in (i+1):nrow(x)){
+      for(l in (j+1):ncol(x)){
+        #             if ((k %in% 1:nrow(x)) && (l %in% 1:ncol(x))){
+        pi.ij.c <- pi.ij.c + x[k,l]/n
+        #             }
+      }
+    }
+  }
+  
+  pi.ij.d <- 0
+  if (i > 1 && j < ncol(x)) {
+    for(k in 1:(i-1)){
+      for(l in (j+1):ncol(x)){
+        #             if ((k %in% 1:nrow(x)) && (l %in% 1:ncol(x))){
+        pi.ij.d <- pi.ij.d + x[k,l]/n
+        #             }
+      }
+    }
+  }
+  if (i < nrow(x) && j > 1) {
+    for(k in (i+1):nrow(x)){
+      for(l in 1:(j-1)){
+        #             if ((k %in% 1:nrow(x)) && (l %in% 1:ncol(x))){
+        pi.ij.d <- pi.ij.d + x[k,l]/n
+        #             }
+      }
+    }
+  }
+  
+  return(list(
+    'pij' = pij,
+    'piX' = piX,
+    'pXj' = pXj,
+    'pi.ij.c' = pi.ij.c,
+    'pi.ij.d' = pi.ij.d
+  ))
+  
 }
-# =========================================================================================================
+
 
 # =========================================================================================================
-# Theil's u
+# GK's lambda
 # =========================================================================================================
-calc.GK.lambda <- function(x)
+calc.gk.lambda <- function(x)
 {
   x <- t(matrix(as.numeric(x), dim(x)))
-  #print(x)
   
   m <- nrow(x)
   p <- ncol(x)
@@ -671,7 +885,7 @@ calc.GK.lambda <- function(x)
   #print(mtable.x)
   mtable.y <- as.vector(margin.table(x, 2))
   #print(mtable.y)
-  n <- margin.table(x)
+  n <- sum(x)
   #print(n)
   
   nm <- max(mtable.x)
@@ -686,7 +900,7 @@ calc.GK.lambda <- function(x)
 
   statistic <- numerator/denominator
   
-  #pvalue using comparing lambda/asymptotic standard error to Norm(0,1)
+  #pvalue by comparing lambda/asymptotic standard error to Norm(0,1)
   sum1 <- 0
   sum2 <- 0
   Mrow <- numeric(0)
@@ -709,6 +923,7 @@ calc.GK.lambda <- function(x)
   
   return(list(
     statistic = statistic,
+    asympt.var = asymptotic.variance,
     pvalue = pvalue
   ))
 }
@@ -745,7 +960,7 @@ calc.Theil.u <- function(x)
 
   statistic <- numerator/denominator
   
-  #pvalue using the likelihood ratio statistic
+  #pvalue using the chi2 likelihood ratio statistic
   G <- statistic.chisq.likelihood.ratio(x)
   pvalue <- pchisq(G, df = (m-1)*(p-1), lower.tail = F)
   
@@ -824,114 +1039,15 @@ GK.tau <- function(dat) {
   # ASE.tau.CR
 # 1 0.07004566
 
-# =========================================================================================================
-
 
 # =========================================================================================================
 # Somer's D
 # =========================================================================================================
-# mt <- attr(mf, "terms")
-# x <- model.matrix(mt, mf, contrasts)
-
-#' Calculate Somers' d for the constructs. d is an 
-#' assymetric association measure as it depends on which 
-#' variable is set as dependent and independent.
-#' The direction of dependency needs to be specified.
-#'
-#' @param x           \code{repgrid} object
-#' @param dependent   A string denoting the direction of dependency in the output 
-#'                    table (as d is assymetrical). Possible values are \code{"c"}
-#'                    (the default) for setting the columns as dependent, \code{"r"} 
-#'                    for setting the rows as the dependent variable and \code{"s"} for the 
-#'                    symmetrical Somers' d measure (the mean of the two directional 
-#'                    values for code{"c"} and \code{"r"}).
-#' @param trim        The number of characters a construct is trimmed to (default is
-#'                    \code{30}). If \code{NA} no trimming occurs. Trimming
-#'                    simply saves space when displaying correlation of constructs
-#'                    with long names.
-#' @param index       Whether to print the number of the construct 
-#'                    (default is \code{TRUE}). 
-#' @param col.index   Logical. Wether to add an extra index column so the 
-#'                    column names are indexes instead of construct names. This option 
-#'                    renders a neater output as long construct names will stretch 
-#'                    the output (default is \code{FALSE}).
-#' @param digits      Numeric. Number of digits to round to (default is 
-#'                    \code{2}).
-#' @param output      The type of output printed to the console. \code{output=0}
-#'                    will supress printing of the output. \code{output=1} (default) will print
-#'                    results to the screen. 
-#' @return            \code{matrix} of construct correlations.
-#' @note              Thanks to Marc Schwartz for supplying the code to calculate
-#'                    Somers' d.
-#' @references        Somers, R. H. (1962). A New Asymmetric Measure of Association
-#'                    for Ordinal Variables. \emph{American Sociological Review, 27}(6),
-#'                    799-811.
-#'
-#' @author        Mark Heckmann
-#' @export
-#'
-#' @examples \dontrun{
-#'
-#'    constructD(fbb2003)       # columns as dependent (default)
-#'    constructD(fbb2003, "c")  # row as dependent
-#'    constructD(fbb2003, "s")  # symmetrical index
-#'  
-#'    # surpress printing
-#'    d <- constructD(fbb2003, out=0, trim=5)
-#'    d
-#'    
-#'    # more digits
-#'    constructD(fbb2003, dig=3)
-#'
-#'    # add index column, no trimming
-#'    constructD(fbb2003, col.index=TRUE, index=F, trim=NA)  
-#'
-#' }
-#'
-constructD <- function(x, dependent = "c", 
-                       trim=30, index=T, col.index=F, digits=1, output=1){
-  if (!inherits(x, "repgrid")) 							    # check if x is repgrid object
-  	stop("Object x must be of class 'repgrid'")
-  scores <- getRatingLayer(x)
-  l <- lapply(as.data.frame(t(scores)),  I)     # put each row into a list
-    
-  somersd <- function(x, y, dependent, smin, smax){
-    na.index <- is.na(x) | is.na(y)
-    x <- x[!na.index]
-    y <- y[!na.index]
-    x <- factor(unlist(x), levels=seq(smin, smax))
-    y <- factor(unlist(y), levels=seq(smin, smax))
-    m <-  as.matrix(table(x,y))
-    
-    if (dependent == "r")
-      i <- 1 else 
-    if (dependent == "c")
-      i <- 2 else i <- 3
-    calc.Sd(m)[[i]]
-  }  
-  
-  nc <- length(l)
-  smin <- x@scale$min
-  smax <- x@scale$max
-  sds <- mapply(somersd, rep(l,each=nc), rep(l, nc), 
-                MoreArgs=list(dependent=dependent, 
-                              smin=smin, smax=smax))
-  res <- matrix(sds, nc)
-  res <- addNamesToMatrix2(x, res, index=index, trim=trim, along=1)
-  res <- round(res, digits)
-  out <- res
-  invisible(out)
-}
-
-### Thanks to Marc Schwartz for supplying the code for the Somer's d measure
-
-# Calculate Concordant Pairs in a table
-# cycle through x[r, c] and multiply by
-# sum(x elements below and to the right of x[r, c])
-# x = table
+# Note: concordant function from Marc Schwartz, and here adapted to suit needs
 concordant <- function(x)
 {
   x <- matrix(as.numeric(x), dim(x))
+  n <- sum(x)
   
   # get sum(matrix values > r AND > c)
   # for each matrix[r, c]
@@ -940,17 +1056,23 @@ concordant <- function(x)
     lr <- x[(r.x > r) & (c.x > c)]
     sum(lr)
   }
-
+  
   # get row and column index for each
   # matrix element
   r.x <- row(x)
   c.x <- col(x)
-
+  
   # return the sum of each matrix[r, c] * sums
   # using mapply to sequence thru each matrix[r, c]
-  sum(x * mapply(mat.lr, r = r.x, c = c.x))
+  m <- sum(x * mapply(mat.lr, r = r.x, c = c.x))
+  
+  return(list(
+    'm' = m,
+    'pi' = m/(n*(n-1)/2)
+  ))
 }
 
+# Note: discordant function from Marc Schwartz, and here adapted to suit needs
 # Calculate DIScordant Pairs in a table
 # cycle through x[r, c] and multiply by
 # sum(x elements below and to the left of x[r, c])
@@ -958,6 +1080,7 @@ concordant <- function(x)
 discordant <- function(x)
 {
   x <- matrix(as.numeric(x), dim(x))
+  n <- sum(x)
   
   # get sum(matrix values > r AND < c)
   # for each matrix[r, c]
@@ -966,109 +1089,569 @@ discordant <- function(x)
     ll <- x[(r.x > r) & (c.x < c)]
     sum(ll)
   }
-
+  
   # get row and column index for each
   # matrix element
   r.x <- row(x)
   c.x <- col(x)
-
+  
   # return the sum of each matrix[r, c] * sums
   # using mapply to sequence thru each matrix[r, c]
-  sum(x * mapply(mat.ll, r = r.x, c = c.x))
-}
-
-
-# Calculate Somers' d
-# Return 3 values:
-# 1. Sd C~R
-# 2. Sd R~C
-# 3. Sd Symmetric (Mean of above)
-# x = table
-calc.Sd <- function(x)
-{
-  x <- matrix(as.numeric(x), dim(x))
-  
-  c <- concordant(x)
-  d <- discordant(x)
-  n <- sum(x)
-  SumR <- rowSums(x)
-  SumC <- colSums(x)
-
-  Sd.CR <- (2 * (c - d)) / ((n ^ 2) - (sum(SumR ^ 2)))
-  Sd.RC <- (2 * (c - d)) / ((n ^ 2) - (sum(SumC ^ 2)))
-  Sd.S <- (2 * (c - d)) / ((n ^ 2) - (((sum(SumR ^ 2)) + (sum(SumC ^ 2))) / 2))
-
-  Sdlist <- list(Sd.CR, Sd.RC, Sd.S, NA)
-  names(Sdlist) <- c("Sd.CR", "Sd.RC", "Sd.S", "pvalue")
-
-  Sdlist
-}
-
-## example from Kaehler book, p.123 table, p.129 results
-# m <- matrix(c(4,6,0,11,146,22,2,20,39), 3)
-# calc.Sd(m)    # correct
-
-
-# =========================================================================================================
-# Kendall's A tau
-# =========================================================================================================
-calc.Kendall.tauA <- function(x)
-{
-  x <- matrix(as.numeric(x), dim(x))
-  
-  c <- concordant(x)
-  d <- discordant(x)
-  n <- sum(x)
+  m <- sum(x * mapply(mat.ll, r = r.x, c = c.x))
   
   return(list(
-    statistic = (c - d)/n^2,
-    pvalue = NA
+    'm' = m,
+    'pi' = m/(n*(n-1)/2)
+  ))
+}
+
+egal.pred <- function(x)
+{  
+  n <- sum(x)
+  
+  m <- 0
+  
+  for (i in 1:nrow(x)){
+    for (j in 1:(ncol(x)-1)) {
+      m <- m + x[i,j] * sum(x[i, (j+1):ncol(x)])
+    }
+  }
+  
+  return(list(
+    'm' = m,
+    'pi' = m/(n*(n-1)/2)
+  ))
+
+}
+egal.target <- function(x)
+{  
+  n <- sum(x)
+  
+  m <- 0
+  
+  for (j in 1:ncol(x)){
+    for (i in 1:(nrow(x)-1)) {
+      m <- m + x[i,j] * sum(x[(i+1):nrow(x), j])
+    }
+  }
+  
+  return(list(
+    'm' = m,
+    'pi' = m/(n*(n-1)/2)
+  ))
+}
+
+
+calc.somer.d <- function(x)
+{
+#   x <- matrix(as.numeric(x), dim(x))
+  
+  c <- concordant(x)$pi
+  d <- discordant(x)$pi
+  t <- egal.target(x)$pi
+  p <- egal.pred(x)$pi
+  
+  stat <- (c-d)/(c+d+t) # ok !
+  
+  x <- t(x) # dans quel sens on va ?
+  n <- sum(x)
+  sc <- subformulas.common(x)
+  
+  asympt.var.numerator <- 0
+  
+  for(i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      s <- subformulas.common.ij(x, i, j)
+      
+      asympt.var.numerator <- asympt.var.numerator +
+        s$pij * ( (c-d)*(1-s$pXj) - (1-sc$sum.pXj.squared)*(s$pi.ij.c - s$pi.ij.d) )^2
+    }
+  }
+  
+  asympt.var.numerator <- 4 * asympt.var.numerator
+  
+  asympt.var <- asympt.var.numerator/(n*(1-sc$sum.pXj.squared)^4)
+  
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+#   pvalue <- pnorm(abs(stat)/std.error, mean = 0, sd = 1, lower.tail = F)*2 # il faut mettre la stat en valeur absolue ?
+  # le calcul pnorm(abs(-0.10667)/0.062592, mean = 0, sd = 1, lower.tail = F)*2
+  # tombe juste avec para
+  message('somer.d')
+  message(paste('stat',stat))
+  message(paste('asympt.var',asympt.var))
+  message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+  message(paste('std.error',std.error))
+  message(paste('test statistic',stat/std.error))
+  message(paste('pvalue', pvalue))
+  
+  return(list(
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
   ))
 }
 # =========================================================================================================
-# Kendall's B tau
+# Kendall's A tau
 # =========================================================================================================
-calc.Kendall.tauB <- function(x)
+calc.kendall.tau.a <- function(x)
 {
   x <- matrix(as.numeric(x), dim(x))
   
-  c <- concordant(x)
-  d <- discordant(x)
+  c <- concordant(x)$pi
+  d <- discordant(x)$pi
+  n <- sum(x)
   
-  return(0)
+  stat <- c - d # ok!
+  
+  x <- t(x) # dans quel sens on va ?
+  asympt.var <- 0
+  for (i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      
+      s <- subformulas.common.ij(x,i,j)
+      
+      asympt.var <- asympt.var + s$pij * (s$pi.ij.c - s$pi.ij.d)^2
+      
+    }
+  }
+  asympt.var <- 4/n*( asympt.var - stat^2)
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  
+#   message('tau.a')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
+  
+  return(list(
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
+  ))
+}
+# ================================================================
+# Kendall's B tau
+# ================================================================
+calc.kendall.tau.b <- function(x)
+{
+#   x <- matrix(as.numeric(x), dim(x))
+  
+  n <- sum(x)
+  c <- concordant(x)$m
+  d <- discordant(x)$m
+  t <- egal.target(x)$m
+  p <- egal.pred(x)$m
+  
+  stat <- (c-d)/sqrt((c+d+p)*(c+d+t)) # ok!
+  
+  x <- t(x) # dans quel sens on va ?
+  
+  sc <- subformulas.common(x)  
+  
+  delta <- sqrt((1 - sc$sum.piX.squared) * (1 - sc$sum.pXj.squared))
+#   print(delta)
+  
+  phi.bar <- 0
+  for (i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      
+      s <- subformulas.common.ij(x,i,j)
+      
+      phi.ij <- 2*(s$pi.ij.c - s$pi.ij.d)*delta + 
+        stat * ( s$piX * (1-sc$sum.pXj.squared) + s$pXj * (1-sc$sum.piX.squared))
+      
+    }
+  }
+  
+  asympt.var <- 0  
+  for (i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      
+      s <- subformulas.common.ij(x,i,j)
+      
+      phi.ij <- 2*(s$pi.ij.c - s$pi.ij.d)*delta + 
+        stat * ( s$piX * (1-sc$sum.pXj.squared) + s$pXj * (1-sc$sum.piX.squared))
+      
+      asympt.var <- asympt.var + s$pij * (phi.ij - phi.bar)^2  
+      
+    }
+  }
+  
+  asympt.var <- 1/(n*delta^4) * asympt.var
+  
+#   std.error <- sqrt(asympt.var)/sqrt(n)
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  
+#   message('tau.b')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
+  
+  return(list(
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
+  ))
 }
 # =========================================================================================================
 # Stuart's C tau
 # =========================================================================================================
-calc.Stuart.tauC <- function(x)
+calc.stuart.tau.c <- function(x)
 {
   x <- matrix(as.numeric(x), dim(x))
   
-  c <- concordant(x)
-  d <- discordant(x)
+  c <- concordant(x)$m
+  d <- discordant(x)$m
+  n <- sum(x)
+  mindim <- min(dim(x))
   
-  statistic <- (c - d)/(1 - 1/min(dim(x)))
-    
+  stat <- (c - d)/(n^2/2) * 1/(1 - 1/mindim)
+#   stat <- (c - d) * 1/(1 - 1/mindim)
+  
+  asympt.var <- (mindim/(1-mindim))^2 * calc.kendall.tau.a(x)$asympt.var
+  
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  
+#   message('tau.c')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
+  
   return(list(
-    statistic = statistic,
-    pvalue = NA
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
   ))
 
 }
 # =========================================================================================================
 # GK's gamma
 # =========================================================================================================
-calc.GK.gamma <- function(x)
+calc.gk.gamma <- function(x)
 {
   x <- matrix(as.numeric(x), dim(x))
   
-  c <- concordant(x)
-  d <- discordant(x)
+  c <- concordant(x)$pi
+  d <- discordant(x)$pi
+  n <- sum(x)
   
-  statistic <- (c - d)/(c + d)
+  stat <- (c - d)/(c + d)
+  
+  x <- t(x) # dans quel sens on va ?
+  
+  asympt.var <- 0
+  for (i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      
+      s <- subformulas.common.ij(x,i,j)
+      
+      asympt.var <- asympt.var + s$pij * (c * s$pi.ij.d - d * s$pi.ij.c)^2
+      
+    }
+  }
+  asympt.var <- 16/(n*(c+d)^4) * asympt.var
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  
+#   message('\n gamma')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
+  
+  return(list(
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
+  ))
+}
+
+
+
+# =========================================================================================================
+# Wilson's e
+# =========================================================================================================
+calc.wilson.e <- function(x)
+{
+  c <- concordant(x)$pi
+  d <- discordant(x)$pi
+  n <- sum(x)
+  
+  stat <- (c-d)/(c+d+egal.pred(x)$pi+egal.target(x)$pi)
+  
+  
+  x <- t(x) # dans quel sens on va ?
+  
+  sc <- subformulas.common(x)
+  
+  asympt.var <- 0
+  for (i in 1:nrow(x)){
+    for(j in 1:ncol(x)){
+      
+      s <- subformulas.common.ij(x,i,j)
+      
+      asympt.var <- asympt.var + s$pij * (
+        (c-d) * (1 - s$pij)  -
+        (1 - sc$sum.pij.squared) * (s$pi.ij.c - s$pi.ij.d)
+      )^2
+      
+    }
+  }
+  asympt.var <- 4 * asympt.var/(n*(1-sc$sum.pij.squared)^4)
+  std.error <- sqrt(asympt.var)
+  pvalue <- pnorm(stat/std.error, mean = 0, sd = 1, lower.tail = T)*2
+  
+#   message('\n wilson.e')
+#   message(paste('stat',stat))
+#   message(paste('asympt.var',asympt.var))
+#   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))
+#   message(paste('std.error',std.error))
+#   message(paste('test statistic',stat/std.error))
+#   message(paste('pvalue', pvalue))
+  
+  return(list(
+    statistic = stat,
+    asympt.var = asympt.var,
+    pvalue = pvalue
+  ))
+}
+
+
+
+
+# =========================================================================================================
+# Wilconson
+# =========================================================================================================
+calc.wilconson <- function(x)
+{
+  
+  statistic <- NA
+  
+  # transform contingency table to row table
+  # prob2.results[1,3] <- wilcox.test(apprises, exigees, paired=TRUE)$p.value
   
   return(list(
     statistic = statistic,
     pvalue = NA
   ))
 }
+# =========================================================================================================
+# Spearman rho
+# =========================================================================================================
+calc.spearman.rho <- function(x)
+{
+  
+  statistic <- NA
+  
+  return(list(
+    statistic = statistic,
+    pvalue = NA
+  ))
+}
+
+
+
+
+
+
+# =========================================================================================================
+# NOT USED
+# =========================================================================================================
+
+# =========================================================================================================
+# Somer's D
+# =========================================================================================================
+
+# ### Thanks to Marc Schwartz for supplying the code for the Somer's d measure
+# 
+# # Calculate Concordant Pairs in a table
+# # cycle through x[r, c] and multiply by
+# # sum(x elements below and to the right of x[r, c])
+# # x = table
+# concordant <- function(x)
+# {
+#   x <- matrix(as.numeric(x), dim(x))
+#   
+#   # get sum(matrix values > r AND > c)
+#   # for each matrix[r, c]
+#   mat.lr <- function(r, c)
+#   { 
+#     lr <- x[(r.x > r) & (c.x > c)]
+#     sum(lr)
+#   }
+#   
+#   # get row and column index for each
+#   # matrix element
+#   r.x <- row(x)
+#   c.x <- col(x)
+#   
+#   # return the sum of each matrix[r, c] * sums
+#   # using mapply to sequence thru each matrix[r, c]
+#   sum(x * mapply(mat.lr, r = r.x, c = c.x))
+# }
+# 
+# # Calculate DIScordant Pairs in a table
+# # cycle through x[r, c] and multiply by
+# # sum(x elements below and to the left of x[r, c])
+# # x = table
+# discordant <- function(x)
+# {
+#   x <- matrix(as.numeric(x), dim(x))
+#   
+#   # get sum(matrix values > r AND < c)
+#   # for each matrix[r, c]
+#   mat.ll <- function(r, c)
+#   { 
+#     ll <- x[(r.x > r) & (c.x < c)]
+#     sum(ll)
+#   }
+#   
+#   # get row and column index for each
+#   # matrix element
+#   r.x <- row(x)
+#   c.x <- col(x)
+#   
+#   # return the sum of each matrix[r, c] * sums
+#   # using mapply to sequence thru each matrix[r, c]
+#   sum(x * mapply(mat.ll, r = r.x, c = c.x))
+# }
+# 
+# 
+# # Calculate Somers' d
+# # Return 3 values:
+# # 1. Sd C~R
+# # 2. Sd R~C
+# # 3. Sd Symmetric (Mean of above)
+# # x = table
+# calc.Sd <- function(x)
+# {
+#   x <- matrix(as.numeric(x), dim(x))
+#   
+#   c <- concordant(x)
+#   d <- discordant(x)
+#   n <- sum(x)
+#   SumR <- rowSums(x)
+#   SumC <- colSums(x)
+#   
+#   Sd.CR <- (2 * (c - d)) / ((n ^ 2) - (sum(SumR ^ 2)))
+#   Sd.RC <- (2 * (c - d)) / ((n ^ 2) - (sum(SumC ^ 2)))
+#   Sd.S <- (2 * (c - d)) / ((n ^ 2) - (((sum(SumR ^ 2)) + (sum(SumC ^ 2))) / 2))
+#   
+#   Sdlist <- list(Sd.CR, Sd.RC, Sd.S, NA)
+#   names(Sdlist) <- c("Sd.CR", "Sd.RC", "Sd.S", "pvalue")
+#   
+#   Sdlist
+# }
+# 
+# ## example from Kaehler book, p.123 table, p.129 results
+# # m <- matrix(c(4,6,0,11,146,22,2,20,39), 3)
+# # calc.Sd(m)    # correct
+
+# OTHER SOMER'S D COMPUTATION
+
+# # mt <- attr(mf, "terms")
+# # x <- model.matrix(mt, mf, contrasts)
+# 
+# #' Calculate Somers' d for the constructs. d is an 
+# #' assymetric association measure as it depends on which 
+# #' variable is set as dependent and independent.
+# #' The direction of dependency needs to be specified.
+# #'
+# #' @param x           \code{repgrid} object
+# #' @param dependent   A string denoting the direction of dependency in the output 
+# #'                    table (as d is assymetrical). Possible values are \code{"c"}
+# #'                    (the default) for setting the columns as dependent, \code{"r"} 
+# #'                    for setting the rows as the dependent variable and \code{"s"} for the 
+# #'                    symmetrical Somers' d measure (the mean of the two directional 
+# #'                    values for code{"c"} and \code{"r"}).
+# #' @param trim        The number of characters a construct is trimmed to (default is
+# #'                    \code{30}). If \code{NA} no trimming occurs. Trimming
+# #'                    simply saves space when displaying correlation of constructs
+# #'                    with long names.
+# #' @param index       Whether to print the number of the construct 
+# #'                    (default is \code{TRUE}). 
+# #' @param col.index   Logical. Wether to add an extra index column so the 
+# #'                    column names are indexes instead of construct names. This option 
+# #'                    renders a neater output as long construct names will stretch 
+# #'                    the output (default is \code{FALSE}).
+# #' @param digits      Numeric. Number of digits to round to (default is 
+# #'                    \code{2}).
+# #' @param output      The type of output printed to the console. \code{output=0}
+# #'                    will supress printing of the output. \code{output=1} (default) will print
+# #'                    results to the screen. 
+# #' @return            \code{matrix} of construct correlations.
+# #' @note              Thanks to Marc Schwartz for supplying the code to calculate
+# #'                    Somers' d.
+# #' @references        Somers, R. H. (1962). A New Asymmetric Measure of Association
+# #'                    for Ordinal Variables. \emph{American Sociological Review, 27}(6),
+# #'                    799-811.
+# #'
+# #' @author        Mark Heckmann
+# #' @export
+# #'
+# #' @examples \dontrun{
+# #'
+# #'    constructD(fbb2003)       # columns as dependent (default)
+# #'    constructD(fbb2003, "c")  # row as dependent
+# #'    constructD(fbb2003, "s")  # symmetrical index
+# #'  
+# #'    # surpress printing
+# #'    d <- constructD(fbb2003, out=0, trim=5)
+# #'    d
+# #'    
+# #'    # more digits
+# #'    constructD(fbb2003, dig=3)
+# #'
+# #'    # add index column, no trimming
+# #'    constructD(fbb2003, col.index=TRUE, index=F, trim=NA)  
+# #'
+# #' }
+# #'
+# constructD <- function(x, dependent = "c", 
+#                        trim=30, index=T, col.index=F, digits=1, output=1){
+#   if (!inherits(x, "repgrid"))   						    # check if x is repgrid object
+#     stop("Object x must be of class 'repgrid'")
+#   scores <- getRatingLayer(x)
+#   l <- lapply(as.data.frame(t(scores)),  I)     # put each row into a list
+#   
+#   somersd <- function(x, y, dependent, smin, smax){
+#     na.index <- is.na(x) | is.na(y)
+#     x <- x[!na.index]
+#     y <- y[!na.index]
+#     x <- factor(unlist(x), levels=seq(smin, smax))
+#     y <- factor(unlist(y), levels=seq(smin, smax))
+#     m <-  as.matrix(table(x,y))
+#     
+#     if (dependent == "r")
+#       i <- 1 else 
+#         if (dependent == "c")
+#           i <- 2 else i <- 3
+#     calc.Sd(m)[[i]]
+#   }  
+#   
+#   nc <- length(l)
+#   smin <- x@scale$min
+#   smax <- x@scale$max
+#   sds <- mapply(somersd, rep(l,each=nc), rep(l, nc), 
+#                 MoreArgs=list(dependent=dependent, 
+#                               smin=smin, smax=smax))
+#   res <- matrix(sds, nc)
+#   res <- addNamesToMatrix2(x, res, index=index, trim=trim, along=1)
+#   res <- round(res, digits)
+#   out <- res
+#   invisible(out)
+# }

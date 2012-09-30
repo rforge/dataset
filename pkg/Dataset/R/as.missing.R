@@ -95,7 +95,7 @@ setMethod(
   signature =c("numeric", "OrdinalVariable"),
     definition = function(i,x){
       l <- as.missing.gnl.num(x,i)
-      if(length(l$val) > 2) {
+      if(length(l$val) != 2) {
         return(ovar(
           x = codes(x),
           missings = l$mis,
@@ -117,7 +117,7 @@ setMethod(
   signature =c("character", "OrdinalVariable"),
     definition = function(i,x){
       l <- as.missing.gnl.char(x,i)
-      if(length(l$val) > 2) {
+      if(length(l$val) != 2) {
         return(ovar(
           x = codes(x),
           missings = l$mis,

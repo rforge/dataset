@@ -32,7 +32,17 @@ get.spss.file <- function(
   reencode = "latin1"
 ) {
 	ptm <- proc.time()
-
+# 	warn.user <- options("warn")
+# 	options(warn = -1) # suppress warnings
+# 	on.exit(options(warn.user)) # restore warnings
+	warn.user <- options(warn = -1) # suppress warnings
+	on.exit(options(warn.user)) # restore warnings
+  
+  print.comments.user <- Dataset.globalenv$print.comments
+  if(print.comments.user < Dataset.globalenv$monitoring) {
+	  Dataset.globalenv$print.comments <- Dataset.globalenv$monitoring
+  }
+  
   if(!is.installed.pkg('foreign')) {
     exit.by.uninstalled.pkg('foreign')
   } else {
@@ -72,15 +82,36 @@ get.spss.file <- function(
   	## liste qui construira l'objet Dataset
   	l <- list();
   	
-  	counter <- 0;
+  	
   	
   	if(missing(variables)) variables <- names(spssdata)
+    
+  	counter <- 0
+    
+  	cons.counter <- cons.counter.new(
+  	  txt.before = 'Importing variables... ',
+  	  txt.after = paste('/', length(variables), sep='')
+  	)
+#   	cons.counter <- cons.counter.new(
+#   	  txt.before = 'a',
+#   	  txt.after = paste('/', length(variables), sep='')
+#   	)
+    
+  	
   	for (v in variables) {
-      flag <- F
+  	  
+  	  counter <- counter + 1;
       
-      message(paste("Loading", v))
-      
-  		counter <- counter + 1;
+  	  if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+  	    cons.counter <- cons.counter.add.one(cons.counter)
+  	    cons.counter.print(cons.counter)
+        
+#   	    message(v, ' : ', appendLF=F)
+#   	    flag <- F
+#   	    
+#   	    message(paste("Loading", v))
+  	  }
+  	  
   	
   		vtemp <- spssdata[[v]]
       codes <- vtemp
@@ -108,65 +139,71 @@ get.spss.file <- function(
   				origin = "1582-10-14"
         )
         flag <- T
-  		}
+  		} else {
       
-      if (is.element(v, wvar)) {
-        l[[counter]] <- wvar(
-          x = codes,
-          description = description,
-          values = value.labels,
-          missings = missings
-        )
-        flag <- T
-      } else {    
-    		if (length(uval) > max.value.labels) { # then scale
-          
-    			l[[counter]] <- svar(
-    				x = codes,
-    				description = description,
-    				values = value.labels,
-    				missings = missings)
-    			flag <- T
-          
-    		} else {
-    			if (all(uval %in% union(value.labels, missings))) {# then qualitative
-            if (length(value.labels) == 2) { #then binary
-      				l[[counter]] <- bvar(
-      					x = codes,
-      					description = description,
-      					values = value.labels,
-      					missings = missings)
-      				flag <- T
-            } else { # then not binary
-              if (is.element(v, ovar)) { # then ordinal
-                l[[counter]] <- ovar( 
-          			x = codes,
-        				description = description,
-        				values = value.labels,
-        				missings = missings)
-                flag <- T
-              } else { # then nominal
-                l[[counter]] <- nvar( 
-            		x = codes,
-        				description = description,
-        				values = value.labels,
-        				missings = missings)
-                flag <- T
+        if (is.element(v, wvar)) {
+          l[[counter]] <- wvar(
+            x = codes,
+            description = description,
+            values = value.labels,
+            missings = missings
+          )
+          flag <- T
+        } else {    
+      		if (length(uval) > max.value.labels) { # then scale
+            
+      			l[[counter]] <- svar(
+      				x = codes,
+      				description = description,
+      				values = value.labels,
+      				missings = missings)
+      			flag <- T
+            
+      		} else {
+      			if (all(uval %in% union(value.labels, missings))) {# then qualitative
+              if (length(value.labels) == 2) { #then binary
+        				l[[counter]] <- bvar(
+        					x = codes,
+        					description = description,
+        					values = value.labels,
+        					missings = missings)
+        				flag <- T
+              } else { # then not binary
+                if (is.element(v, ovar)) { # then ordinal
+                  l[[counter]] <- ovar( 
+            			x = codes,
+          				description = description,
+          				values = value.labels,
+          				missings = missings)
+                  flag <- T
+                } else { # then nominal
+                  l[[counter]] <- nvar( 
+              		x = codes,
+          				description = description,
+          				values = value.labels,
+          				missings = missings)
+                  flag <- T
+                }
               }
-            }
-    			} else { #nothing matched, we try scale
-    			l[[counter]] <- svar(
-    				x = codes,
-    				description = description,
-    				values = value.labels,
-    				missings = missings)
-    			flag <- T
-    		  }
-    		}
-      }
+      			} else { #nothing matched, we try scale
+      			l[[counter]] <- svar(
+      				x = codes,
+      				description = description,
+      				values = value.labels,
+      				missings = missings)
+      			flag <- T
+      		  }
+      		}
+        }
+  		}
       stopifnot(flag)
   	}
   
+  	if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+  	  cons.counter.print.finish(cons.counter)
+  	}
+  	
+    
     names(l) <- variables
   	
   	if (!is.null(name)){
@@ -205,8 +242,12 @@ get.spss.file <- function(
   		}
   	}
   	
-  	duration <- proc.time() - ptm
-  	message(paste("Duration:", duration[1]))
+  	if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+  	  duration <- proc.time() - ptm
+  	  message(paste("Duration:", duration[1]))
+  	}
+    
+  	Dataset.globalenv$print.comments <- print.comments.user
   	return(out)
   }
 }

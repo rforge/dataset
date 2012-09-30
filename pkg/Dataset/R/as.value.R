@@ -25,7 +25,7 @@ setMethod(
   signature =c("numeric", "NominalVariable"),
     definition = function(i,x){
       l <- as.value.gnl.num(x,i)
-      return(nvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -38,7 +38,7 @@ setMethod(
   signature =c("character", "NominalVariable"),
     definition = function(i,x){
       l <- as.value.gnl.char(x,i)
-      return(nvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -54,7 +54,7 @@ setMethod(
   signature =c("numeric", "BinaryVariable"),
     definition = function(i,x){
       l <- as.value.gnl.num(x,i)
-      return(bvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -67,7 +67,7 @@ setMethod(
   signature =c("character", "BinaryVariable"),
     definition = function(i,x){
       l <- as.value.gnl.char(x,i)
-      return(bvar(
+      return(cvar(
         x = codes(x),
         missings = l$mis,
         values = l$val,
@@ -83,12 +83,21 @@ setMethod(
   signature =c("numeric", "OrdinalVariable"),
     definition = function(i,x){
       l <- as.value.gnl.num(x,i)
-      return(ovar(
-        x = codes(x),
-        missings = l$mis,
-        values = l$val,
-        description = description(x)
-      ))
+      if(length(l$val) != 2) {
+        return(ovar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      } else {
+        return(bvar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      }
   }
 )
 setMethod(
@@ -96,12 +105,21 @@ setMethod(
   signature =c("character", "OrdinalVariable"),
     definition = function(i,x){
       l <- as.value.gnl.char(x,i)
-      return(ovar(
-        x = codes(x),
-        missings = l$mis,
-        values = l$val,
-        description = description(x)
-      ))
+      if(length(l$val) != 2) {
+        return(ovar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      } else {
+        return(bvar(
+          x = codes(x),
+          missings = l$mis,
+          values = l$val,
+          description = description(x)
+        ))
+      }
   }
 )
 
@@ -162,29 +180,29 @@ setMethod(
   }
 )
 
-setMethod(
-  f ="as.valid",
-  signature =c("numeric", "WeightingVariable"),
-  definition = function(i,x){
-    l <- as.value.gnl.num(x,i)
-    return(wvar(
-      x = codes(x),
-      missings = l$mis,
-      values = l$val,
-      description = description(x)
-    ))
-  }
-)
-setMethod(
-  f ="as.valid",
-  signature =c("character", "WeightingVariable"),
-  definition = function(i,x){
-    l <- as.value.gnl.char(x,i)
-    return(wvar(
-      x = codes(x),
-      missings = l$mis,
-      values = l$val,
-      description = description(x)
-    ))
-  }
-)
+# setMethod(
+#   f ="as.valid",
+#   signature =c("numeric", "WeightingVariable"),
+#   definition = function(i,x){
+#     l <- as.value.gnl.num(x,i)
+#     return(wvar(
+#       x = codes(x),
+#       missings = l$mis,
+#       values = l$val,
+#       description = description(x)
+#     ))
+#   }
+# )
+# setMethod(
+#   f ="as.valid",
+#   signature =c("character", "WeightingVariable"),
+#   definition = function(i,x){
+#     l <- as.value.gnl.char(x,i)
+#     return(wvar(
+#       x = codes(x),
+#       missings = l$mis,
+#       values = l$val,
+#       description = description(x)
+#     ))
+#   }
+# )

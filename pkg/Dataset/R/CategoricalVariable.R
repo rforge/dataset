@@ -130,7 +130,15 @@ cvar <- function(
       description = nvariable$description,
       Variable.version = variable$Variable.version
     )
-    message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
+    if(Dataset.globalenv$print.comments <= Dataset.globalenv$important){
+     message(paste(
+       'number of missings:',
+       nmissings(out),
+       '(',
+       round(nmissings(out)/length(out)*100,2),
+       '%)'
+    ))
+    }
     return(out)
   } else {
     bvariable <- binaryVariable(
@@ -147,8 +155,15 @@ cvar <- function(
       description = bvariable$description,
       Variable.version = variable$Variable.version
     )
-    message(paste('number of missings:',nmissings(out)))
-    return(out)
+    if(Dataset.globalenv$print.comments <= Dataset.globalenv$important){
+      message(paste(
+        'number of missings:',
+        nmissings(out),
+        '(',
+        round(nmissings(out)/length(out)*100,2),
+        '%)'
+    ))
+}
   }
 }
 
@@ -219,20 +234,42 @@ setMethod(
 setMethod(
   f = "distrib",
   signature = "CategoricalVariable", 
-  definition = function (object, missings.omit, percent, sorting, format, digits, chlength, sep, cut) {
+  definition = function (object, weights, missings.omit, percent, sorting, format, digits, chlength, sep, cut, cut.percent) {
     out <- as.factor(object)
+    
+    stopifnot(length(out) == length(weights))
     
     if(missing(sep)){
       if (is.ordinal(object) && missing(sorting)) sep <- " < "
       else sep <- ", "
     }
     
-    if (missings.omit)
-      out <- table(out)/(length(out) - nmissings(object))
-    else
-      out <- table(out)/length(out)
+    lev <- levels(out)
+    out1 <- numeric(0)
+
+    for (i in 1:nlevels(out)){
+      which.in.level <- which(out == lev[i])
+      out1 <- c(out1, sum(weights[which.in.level]))
+    }
+    out2 <- as.table(out1/sum(weights))
+    names(out2) <- levels(out)
+    out <- out2
     
-    names(attr(out, "dimnames")) <- ""
+#     if (missings.omit)
+#       out <- table(out)/(length(out) - nmissings(object))
+#     else
+#       out <- table(out)/length(out)
+#     
+#     names(attr(out, "dimnames")) <- ""
+#     print(out)
+    
+    if(!missing(cut.percent)){
+      cut.1 <- cut.percent / 100
+      which.cutted <- which(out < cut.1)
+      if(length(which.cutted) > 0) {
+        out <- out[-which.cutted]
+      }
+    }
     
     if(!missing(sorting)) {
       if(!is.element(sorting, c("increasing", "decreasing"))){
@@ -245,8 +282,12 @@ setMethod(
     
     if(percent) out <- out * 100
     if(format) {
-      if(length(out)==0) { # the vector has only missings
-        out <- ''
+      if(length(out)==0) {
+        if(length(which.cutted) > 0) {
+          out <- '...'
+        } else {  # the vector has only missings
+          out <- ''
+        }
       } else {
         out1 <- formatC(out, digits = digits, format = "f")
         out1 <- paste("(", out1, ")", sep = "")
@@ -261,16 +302,20 @@ setMethod(
           substr(out[i], nchar(out[i]), nchar(out[i])) <- "-"
         }
         out <- paste(out, out1, sep = " ", collapse = sep)
-        if(nchar(out) > cut) {
-          csum <- cumsum(as.vector(sapply(strsplit(out, sep), nchar)))
-          pos <- findInterval(cut,csum)
-          endsubstr <- csum[pos] 
-          if (length(endsubstr) == 0) out <- "..."
-          else {
-            endsubstr <- endsubstr + length(sep) * (pos - 1)
-            out <- paste(substr(out, 0, endsubstr), "...", sep = sep)
-          }
+        
+        if(length(which.cutted) > 0) {
+          out <- paste(out, ', ...', sep='')
         }
+#         if(nchar(out) > cut) {
+#           csum <- cumsum(as.vector(sapply(strsplit(out, sep), nchar)))
+#           pos <- findInterval(cut,csum)
+#           endsubstr <- csum[pos] 
+#           if (length(endsubstr) == 0) out <- "..."
+#           else {
+#             endsubstr <- endsubstr + length(sep) * (pos - 1)
+#             out <- paste(substr(out, 0, endsubstr), "...", sep = sep)
+#           }
+#         }
       }
     }
     return(out)
@@ -323,9 +368,10 @@ setMethod("nvalues", "CategoricalVariable",
 
 setMethod(
   f = "recode",
-  signature = c("CategoricalVariable", "list"),
-  definition = function (object, recoding, ...) {
+  signature = c("CategoricalVariable"),
+  definition = function (object, ...) {
 
+    recoding <- list(...)
     newcat <- names(recoding)
     stopifnot(length(newcat) != length(unique(newcat))) #new cat has to be unique
     

@@ -71,12 +71,12 @@ binaryVariable <- function(
     if (m != 0) {
       x[which(x == m)] <- 0
       values[which(values == m)] <- 0
-      message("the lower value must be 0 in a BinaryVariable object, a recodage has been performed")
+#       message("the lower value must be 0 in a BinaryVariable object, a recodage has been performed")
     }
     if (M != 1) {
       x[which(x == M)] <- 1
       values[which(values == M)] <- 1
-      message("the higher value must be 1 in a BinaryVariable object, a recodage has been performed")
+#       message("the higher value must be 1 in a BinaryVariable object, a recodage has been performed")
     }
 
   
@@ -130,7 +130,17 @@ bvar <- function(
     description = bvariable$description,
     Variable.version = variable$Variable.version
   )
-  message(paste('number of missings:',nmissings(out), '(', round(nmissings(out)/length(out)*100,2), '%)'))
+  
+  if(Dataset.globalenv$print.comments <= Dataset.globalenv$important){
+    message(paste(
+      'number of missings:',
+      nmissings(out),
+      '(',
+      round(nmissings(out)/length(out)*100,2),
+      '%)'
+    ))
+  }
+  
   return(out)
 }
 
