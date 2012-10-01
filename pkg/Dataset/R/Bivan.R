@@ -17,7 +17,7 @@ bivan.tests <- function(){
    'cramer.v' = c("Cramer's V", 'global', 'symmetric', 'nominal', 'nominal'),
    'gk.tau' = c("GK's Tau", 'global', 'symmetric', 'nominal', 'nominal'),
    'somer.d' = c("Somer's D", 'global', 'symmetric', 'nominal', 'nominal'),
-   'stdres' = c("Std. Res.", 'global', 'symmetric', 'nominal', 'nominal')
+   'std.res' = c("Std. Res.", 'global', 'symmetric', 'nominal', 'nominal')
  )
  row.names(out) <- c('name', 'type', 'symmetry', 'dependant', 'predictor')
  return(out)
@@ -57,7 +57,7 @@ setClass(
 #     expected = 'data.frame',
     observed = 'list',
     expected = 'list',    
-    stdres = 'Statdf',
+    std.res = 'Statdf',
     global = 'Statdf'
   ),
   validity = function(object) {
@@ -145,16 +145,16 @@ setReplaceMethod(
     return(object)
   }
 )
-setMethod('stdres', 'Bivan', 
+setMethod('std.res', 'Bivan', 
           definition = function (object) { 
-            return(slot(object, 'stdres'))
+            return(slot(object, 'std.res'))
           }
 )
 setReplaceMethod(
-  f = 'stdres' ,
+  f = 'std.res' ,
   signature = 'Bivan' ,
   definition = function(object, value){
-    object@stdres <- value
+    object@std.res <- value
     validObject(object)
     return(object)
   }
@@ -214,8 +214,8 @@ setMethod(
     #  message(paste(i, " is ", str.typevar(data[[i]]), ".", sep = ""))
     #}
     
-    if(ncol(stdres(x)) > 0) {
-      print(summary(stdres(x), merge = 'left'))
+    if(ncol(std.res(x)) > 0) {
+      print(summary(std.res(x), merge = 'left'))
       message("");message("")
     }
     
@@ -315,9 +315,9 @@ setMethod(
       }
       
       
-      # stdres --------------------------------------
-      if(ncol(stdres(object)) > 0) {
-        s <- summary(stdres(object), merge = 'left')
+      # std.res --------------------------------------
+      if(ncol(std.res(object)) > 0) {
+        s <- summary(std.res(object), merge = 'left')
         object.xtable <- xtable(
           sdf(s),
           align = c("l", rep('c', ncol(sdf(s)))),
@@ -392,7 +392,7 @@ setMethod(
     somer.d,
     wilson.e,
     calc.spearman.rho,
-    stdres,
+    std.res,
     quiet
   ) {
     
@@ -435,9 +435,9 @@ setMethod(
     exp.list <- list()
     
     # -------------------------
-    # stdres
-    out.stdres <- statdf()
-    if(stdres) {
+    # std.res
+    out.std.res <- statdf()
+    if(std.res) {
       res <- NULL
       for (i in xnames) {
         y.nlev <- nlevels(y)
@@ -466,17 +466,17 @@ setMethod(
         }
       }
 
-      out.stdres <- data.frame(matrix(rep(0, ncol(res)*2*nrow(res)), nrow = nrow(res)))
-      names(out.stdres) <- addSignif(dimnames(res)[[2]])
-      row.names(out.stdres) <- row.names(res)
+      out.std.res <- data.frame(matrix(rep(0, ncol(res)*2*nrow(res)), nrow = nrow(res)))
+      names(out.std.res) <- addSignif(dimnames(res)[[2]])
+      row.names(out.std.res) <- row.names(res)
       for (i in 1:ncol(res)){
-         out.stdres[,i*2-1] <- res[,i]
-         out.stdres[,i*2] <- calc.pval(res[,i])
+         out.std.res[,i*2-1] <- res[,i]
+         out.std.res[,i*2] <- calc.pval(res[,i])
       }
-      out.stdres <- statdf(
-        out.stdres,
+      out.std.res <- statdf(
+        out.std.res,
         pvalues = 'even',
-        name = paste(alltests['name', 'stdres'], 'table')
+        name = paste(alltests['name', 'std.res'], 'table')
       )
     }
     
@@ -691,7 +691,7 @@ setMethod(
       weighting = data.without.checks[, weighting(data)],
       observed = obs.list,
       expected = exp.list,
-      stdres = out.stdres,
+      std.res = out.std.res,
       global = out.global
     )
     

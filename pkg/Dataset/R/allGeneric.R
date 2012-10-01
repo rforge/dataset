@@ -136,7 +136,7 @@ setGeneric("bivan", function(
   somer.d = T, # 1962
   wilson.e = F, # 1974
   calc.spearman.rho = F,
-  stdres = T,
+  std.res = T,
   quiet = F
 ){ standardGeneric("bivan") })
 setGeneric("target", function(object){ standardGeneric("target") })
@@ -147,8 +147,8 @@ setGeneric("observed", function(object){ standardGeneric("observed") })
 setGeneric("observed<-", function(object, value){ standardGeneric("observed<-" ) })
 setGeneric("expected", function(object){ standardGeneric("expected") })
 setGeneric("expected<-", function(object, value){ standardGeneric("expected<-" ) })
-setGeneric("stdres", function(object){ standardGeneric("stdres") })
-setGeneric("stdres<-", function(object, value){ standardGeneric("stdres<-" ) })
+setGeneric("std.res", function(object){ standardGeneric("std.res") })
+setGeneric("std.res<-", function(object, value){ standardGeneric("std.res<-" ) })
 setGeneric("global", function(object){ standardGeneric("global") })
 setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
 

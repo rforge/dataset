@@ -1,7 +1,7 @@
 Package: Dataset
 Type: Package
 Title: Handling survey data in R.
-Version: 0.2.21
+Version: 0.2.22
 Date: 2012-09-26
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable

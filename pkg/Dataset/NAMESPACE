@@ -135,8 +135,8 @@ exportMethods(
   'observed<-',
   'expected',
   'expected<-',
-  'stdres',
-  'stdres<-',
+  'std.res',
+  'std.res<-',
   'global',
   'global<-',
   'varid',
@@ -151,7 +151,8 @@ exportMethods(
   "Ops",
   "Summary",
   'subset',
-  'frequencies'
+  'frequencies',
+  'rename'
 )
 
 export(
