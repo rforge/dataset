@@ -513,3 +513,37 @@ setMethod(
   }
 )
 
+setMethod("rename", "Variable", 
+  definition = function (x, ...) {
+    newnames <- list(...)
+    if (length(names(newnames)) == 0) {
+      stop("You have to specify names...")
+    } else {
+      for (i in names(newnames)) {
+        temp <- newnames[[i]]
+        stopifnot(inherits(temp, 'character'))
+        if(length(temp) > 1) {
+          stop(paste("In", temp, "you give more than one name..."))
+        } else {
+          if(!(i %in% names(values(x)))) {
+            stop(paste(i, 'is not in the values of x'))
+          } else {
+            if(i %in% names(missings(x))){
+              new <- missings(x)
+              id <- which(names(new) == i)
+              names(new)[id] <- temp
+              missings(x) <- new
+              return(x)
+            } else {
+              new <- valids(x)
+              id <- which(names(new) == i)
+              names(new)[id] <- temp
+              valids(x) <- new
+              return(x)
+            }
+          }
+        }
+      }
+    }
+  }
+)

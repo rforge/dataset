@@ -68,8 +68,11 @@ setMethod(
     }
     
     valids.names <- levels(out)
-    min.valid.code <- max(max(missings(x)),0) + 1 
-    # we want first valid case start at 1
+    min.valid.code <- 1 
+    # we want first valid case start at least at 1
+    if(nmissings(x) > 0) {
+      min.valid.code <- max(max(missings(x)),min.valid.code)
+    }
     valids <- min.valid.code:(min.valid.code+nlevels(out)-1)
 #     valids <- 1:nlevels(out)
     names(valids) <- valids.names
@@ -107,7 +110,19 @@ setMethod(
 
 setMethod("Ops", signature(e1="QuantitativeVariable", e2="QuantitativeVariable"),
           function(e1, e2) {
-            e1@codes=callGeneric(codes(e1), codes(e2))
+            
+            # we have to perform the operation only on valid cases, not on missings
+            # then we have to test that we did't create collisions with missings
+            
+#             old.codes <- e1@codes
+#             mis <- which(old.codes %in% missings(e1))
+            
+            new.codes=callGeneric(codes(e1), codes(e2))
+            
+#             mis.new <- which(new.codes %in% missings(e2))
+            
+#             if(
+            e1@new.codes
             validObject(e1)
             return(e1)
           }

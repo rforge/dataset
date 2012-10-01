@@ -63,7 +63,7 @@ setGeneric("nbinaries", function(object){ standardGeneric("nbinaries") })
 setGeneric("weightings", function(object){ standardGeneric("weightings" ) })
 setGeneric("nweightings", function(object){ standardGeneric("nweightings" ) })
 setGeneric("index", function(object, names){ standardGeneric("index") })
-setGeneric("rename", function(object, names){ standardGeneric("rename") })
+setGeneric("rename", function(x, ...){ standardGeneric("rename") })
 setGeneric("summaryToPDF", function(
   object,
   pdfSavingName,
@@ -154,7 +154,7 @@ setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
 
 setGeneric("varid", function(names, object){ standardGeneric("varid" ) })
 
-setGeneric("frequencies", function(x, ...){ standardGeneric("frequencies" ) })
+setGeneric("frequencies", function(x, data, ...){ standardGeneric("frequencies" ) })
 
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 

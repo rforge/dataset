@@ -453,7 +453,10 @@ setMethod(
 setMethod(
   f = "frequencies",
   signature = "CategoricalVariable", 
-  definition = function (x, ...) {
+  definition = function (x, data, ...) {
+    
+    # note: I test whether n.missings == 0, or n.total == 0, so it's useless to test if n.valids == 0 ?
+    # => no!
     
     format <- 'f'
     digits <- 2
@@ -473,6 +476,9 @@ setMethod(
     valu <- c(vali, mis)
     
     n <- length(valu)
+    n.valids <- length(vali)
+    n.missings <- length(mis)
+    
     names <- c('Coding', 'Missing', 'Label', 'N', 'N total', 'Percent', 'Percent (all)', 'Percent total')
     p <- length(names)
     
@@ -489,19 +495,28 @@ setMethod(
     for (i in valu) {
       N <- c(N, sum(weights[which(codes(x) == i)]))
     }
+    
     N.valids <- N[1:length(vali)]
-    N.missings <- N[(length(vali)+1):length(N)]
+    
+    N.missings <- 0
+    if (n.missings > 0) {
+      N.missings <- N[(length(vali)+1):length(N)]
+    }
+    
     N.total <- sum(N)
     N.valids.total <- sum(N.valids)
     N.missings.total <- sum(N.missings)
     
     N.valids.order <- order(N.valids, decreasing=T)
     N.missings.order <- order(N.missings, decreasing=T)
-    N.missings.order.out <- ((length(vali)+1):length(N))[N.missings.order]
+    
+    N.missings.order.out <- numeric(0)
+    if (n.missings > 0) {
+      N.missings.order.out <- ((length(vali)+1):length(N))[N.missings.order]
+    }
     
     values.new.order <- c(N.valids.order,N.missings.order.out)
     
-
     out <- out[values.new.order,]
     
     N <- N[values.new.order]
@@ -509,19 +524,42 @@ setMethod(
     
     N.total.col <- rep('', n)
     N.total.col[length(vali)] <- formatC(N.valids.total, format='d')
-    N.total.col[n] <- formatC(N.missings.total, format='d')
+    if (n.missings > 0) {
+      N.total.col[n] <- formatC(N.missings.total, format='d')
+    }
+    
     out[,'N total'] <- N.total.col
     
     percent.total.col <- rep('', n)
-    percent.total.col[length(vali)] <- formatC(N.valids.total/N.total*100, format=format, digits=digits)
-    percent.total.col[n] <- formatC(N.missings.total/N.total*100, format=format, digits=digits)
+    
+    percent.total.col[length(vali)] <- 0
+    if(N.total > 0){
+      percent.total.col[length(vali)] <- formatC(N.valids.total/N.total*100, format=format, digits=digits)
+    }
+    
+    if (n.missings > 0) {
+      percent.total.col[n] <- formatC(N.missings.total/N.total*100, format=format, digits=digits)
+    }
     out[,'Percent total'] <- percent.total.col
    
-    percent <- N/N.total*100
+    percent <- rep(0, length(N))
+    if (N.total > 0) {
+      percent <- N/N.total*100
+    }
+    
     percent <- formatC(percent, format=format, digits=digits)
     out[,'Percent (all)'] <- percent
     
-    percent.sep <- c(N[1:length(vali)]/N.valids.total,N[(length(vali)+1):length(N)]/N.missings.total)*100
+    percent.sep.missings <- numeric(0)
+    if (n.missings > 0) {
+      if (N.missings.total > 0) {
+        percent.sep.missings <- N[(length(vali)+1):length(N)]/N.missings.total
+      } else {
+        percent.sep.missings <- 0
+      }
+    }
+    
+    percent.sep <- c(N[1:length(vali)]/N.valids.total,percent.sep.missings)*100
     percent.sep <- formatC(percent.sep, format=format, digits=digits)
     out[,'Percent'] <- percent.sep
     

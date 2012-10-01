@@ -1593,3 +1593,40 @@ setMethod(
 # t <- ir[1:3,]
 # t <- ir[as.character(1:3),]
 # t <- subset(ir, Species == 'versicolor')
+
+
+setMethod(
+  f = "frequencies",
+  signature = c("character", "Dataset"), 
+  definition = function (x, data, ...) {
+    
+    out <- frequencies(data[[x]], weights=weights(data))
+    
+    return(out)
+  }
+)
+
+setMethod("rename", "Dataset", 
+  definition = function (x, ...) {
+    newnames <- list(...)
+    if (length(names(newnames)) == 0) {
+      stop("You have to specify names...")
+    } else {
+      for (i in names(newnames)) {
+        temp <- newnames[[i]]
+        stopifnot(inherits(temp, 'character'))
+        if(length(temp) > 1) {
+          stop(paste("In", temp, "you give more than one name..."))
+        } else {
+          if(all.is.numeric(i)) {
+            id <- as.numeric(i)
+          } else {
+            id <- varid(i, x)
+          }
+          names(x)[id] <- temp
+          return(x)
+        }
+      }
+    }
+  }
+)
