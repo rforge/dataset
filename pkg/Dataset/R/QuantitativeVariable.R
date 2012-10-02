@@ -61,10 +61,15 @@ setMethod(
   signature = "QuantitativeVariable", 
   definition = function (x, ...) {
     args <- list(...)
+    
+    if(hasArg('breaks')) {
+      args$breaks <- unique(c(min(x, na.rm=T), args$breaks, max(x, na.rm=T)))
+    }
     if('include.lowest' %in% names(args)) {
-      out <- cut(as.vector(x), ... = ...)
+      out <- do.call(cut, c(list('x'=as.vector(x)), args))
     } else {
-      out <- cut(as.vector(x), include.lowest=T, ... = ...)
+#       out <- cut(as.vector(x), include.lowest=T, ... = args)
+      out <- do.call(cut, c(list('x'=as.vector(x), 'include.lowest'=T), args))
     }
     
     valids.names <- levels(out)
@@ -86,12 +91,17 @@ setMethod(
 #     print(out[1:20])
 #     print(valids)
     
-    for (i in missings(x)){
-      out[which(codes(x) == i)] <- i
+    if (length(na.omit(unique(out))) == 2) {
+      for (i in missings(x)){ # we refill missing values
+        out[which(codes(x) == i)] <- i
+      }
+      out <- bvar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
+    } else {
+      for (i in missings(x)){ # we refill missing values
+        out[which(codes(x) == i)] <- i
+      }
+      out <- ovar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
     }
-    
-    if (nlevels(out) == 2) out <- bvar(out)
-    else out <- ovar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
     
     if(is.null(args$silent) || (args$silent == FALSE))
       print(table(v(x), v(out)))
@@ -99,7 +109,8 @@ setMethod(
     nmissings.before <- nmissings(x)
     nmissings.after <- nmissings(out)
     if(nmissings.before != nmissings.after) {
-      message('Sorry, a problem occurs, data consistency lost. Please report this bug to the package maintainer.')
+#       message('Sorry, a problem occurs, data consistency lost. Please report this bug to the package maintainer.')
+      message('Sorry, a problem occurs, data consistency lost. Please check bounds.')
       message(paste('nmissings.before', nmissings.before))
       message(paste('nmissings.after', nmissings.after))
       stop()

@@ -533,17 +533,16 @@ setMethod("rename", "Variable",
               id <- which(names(new) == i)
               names(new)[id] <- temp
               missings(x) <- new
-              return(x)
             } else {
               new <- valids(x)
               id <- which(names(new) == i)
               names(new)[id] <- temp
               valids(x) <- new
-              return(x)
             }
           }
         }
       }
+      return(x)
     }
   }
 )
