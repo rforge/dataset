@@ -124,6 +124,11 @@ dataset <- function(
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  Dataset: builder \n")
   
+  ptm <- proc.time()
+  
+  warn.user <- options(warn = -1) # suppress warnings
+  on.exit(options(warn.user)) # restore warnings
+  
   print.comments.user <- Dataset.globalenv$print.comments
   if(print.comments.user < Dataset.globalenv$monitoring) {
     Dataset.globalenv$print.comments <- Dataset.globalenv$monitoring
@@ -138,8 +143,23 @@ dataset <- function(
   if (missing(infos)) infos <- list()
   
   if (inherits(x, 'data.frame')) {
+    cons.counter <- cons.counter.new(
+      txt.before = 'Importing variables... ',
+      txt.after = paste('/', ncol(x), sep='')
+    )
     variables <- list()
     for (i in 1:ncol(x)) {
+      
+      if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+        cons.counter <- cons.counter.add.one(cons.counter)
+        cons.counter.print(cons.counter)
+        
+        #   	    message(v, ' : ', appendLF=F)
+        #   	    flag <- F
+        #   	    
+        #   	    message(paste("Loading", v))
+      }
+      
       match <- FALSE
       if(inherits(x[[i]], 'character')) {
         variables[[i]] <- cvar(x[[i]])
@@ -159,6 +179,11 @@ dataset <- function(
       if(!match) {
         stop(paste("Dataset::dataset - variable", i, "didn't match"))
       }
+      
+      if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+        cons.counter.print.finish(cons.counter)
+      }
+      
     }
     names(variables) <- names(x)
   } else {
@@ -180,21 +205,37 @@ dataset <- function(
   }
   names(variables) <- make.names(names(variables), unique = T)
   
-  
+    
+  if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+    duration <- proc.time() - ptm
+    message(paste("Duration:", duration[1]))
+  }
   
   Dataset.globalenv$print.comments <- print.comments.user
   
+  
+  
   if(Dataset.globalenv$print.io) cat(" => (out) Dataset: builder \n")
-  return(new(
-    Class = "Dataset",
-    name = name,
-    variables = variables,
-    row.names = row.names,
-    weights = weights,
-    checkvars = checkvars,
-    Dataset.version = Dataset.globalenv$Dataset.version,
-    infos = infos
-  ))
+  
+  # on nvague1to3 NULL appear...
+  var.null <- which(as.logical(lapply(variables, is.null)))
+  if(length(var.null) > 0) {
+    message("Sorry, but importing variables failed... Please find in output a list containing all the variables imported. Some of them are NULL. Try to fix in your data.frame what could be the problem, then run this function again.")
+    return(variables)
+  } else {
+  
+    return(new(
+      Class = "Dataset",
+      name = name,
+      variables = variables,
+      row.names = row.names,
+      weights = weights,
+      checkvars = checkvars,
+      Dataset.version = Dataset.globalenv$Dataset.version,
+      infos = infos
+    ))
+  }
+  
 }
 
 

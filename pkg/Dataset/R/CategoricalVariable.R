@@ -60,7 +60,7 @@ categoricalVariable <- function(x, values, missings, description) {
       stop("Some values in 'x' don't appears in 'values'")
     } else {
       for (i in 1:length(names)){
-       codes[which(x == names[i])] <- values[i]
+       codes[which(x == names[i])] <- values[i] # warning ?
       }
     }
   }
@@ -75,6 +75,10 @@ categoricalVariable <- function(x, values, missings, description) {
     stop("x argument is not suppored")
   }
       
+  
+  # warning !!
+  names(values) <- make.names(names(values), unique=T)
+  names(missings) <- make.names(names(missings), unique=T)
   
   # we apply special treatment for variable
   variable <- variable(
