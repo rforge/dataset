@@ -91,7 +91,7 @@ if \code{TRUE} the Somer's D is computed.
 if \code{TRUE} the Wilson's e is computed.
 }
   \item{calc.spearman.rho}{
-if \code{TRUE} the Spearman's rho is computed.
+if \code{TRUE} the Spearman's rho is computed. (not working yet)
 }
   \item{stdres}{
 if \code{TRUE} the Pearson's Khi-squared standardize residuals are computed.
@@ -107,9 +107,26 @@ if \code{TRUE} console messages are turned of.
 A \code{Statdf} object containing all the statistics asked and their approximate p-values (based on asymptotic variance approximation).
 }
 \references{
-Mettre les papiers de toutes les mesures, v de cramer, phi, tschuprow, goodman and kruskal, theil, somer, wilson, ...
+Pearson, K. (1904). Mathematical contributions to the theory of evolution, XIII. On the theory of contingency and its relation to association and normal correlation. Draper's Co. Research Memoirs, Biometric Series, 1 (Reprinted in 1948 in: E. S. Pearson (ed.), Karl Pearson's Early Papers, Cambridge University Press, Cambridge.)
 
-Gilbert Ritschard, Jean Kellerhals, Michael Olszak, and Massimo Sardi: Path analysis with partial association measures. International Journal of Methodology, vol 30, number 1, February 1996.
+Tschuprow, A. A. (1918). On the mathematical expectation of moments of frequency distribution, Biometrika 12: 140-169.
+
+Kendall, M. G. (1938). A new measure of rank correlation, Biometrika 30: 81-93.
+
+Kendall, M. G. (1945). The treatment of ties in rank problems, Biometrika 33: 239-251.
+
+Stuart, A. (1953). The estimation and comparison of strenghts of association in contingency tables, Biometrika 40: 105-110.
+
+Somers, R. H. (1962). A new asymmetric measure for ordinal variables, Amer. Sociolog. Rev. 27: 799-811.
+
+Theil, H. (1970). On the estimation of relationships involving qualitative variables, Amer. J. Sociol. 76: 103-154.
+
+Cramer, H. (1971). Mathematical Methods of Statistics, Princeton University Press, Princeton.
+
+Wilson, T. P. (1974). Measures of association for bivariate ordinal hypotheses, in: H. M. Blalock Jr. (ed.), Measurement in the Social Sciences, Aldine-Atherton, Chicago, pp. 327-342.
+
+Ritschard, G et al. (1996). Path analysis with partial association measures. International Journal of Methodology, vol 30, number 1.
+%Gilbert Ritschard, Jean Kellerhals, Michael Olszak, and Massimo Sardi: Path analysis with partial association measures. International Journal of Methodology, vol 30, number 1, February 1996.
 }
 \author{
 Emmanuel Rousseaux, Gilbert Ritschard.
