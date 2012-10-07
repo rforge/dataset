@@ -184,6 +184,11 @@ dataset <- function(
         cons.counter.print.finish(cons.counter)
       }
       
+      if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+        duration <- proc.time() - ptm
+        message(paste("Duration:", duration[1]))
+      }
+      
     }
     names(variables) <- names(x)
   } else {
@@ -203,13 +208,10 @@ dataset <- function(
       names(variables) <- 1:length(variables)
     } 
   }
-  names(variables) <- make.names(names(variables), unique = T)
+#   names(variables) <- make.names(names(variables), unique = T)
   
     
-  if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
-    duration <- proc.time() - ptm
-    message(paste("Duration:", duration[1]))
-  }
+  
   
   Dataset.globalenv$print.comments <- print.comments.user
   
@@ -512,6 +514,16 @@ setMethod(
 		if (!missing(i)){ # i have to be understood as row.names
       # ask i to be unique? data.frame do a make.names, I do either
       row.id <- match(i, row.names)
+      row.id.na <- which(is.na(row.id))
+#       print(row.id.na)
+      if(length(row.id.na) > 0) {
+        warning(paste(
+          "Following row.names wasn't found in data",
+          paste(i[row.id.na], collapse=', ')
+        ))
+      }
+      row.id <- na.omit(row.id)
+#       print(row.id)
 		  row.names <- make.unique(row.names[row.id])
 #       if (inherits(i, 'character')) {
 #         i <- which(row.names(x) %in% i)
@@ -523,6 +535,7 @@ setMethod(
 			for (k in 1:length(listData)) {
 				listData[[k]] <- listData[[k]][row.id]
 			}
+#       print(listData[[weighting(x)]])
       #representativity to checkvars variables check
       lc <- length(checkvars(x))
       if(lc > 0) {
@@ -530,8 +543,15 @@ setMethod(
           var <- variables(x)[[checkvars(x)[k]]]
           if (inherits(var, 'CategoricalVariable')) {
             #a <- table(v(weights(x)) * v(listData[[checkvars(x)[k]]]))
-            a <- table(v(listData[[checkvars(x)[k]]]))
-            b <- distrib(var)
+            o <- table(v(listData[[checkvars(x)[k]]]))
+#             print(listData[[checkvars(x)[k]]])
+#             print(weights(x)[row.id])
+            a <- distrib(listData[[checkvars(x)[k]]], weights = weights(x)[row.id])
+            a <- a * sum(weights(x)[row.id])
+            b <- distrib(var, weights = weights(x)) #initial
+#             print(a)
+#             print(o)
+#             print(b)
             #print(a)
             #print(a/sum(a))
             #print(b)
@@ -546,9 +566,9 @@ setMethod(
               message(paste("=> control on ", checkvars(x)[k], ': warning, p-value < 0.05', sep = ''))
              #message(paste("=> control on ", 'sexe', ': warning, p-value < 0.05', sep = ''))
               if(length(over) > 0)
-                message(paste(paste(names(over), collapse=', '), 'is/are oversampled'))
+                message(paste(paste(names(over), collapse=', '), 'are oversampled'))
               if(length(under) > 0)
-                message(paste(paste(names(under), collapse=', '), 'is/are undersampled'))
+                message(paste(paste(names(under), collapse=', '), 'are undersampled'))
             }
           }
         }
@@ -1398,7 +1418,7 @@ setMethod("summaryToPDF", "Dataset",
         cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Scale variables} \n", file = outFileCon, append = T)
-      scvar <- scales(object)
+      scvar <- scales.exact(object)
       scvar.names <- names(scvar)
       
       descriptions <- c()
@@ -1424,7 +1444,7 @@ setMethod("summaryToPDF", "Dataset",
   	  }
     
       nbNA[which(is.na(nbNA))] <- 0
-      N <- rep(nTuples, nscales(object)) - nbNA
+      N <- rep(nTuples, nscales.exact(object)) - nbNA
       NApourcent <- nbNA / nTuples * 100
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)

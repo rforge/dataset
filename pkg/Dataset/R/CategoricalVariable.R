@@ -76,9 +76,9 @@ categoricalVariable <- function(x, values, missings, description) {
   }
       
   
-  # warning !!
-  names(values) <- make.names(names(values), unique=T)
-  names(missings) <- make.names(names(missings), unique=T)
+  # PUT IN warning ??
+#   names(values) <- make.names(names(values), unique=T)
+#   names(missings) <- make.names(names(missings), unique=T)
   
   # we apply special treatment for variable
   variable <- variable(
