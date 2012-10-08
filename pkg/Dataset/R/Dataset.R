@@ -208,9 +208,19 @@ dataset <- function(
       names(variables) <- 1:length(variables)
     } 
   }
-#   names(variables) <- make.names(names(variables), unique = T)
-  
     
+#   nas <- which(is.na(names(variables)))
+#   print(nas)
+#   if(length(nas) > 0) {
+#     print("warning: NA values was found in variable names. They was ignored")
+#     names(variables) <- na.omit(names(variables))
+#   }
+#   names(variables) <- unique(names(variables))
+  
+#   names(variables) <- unique(names(variables))
+  
+  ## FIXME with shp.merge of AnCat, nothing works but this
+  names(variables) <- make.names(names(variables), unique = T)
   
   
   Dataset.globalenv$print.comments <- print.comments.user
@@ -1689,5 +1699,43 @@ setMethod("rename", "Dataset",
         }
       }
     }
+  }
+)
+
+setMethod(
+  f = "only.complete",
+  signature = c("character", "Dataset"),
+  definition = function (variables, data, ...) {
+    
+    if(ncol(data) == 0) {
+      return(data) # if empty dataset, we return it
+    }
+    
+    if(length(variables) == 0) { # if variables no provided, we take all
+      vars <- names(data)
+    } else {
+      vars <- variables
+    }
+    
+    to.keep <- row.names(data)
+    
+    for (i in vars) {
+      mis <- which(is.na(as.vector(data[[i]])))
+      if(length(mis) > 0) { # if there are missings
+        to.keep.temp <- setdiff(row.names(data), row.names(data)[mis])
+        to.keep <- intersect(to.keep, to.keep.temp)
+      }
+    }
+    
+    if(length(to.keep) > 0) {
+      out <- data[to.keep,]
+    } else {
+      return(dataset(
+        description = description(data),
+        infos = infos(data)
+      ))
+    }
+    
+    return(out)
   }
 )

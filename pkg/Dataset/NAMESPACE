@@ -152,7 +152,8 @@ exportMethods(
   "Summary",
   'subset',
   'frequencies',
-  'rename'
+  'rename',
+  'only.complete'
 )
 
 export(

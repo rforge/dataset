@@ -183,7 +183,7 @@ setGeneric("recode", function(object, ...){ standardGeneric("recode") })
 setGeneric("cut")
 setGeneric("Ops")
 setGeneric("subset")
-
+setGeneric("only.complete", function(variables, data, ...){ standardGeneric("only.complete") })
 # if (!isGeneric("sd")) {
 	# if (is.function("sd"))
 	# fun <- sd
