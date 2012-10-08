@@ -1365,7 +1365,7 @@ setMethod("summaryToPDF", "Dataset",
         cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
       }
       cat("\\subsection*{Nominal variables} \n", file = outFileCon, append = T)
-      scvar <- nominals(object)
+      scvar <- nominals.exact(object)
       scvar.names <- names(scvar)
       
       descriptions <- c()
@@ -1390,7 +1390,7 @@ setMethod("summaryToPDF", "Dataset",
   	  }
     
       nbNA[which(is.na(nbNA))] <- 0
-      N <- rep(nTuples, nnominals(object)) - nbNA
+      N <- rep(nTuples, nnominals.exact(object)) - nbNA
       NApourcent <- nbNA / nTuples * 100
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)

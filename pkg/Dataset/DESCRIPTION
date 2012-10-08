@@ -1,7 +1,7 @@
 Package: Dataset
 Type: Package
 Title: Handling survey data in R.
-Version: 0.2.25
+Version: 0.2.26
 Date: 2012-10-08
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable
@@ -13,7 +13,7 @@ Description: This package provides a class, called Dataset, and some
         to a Dataset object is provided.
 Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>
-Maintainer: Emmanuel Rousseaux <contact+Dataset@emmanuelrousseaux.com>
+Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
 Depends: R (>= 2.10.1), methods, stats
 Suggests: foreign, xtable
 LazyLoad: yes

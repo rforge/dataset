@@ -117,7 +117,7 @@ Kendall, M. G. (1945). The treatment of ties in rank problems, \emph{Biometrika}
 
 Stuart, A. (1953). The estimation and comparison of strenghts of association in contingency tables, \emph{Biometrika} 40: 105-110.
 
-Goodman, L. A. \& Kruskal, W. H. (1954). Measures of association for cross classifications, \emph{J. Amer. Statist. Ass.} 37:54-115.
+Goodman, L. A. & Kruskal, W. H. (1954). Measures of association for cross classifications, \emph{J. Amer. Statist. Ass.} 37:54-115.
 
 Somers, R. H. (1962). A new asymmetric measure for ordinal variables, \emph{Amer. Sociolog. Rev.} 27: 799-811.
 
@@ -127,7 +127,7 @@ Cramer, H. (1971). \emph{Mathematical Methods of Statistics}, Princeton Universi
 
 Wilson, T. P. (1974). Measures of association for bivariate ordinal hypotheses, in: H. M. Blalock Jr. (ed.), \emph{Measurement in the Social Sciences}, Aldine-Atherton, Chicago, pp. 327-342.
 
-Ritschard, G et al. (1996). Path analysis with partial association measures. \emph{International Journal of Methodology}, vol. 30, number 1.
+Ritschard, G. and al. (1996). Path analysis with partial association measures. \emph{International Journal of Methodology}, vol. 30, number 1.
 %Gilbert Ritschard, Jean Kellerhals, Michael Olszak, and Massimo Sardi: Path analysis with partial association measures. International Journal of Methodology, vol 30, number 1, February 1996.
 }
 \author{
