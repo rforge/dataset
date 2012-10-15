@@ -1,7 +1,11 @@
 totex <- function(txt){
- return(gsub("_", "\\\\_", txt, perl = T)) 
+  out <- txt
+  out <- gsub("_", "\\\\_", out, perl = T)
+  out <- gsub("\\$", "\\\\$", out, perl = T)
+  return(out) 
 }
 # totex("shp_bon")
+# totex("shp$$bon")
 
 latex.head <- function(title, latexPackages, outFileCon){
   message('')

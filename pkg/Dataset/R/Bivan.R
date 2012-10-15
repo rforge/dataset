@@ -284,9 +284,14 @@ setMethod(
       
       cat("\\section*{Variables} \n", file = outFileCon, append = T)
       
-      cat("\\textbf{Target}", names(target(object))[1], file = outFileCon, append = T)
+      cat("\\textbf{Target}",
+          totex(names(target(object))[1]),
+          file = outFileCon, append = T
+      )
+      
       if (length(description(target(object)[[1]])) > 0) {
-        cat(paste(":", description(target(object)[[1]])), " \n", file = outFileCon, append = T)
+        cat(paste(":",
+          totex(description(target(object)[[1]]))), " \n", file = outFileCon, append = T)
       }
       
       cat("\\newline \n", file = outFileCon, append = T)
@@ -294,9 +299,9 @@ setMethod(
       cat("\\begin{itemize*}", " \n", file = outFileCon, append = T)
       preds <- names(predictors(object))
       for (i in preds) {
-        cat("\\item ", i, file = outFileCon, append = T)
+        cat("\\item ", totex(i), file = outFileCon, append = T)
         if(length(description(predictors(object)[[i]])) > 0) {
-          cat(paste(":", description(predictors(object)[[i]])), file = outFileCon, append = T)
+          cat(paste(":",  totex(description(predictors(object)[[i]]))), file = outFileCon, append = T)
         }
         cat(" \n", file = outFileCon, append = T)
       }
@@ -306,9 +311,9 @@ setMethod(
       cat("\\textbf{Weighting} ", file = outFileCon, append = T)
       wvarname <- names(weighting(object))
       if(length(wvarname) > 0) {
-        cat(wvarname, file = outFileCon, append = T)
+        cat(totex(wvarname), file = outFileCon, append = T)
         if (length(description(target(object)[[1]])) > 0) {
-          cat(paste(":", description(weighting(object)[[1]])), " \n", file = outFileCon, append = T)
+          cat(paste(":", totex(description(weighting(object)[[1]]))), " \n", file = outFileCon, append = T)
         }
       } else {
         cat("No weighting variable defined, equi-weighting is used", " \n", file = outFileCon, append = T)

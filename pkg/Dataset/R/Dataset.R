@@ -240,6 +240,7 @@ dataset <- function(
       Class = "Dataset",
       name = name,
       variables = variables,
+      description = description,
       row.names = row.names,
       weights = weights,
       checkvars = checkvars,
@@ -1695,9 +1696,9 @@ setMethod("rename", "Dataset",
             id <- varid(i, x)
           }
           names(x)[id] <- temp
-          return(x)
         }
       }
+      return(x)
     }
   }
 )
