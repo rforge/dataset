@@ -129,6 +129,7 @@ get.spss.file <- function(
       #  value.labels[which(value.labels < 0)] # negative codes appearing in values
       #)
       missings <- value.labels.all[which(value.labels.all < 0)] # negative codes appearing in values
+      #HERE I ADD THE UNSPECIFIED MISSINGS ???
       
       if (is.element(v, tsvar)) {
   			l[[counter]] <- tvar(

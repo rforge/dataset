@@ -62,7 +62,6 @@ exportMethods(
   'allvalues',
   'binaries',
   'head',
-  'index',
   'infos',
   'infos',
   'missings',
@@ -128,17 +127,11 @@ exportMethods(
   'formatc<-',
   'bivan',
   'target',
-  'target<-',
   'predictors',
-  'predictors<-',
   'observed',
-  'observed<-',
   'expected',
-  'expected<-',
   'std.res',
-  'std.res<-',
   'global',
-  'global<-',
   'varid',
   'Variable.version',
   'Dataset.version',
@@ -188,5 +181,6 @@ export(
   summaryToPDF.reglog,
   statdf,
   Dataset.version,
-  openPDF
+  openPDF,
+  pdflatex
 )

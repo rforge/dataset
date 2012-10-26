@@ -495,6 +495,7 @@ setMethod(
   signature = c("character", "Dataset"), 
   definition = function (names, object) { 
     return(which(names(object) %in% names))
+#     maybe match(names, names(object)) is more efficient ?
   }
 )
 # promptMethods('varid', filename = 'method-varid.Rd')
@@ -1036,13 +1037,13 @@ setMethod(
   }
 )
 
-setMethod(
-  "index",
-  c("Dataset", "character"),
-  function (object, names) {
-    return(match(names, names(object)))
-  }
-)
+# setMethod(
+#   "index",
+#   c("Dataset", "character"),
+#   function (object, names) {
+#     return(match(names, names(object)))
+#   }
+# )
 
 setMethod("summary", "Dataset", 
   definition = function (object, ...) {
@@ -1093,12 +1094,12 @@ setMethod("summaryToPDF", "Dataset",
     ) # 14.5cm
     align.bin    <-  c(
       align.common,
-      paste("p{",width.valids,"cm}",sep='')
+      paste("p{",width.valids+0.5,"cm}",sep='')
     )
     align.nom    <-  c(
       align.common,
-      paste("p{",0.5,"cm}",sep=''),
-      paste("p{",width.valids-0.5,"cm}",sep='')
+      paste("p{",0.6,"cm}",sep=''),
+      paste("p{",width.valids-0.6,"cm}",sep='')
     )
     align.nom[3] <- paste("p{",width.description - width.valids.nao.inc,"cm}",sep='')
     align.nom[7] <- paste("p{",width.valids + width.valids.nao.inc,"cm}",sep='')
@@ -1137,12 +1138,12 @@ setMethod("summaryToPDF", "Dataset",
   	latex.head(title = paste("Summary of the", totex(name(object)), "dataset"), latexPackages, outFileCon)
                            
   	cat("\\section*{Overview} \n", file = outFileCon, append = T)
-  	cat("\\begin{itemize} \n", file = outFileCon, append = T)
-  	cat("\\item Name:", totex(name(object)), "\n", file = outFileCon, append = T)
-  	cat("\\item Description:", description(object), "\n", file = outFileCon, append = T)
+  	cat("\\begin{itemize*} \n", file = outFileCon, append = T)
+  	cat("\\item \\textbf{Name:}", totex(name(object)), "\n", file = outFileCon, append = T)
+  	cat("\\item \\textbf{Description:}", description(object), "\n", file = outFileCon, append = T)
   	#cat("\\item Object version:", oversion(object), "\n", file = outFileCon, append = T)
   	#cat("\\item Created by Dataset version:", pversion(object), "\n", file = outFileCon, append = T)
-  	cat("\\item Number of variables: ", ncol(object), " (",
+  	cat("\\item \\textbf{Number of variables:} ", ncol(object), " (",
         nbinaries(object), " binaries, ",
         nordinals(object), " ordinals, ",
         nnominals.exact(object), " nominals, ",
@@ -1150,9 +1151,31 @@ setMethod("summaryToPDF", "Dataset",
         ntimes(object), " timestamps, ",
   	    nweightings(object), " weightings",
         ")", "\n", sep = "", file = outFileCon, append = T)
-    cat("\\item Number of rows:", nTuples, "\n", file = outFileCon, append = T)
-    cat("\\item Percent of missing values:", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
-  	cat("\\end{itemize} \n", file = outFileCon, append = T)
+    cat("\\item \\textbf{Number of rows:}", nTuples, "\n", file = outFileCon, append = T)
+    cat("\\item \\textbf{Percent of missing values:}", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
+    if(length(weighting(object)) > 0) {
+      cat("\\item \\textbf{Weighting variable:} ", totex(weighting(object)), ', ', totex(description(object[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
+    } else {
+      cat("\\item \\textbf{Weighting variable:} none.", "\n", file = outFileCon, append = T, sep='')
+    }
+    if(length(checkvars(object)) > 0) {
+      cat("\\item \\textbf{Control variable(s):} ", file = outFileCon, append = T, sep='')
+      cv.temp <- checkvars(object)
+      count <- 0
+      count.last <- length(cv.temp)
+      for (cv in cv.temp) {
+        count <- count + 1
+        cat(totex(cv), ' (', totex(description(object[[cv]])), ")", file = outFileCon, append = T, sep='')
+        if (count == count.last) {
+          cat('. ', "\n",  file = outFileCon, append = T, sep='')
+        } else {
+          cat(', ', file = outFileCon, append = T, sep='')
+        }
+      }
+    } else {
+      cat("\\item \\textbf{Control variable(s):} none.", "\n", file = outFileCon, append = T, sep='')
+    }
+  	cat("\\end{itemize*} \n", file = outFileCon, append = T)
     
     percents <- seq(from = 0, to = 100, by = 10)
     val <- c()
@@ -1200,10 +1223,12 @@ setMethod("summaryToPDF", "Dataset",
     cat("\\section*{Configuration} \n", file = outFileCon, append = T)
     cat("\\begin{itemize} \n", file = outFileCon, append = T)
     cat("\\item Variable descriptions are cutted above", description.chlength, "characters. \n", file = outFileCon, append = T)
-    cat("\\item Valid value descriptions are cutted above", valids.chlength, "characters. \n", file = outFileCon, append = T)
+    cat("\\item Valid case descriptions are cutted above", valids.chlength, "characters. \n", file = outFileCon, append = T)
     if (valids.cut.percent > 0) {
-      cat("\\item For categorical variables, valids cases are cutted when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
+      cat("\\item For categorical variables, valid cases are cutted when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
     }
+    cat("\\item For nominal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
+    cat("\\item For ordinal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
     cat("\\end{itemize} \n", file = outFileCon, append = T)
     cat("\\newpage \n", file = outFileCon, append = T)
     flag.newpage <- FALSE
@@ -1252,7 +1277,7 @@ setMethod("summaryToPDF", "Dataset",
       # row.names(df) <- 1:nrow(df)
       
       
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
       
       object.xtable <- xtable(
@@ -1302,7 +1327,7 @@ setMethod("summaryToPDF", "Dataset",
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theDistrib)
     	names(df) <- c("Variable", "Description", "N", "NA (%)", "Distribution (%)")
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
   
     	object.xtable <- xtable(
@@ -1353,7 +1378,7 @@ setMethod("summaryToPDF", "Dataset",
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
     	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
   
     	object.xtable <- xtable(
@@ -1406,7 +1431,7 @@ setMethod("summaryToPDF", "Dataset",
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
     	names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
   
     	object.xtable <- xtable(
@@ -1461,7 +1486,7 @@ setMethod("summaryToPDF", "Dataset",
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)
     	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean", "Std dev.")
       # row.names(df) <- 1:nrow(df)
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
   
     	object.xtable <- xtable(
@@ -1519,7 +1544,7 @@ setMethod("summaryToPDF", "Dataset",
     
     	df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMed, theMean)
     	names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Median", "Mean")
-      row.names(df) <- index(object, scvar.names)
+      row.names(df) <- varid(scvar.names, object)
       cat("{\\footnotesize \n", file = outFileCon, append = T)
   
     	object.xtable <- xtable(

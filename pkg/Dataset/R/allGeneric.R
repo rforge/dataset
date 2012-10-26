@@ -154,7 +154,7 @@ setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
 
 setGeneric("varid", function(names, object){ standardGeneric("varid" ) })
 
-setGeneric("frequencies", function(x, data, ...){ standardGeneric("frequencies" ) })
+setGeneric("frequencies", function(x, data, sort = 'decreasing', sort.ordinal = F, ...){ standardGeneric("frequencies" ) })
 
 #setGeneric("table", function(..., exclude = if (useNA == "no") c(NA, NaN), useNA = c("no", "ifany", "always"), dnn = list.names(...), deparse.level = 1){ table })
 

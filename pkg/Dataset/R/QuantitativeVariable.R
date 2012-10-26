@@ -60,16 +60,21 @@ setMethod(
   f = "cut", 
   signature = "QuantitativeVariable", 
   definition = function (x, ...) {
-    args <- list(...)
+    dots <- list(...)
+    
+    quiet = F
+    if('quiet' %in% names(dots)) {
+      if(dots$quiet) quiet <- T
+    }
     
     if(hasArg('breaks')) {
-      args$breaks <- unique(c(min(x, na.rm=T), args$breaks, max(x, na.rm=T)))
+      dots$breaks <- unique(c(min(x, na.rm=T), dots$breaks, max(x, na.rm=T)))
     }
-    if('include.lowest' %in% names(args)) {
-      out <- do.call(cut, c(list('x'=as.vector(x)), args))
+    if('include.lowest' %in% names(dots)) {
+      out <- do.call(cut, c(list('x'=as.vector(x)), dots))
     } else {
-#       out <- cut(as.vector(x), include.lowest=T, ... = args)
-      out <- do.call(cut, c(list('x'=as.vector(x), 'include.lowest'=T), args))
+#       out <- cut(as.vector(x), include.lowest=T, ... = dots)
+      out <- do.call(cut, c(list('x'=as.vector(x), 'include.lowest'=T), dots))
     }
     
     valids.names <- levels(out)
@@ -84,14 +89,15 @@ setMethod(
     
     out <- as.numeric(out) ## FIXME pb missing collision ?
     
+    
     diff.min.code <- min(out, na.rm=T) - min.valid.code
 #     print(diff.min.code)
 #     print(out[1:20])
     out <- out - diff.min.code
 #     print(out[1:20])
 #     print(valids)
-    
-    if (length(na.omit(unique(out))) == 2) {
+
+    if (length(valids) == 2) {
       for (i in missings(x)){ # we refill missing values
         out[which(codes(x) == i)] <- i
       }
@@ -103,7 +109,7 @@ setMethod(
       out <- ovar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
     }
     
-    if(is.null(args$silent) || (args$silent == FALSE))
+    if(!quiet)
       print(table(v(x), v(out)))
     
     nmissings.before <- nmissings(x)
@@ -160,3 +166,96 @@ setMethod(
     return(sum(as.numeric(x), na.rm=na.rm))
   }
 )
+
+setMethod(
+  f = "frequencies",
+  signature = "QuantitativeVariable", 
+  definition = function (x, data, sort, sort.ordinal, ...) {
+    
+    unique.val <- na.omit(unique(as.numeric(x)))
+    n.unique <- length(unique.val)
+    
+    dots <- list(...)
+    if('breaks.max' %in% names(dots)) {
+      n.cut.max <- breaks.max
+    } else {
+      n.cut.max <- 10 # to have 2^3 range
+    }
+    
+    n.cut <- min(n.unique-1, n.cut.max)
+    
+    if(n.unique == 0) {
+      out <- cvar( # FIXME doesn't work
+        x = codes(x),
+        missings = missings(x),
+        values = unique.val,
+        description = description(x)
+      )
+    }
+    if(n.unique == 1) {
+      names(unique.val) <- paste('{', unique.val, '}', sep='')
+      out <- cvar(
+        x = codes(x),
+        missings = missings(x),
+        values = unique.val,
+        description = description(x)
+      )
+    }
+    if(n.unique == 2) {
+      names(unique.val) <- c(
+#         paste('[', unique.val[1], ',', unique.val[1], ']', sep=''),
+#         paste('(', unique.val[1], ',', unique.val[2], ']', sep='')
+          paste('{', unique.val[1], '}', sep=''),
+          paste('{', unique.val[2], '}', sep='')
+      )
+      out <- cvar(
+        x = codes(x),
+        missings = missings(x),
+        values = unique.val,
+        description = description(x)
+      )
+    }
+    if(n.unique > 2) {
+#       breaks <- unique.val[-c(min(unique.val), max(unique.val))]
+      breaks <- seq(min(unique.val), max(unique.val), length.out = n.cut+1)
+#       if(svar.is.integer(x)){
+#         breaks <- unique(round(breaks))
+#       }
+#       print(breaks)
+#       unique.val <- sort(unique.val, decreasing = FALSE)
+      out <- cut(
+        x,
+        breaks = breaks,
+        quiet = T
+#         breaks = unique.val[-c(min(unique.val), max(unique.val))]
+      )
+    }
+    
+    out <- do.call(getMethod('frequencies', 'CategoricalVariable'), list(out))
+    return(out)
+  }
+)
+
+svar.is.integer <- function(x){
+  unique.val <- na.omit(unique(as.numeric(x)))
+  unique.val.rounded <- round(unique.val)
+  union <- union(unique.val, unique.val.rounded)
+  return(length(union) == length(unique.val.rounded))
+}
+# svar.is.integer(svar(c(1,2,3.1)))
+# b <- svar(c(NA,NA,NA)); frequencies(b)
+# b <- svar(c(1,1,1)); frequencies(b)
+# b <- svar(c(1,1,1,NA)); frequencies(b)
+# b <- svar(c(1,1,1,2,2,2,2,NA)); frequencies(b)
+# b <- svar(c(1,1,1,2,2,2,2,3,NA)); frequencies(b)
+# b <- svar(c(1,1,1,2,2,2,2,3,4,NA)); frequencies(b)
+# b <- svar(c(1,1,1,2,2,2,2,3,4,5,NA)); frequencies(b)
+# b <- svar(c(1,2,3,4,5,NA)); frequencies(b)
+# b <- svar(c(1,2,3.2,4,5,NA)); frequencies(b)
+# b <- svar(c(1,2,3,4,5,6,7,8,9,10,NA)); frequencies(b)
+# b <- svar(c(1,2,3,4,5,6.2,7,8,9,10,NA)); frequencies(b)
+# b <- svar(c(1,2,3,4,5,6.2,7,8,9,10,11,12,13,14,15,16,17,18,19,20,NA)); frequencies(b)
+# b <- svar(c(1.01,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,NA)); frequencies(b)
+# b <- svar(c(10,10,10,80,80,90,90,100,100,100,NA)); frequencies(b)
+# b <- svar(c(10,10,10,80,80.4,90,90,NA)); frequencies(b)
+# b <- svar(c(1,1,1,23,23,NA,31,31,31,31,31.2,4,4,5,6,7,8,9)); frequencies(b)

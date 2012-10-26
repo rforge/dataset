@@ -171,7 +171,8 @@ cvar <- function(
         round(nmissings(out)/length(out)*100,2),
         '%)'
     ))
-}
+    }
+    return(out)
   }
 }
 
@@ -457,7 +458,7 @@ setMethod(
 setMethod(
   f = "frequencies",
   signature = "CategoricalVariable", 
-  definition = function (x, data, ...) {
+  definition = function (x, data, sort, sort.ordinal, ...) {
     
     # note: I test whether n.missings == 0, or n.total == 0, so it's useless to test if n.valids == 0 ?
     # => no!
@@ -511,8 +512,20 @@ setMethod(
     N.valids.total <- sum(N.valids)
     N.missings.total <- sum(N.missings)
     
-    N.valids.order <- order(N.valids, decreasing=T)
-    N.missings.order <- order(N.missings, decreasing=T)
+    if(!sort %in% c('decreasing', 'increasing', 'none'))
+      stop("bad value for sort argument. Should be either 'decreasing', 'increasing', or 'none'.")
+    
+    N.valids.order <- 1:n.valids
+    N.missings.order <- 1:n.missings
+    
+    if(sort == 'decreasing') {
+      if(sort.ordinal) {N.valids.order <- order(N.valids, decreasing=T)}
+      N.missings.order <- order(N.missings, decreasing=T)
+    }
+    if(sort == 'increasing') {
+      if(sort.ordinal) {N.valids.order <- order(N.valids, decreasing=F)}
+      N.missings.order <- order(N.missings, decreasing=F)
+    }
     
     N.missings.order.out <- numeric(0)
     if (n.missings > 0) {

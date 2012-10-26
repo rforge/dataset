@@ -501,7 +501,7 @@ setMethod(
     if (theil.u) userTests <- c(userTests, 'theil.u')
     if (theil.u.sqrt) userTests <- c(userTests, 'theil.u.sqrt')
     if (kendall.tau.a) userTests <- c(userTests, 'kendall.tau.a')
-    if (kendall.tau.a) userTests <- c(userTests, 'kendall.tau.b')
+    if (kendall.tau.b) userTests <- c(userTests, 'kendall.tau.b')
     if (stuart.tau.c) userTests <- c(userTests, 'stuart.tau.c')
     if (gk.gamma) userTests <- c(userTests, 'gk.gamma')
     if (somer.d) userTests <- c(userTests, 'somer.d')
@@ -734,7 +734,10 @@ statistic.chisq.likelihood.ratio <- function(x){ # x : table of contingency
   G <- 0
   for (i in 1:nrow(x)){
     for (j in 1:ncol(x)){
-      G <- G + x[i,j] * log(x[i,j]/e[i,j])
+      Gij <- x[i,j] * log(x[i,j]/e[i,j])
+      if(!is.nan(Gij)) {
+        G <- G + Gij
+      }
     }
   }
   G <- 2 * G
@@ -950,20 +953,31 @@ calc.Theil.u <- function(x)
   n <- margin.table(x)
   #print(n)
   
-  numerator <- 0
-  denominator <- 0
-  
-  for (i in 1:m) {
-    for (j in 1:p) {
-      numerator <- numerator + x[i,j]*log2(mtable.x[i] * mtable.y[j] / x[i,j])
+  if (n == 0) {
+    statistic <- 0
+  } else {
+    numerator <- 0
+    denominator <- 0
+    
+    for (i in 1:m) {
+      for (j in 1:p) {
+        numerator.ij <- x[i,j]*log2(mtable.x[i] * mtable.y[j] / x[i,j])
+        if(!is.nan(numerator.ij)) {
+          numerator <- numerator + numerator.ij
+        }
+      }
+      denominator.i <- mtable.x[i] * log2(mtable.x[i])
+      if(!is.nan(denominator.i)) {
+        denominator <- denominator + denominator.i
+      }
     }
-    denominator <- denominator + mtable.x[i] * log2(mtable.x[i])
-  }
+    
+    norm <- n*log2(n)
+    numerator <- numerator - norm
+    denominator <- denominator - norm
   
-  numerator <- numerator - n*log2(n)
-  denominator <- denominator - n*log2(n)
-
-  statistic <- numerator/denominator
+    statistic <- numerator/denominator
+  }
   
   #pvalue using the chi2 likelihood ratio statistic
   G <- statistic.chisq.likelihood.ratio(x)
