@@ -231,7 +231,12 @@ setMethod(
       )
     }
     
-    out <- do.call(getMethod('frequencies', 'CategoricalVariable'), list(out))
+    l <- list(x = out)
+    if('weights' %in% names(dots)) {
+      l$weights <- dots$weights
+    }
+    
+    out <- do.call(getMethod('frequencies', 'CategoricalVariable'), l)
     return(out)
   }
 )
