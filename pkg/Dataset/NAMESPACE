@@ -16,7 +16,8 @@ exportClasses(
   'Dataset',
   'summary.Statdf',
   'Statdf',
-  'Bivan'
+  'Bivan',
+  'Treecontrol'
 )
 
 exportMethods(
@@ -182,5 +183,8 @@ export(
   statdf,
   Dataset.version,
   openPDF,
-  pdflatex
+  pdflatex,
+  treecontrol,
+  tree.chaid,
+  tree.cart
 )

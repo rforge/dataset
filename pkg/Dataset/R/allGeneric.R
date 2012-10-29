@@ -196,5 +196,5 @@ setGeneric("only.complete", function(variables, data, ...){ standardGeneric("onl
 # in package "stats": Formal arguments differ: (object, na.rm), (x, na.rm))
 ###setGeneric("sd", stats::sd)
 
-
+# setGeneric("where", function(x, ...){ standardGeneric("where") })
 # lockBinding("summaryToPDF" ,. GlobalEnv )
