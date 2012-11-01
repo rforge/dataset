@@ -268,7 +268,11 @@ setMethod(
     } else {
       require(xtable)
       
-      outName <- 'Bivariate analysis'
+      if(!missing(pdfSavingName)) {
+        outName <- pdfSavingName
+      } else {
+        outName <- 'Bivariate analysis'
+      }
       
       outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
       
