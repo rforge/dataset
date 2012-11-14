@@ -1,8 +1,8 @@
 Package: Dataset
 Type: Package
 Title: Handling survey data in R.
-Version: 0.2.29
-Date: 2012-10-08
+Version: 0.2.31
+Date: 2012-11-14
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable
         labels, values labels, and retrieve information about missing values   
@@ -15,7 +15,7 @@ Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>
 Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
 Depends: R (>= 2.15.1), methods, stats
-Suggests: foreign, xtable
+Suggests: foreign, xtable, rpart, CHAID
 LazyLoad: yes
 LazyData: yes
 ZipData: no

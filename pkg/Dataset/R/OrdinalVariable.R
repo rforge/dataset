@@ -105,3 +105,14 @@ is.ordinal <- function(x){
     return(FALSE)
   }
 }
+
+valids.ordering <- function(x) {
+  if(!inherits(x, 'OrdinalVariable')) {
+    message("The object is not an ordinal variable.")
+    message("You can use 'ovar' to coerce your object.")
+#     stop("Class of 'x' parameter ")
+  } else {
+    out <- paste(names(valids(x)), collapse = ' < ')
+    return(out)
+  }
+}

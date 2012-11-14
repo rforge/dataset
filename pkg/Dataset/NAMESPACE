@@ -186,5 +186,6 @@ export(
   pdflatex,
   treecontrol,
   tree.chaid,
-  tree.cart
+  tree.cart,
+  valids.ordering
 )
