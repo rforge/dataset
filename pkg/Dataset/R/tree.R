@@ -92,7 +92,7 @@ tree.chaid <- function(formula, data, control = treecontrol(), subset, na.action
   stopifnot(inherits(data, 'Dataset'))
   
   if(!is.installed.pkg('CHAID')) {
-    exit.by.uninstalled.pkg('CHAID')
+    exit.by.uninstalled.pkg('CHAID', 'http://r-forge.r-project.org')
   } else {
     require(CHAID)
     setOldClass(c("constparty", "party"), where = .GlobalEnv)
@@ -140,7 +140,7 @@ tree.cart <- function(formula, data, control = treecontrol(), subset, na.action)
   } else {
     require(rpart)
     if(!is.installed.pkg('CHAID')) {
-      exit.by.uninstalled.pkg('CHAID')
+      exit.by.uninstalled.pkg('CHAID', 'http://r-forge.r-project.org')
     } else {
       require(CHAID)
       setOldClass(c("constparty", "party"), where = .GlobalEnv)
