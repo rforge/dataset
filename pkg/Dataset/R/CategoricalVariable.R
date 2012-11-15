@@ -440,8 +440,7 @@ setMethod(
         x = codes(object),
         missings = missings(object),
         values = val,
-        description = description(object),
-        Variable.version = Variable.version(object)
+        description = description(object)
       )
     } else {
       valids(object) <- val
@@ -569,10 +568,9 @@ setMethod(
     
     percent.sep.missings <- numeric(0)
     if (n.missings > 0) {
+      percent.sep.missings <- N[(length(vali)+1):length(N)]
       if (N.missings.total > 0) {
-        percent.sep.missings <- N[(length(vali)+1):length(N)]/N.missings.total
-      } else {
-        percent.sep.missings <- N[(length(vali)+1):length(N)]
+        percent.sep.missings <- percent.sep.missings/N.missings.total
       }
     }
     

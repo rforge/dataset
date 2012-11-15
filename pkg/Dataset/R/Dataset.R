@@ -287,6 +287,11 @@ setMethod("nroww", "Dataset",
             return(sum(weights(object)))
           }
 )
+setMethod("nindividual", "Dataset", 
+          definition = function (object) { 
+            return(sum(weights(object)))
+          }
+)
 
 setMethod("checkvars", "Dataset", 
   definition = function (object) { 
@@ -307,6 +312,13 @@ setReplaceMethod(
     validObject(object)
 		return(object)
 	}
+)
+
+setMethod("spatial", "Dataset", 
+          definition = function (object) { 
+#             return(slot(object, "spatial"))
+            return("")
+          }
 )
 
 setMethod(
@@ -1157,7 +1169,7 @@ setMethod("summaryToPDF", "Dataset",
         ntimes(object), " timestamps, ",
   	    nweightings(object), " weightings",
         ")", "\n", sep = "", file = outFileCon, append = T)
-    cat("\\item \\textbf{Number of rows:}", nTuples, "\n", file = outFileCon, append = T)
+    cat("\\item \\textbf{Number of individuals:}", nTuples, "(for ", nrow(object), " rows)","\n", file = outFileCon, append = T)
     cat("\\item \\textbf{Percent of missing values:}", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
     if(length(weighting(object)) > 0) {
       cat("\\item \\textbf{Weighting variable:} ", totex(weighting(object)), ', ', totex(description(object[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
@@ -1180,6 +1192,11 @@ setMethod("summaryToPDF", "Dataset",
       }
     } else {
       cat("\\item \\textbf{Control variable(s):} none.", "\n", file = outFileCon, append = T, sep='')
+    }
+    if(nchar(spatial(object)) > 0) {
+      cat("\\item \\textbf{Spatial variable:} ", totex(spatial(object)), ', ', totex(description(spatial[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
+    } else {
+      cat("\\item \\textbf{Spatial variable:} none.", "\n", file = outFileCon, append = T, sep='')
     }
   	cat("\\end{itemize*} \n", file = outFileCon, append = T)
     

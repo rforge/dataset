@@ -126,54 +126,81 @@ setMethod(
 )
 
 setMethod("Ops", signature(e1="QuantitativeVariable", e2="QuantitativeVariable"),
-          function(e1, e2) {
-            
-            # we have to perform the operation only on valid cases, not on missings
-            # then we have to test that we did't create collisions with missings
-            
-#             old.codes <- e1@codes
-#             mis <- which(old.codes %in% missings(e1))
-            
-            new.codes=callGeneric(codes(e1), codes(e2))
-            
-#             mis.new <- which(new.codes %in% missings(e2))
-            
-#             if(
-            e1@new.codes
-            validObject(e1)
-            return(e1)
-          }
+  function(e1, e2) {
+  
+  # we have to perform the operation only on valid cases, not on missings
+  # then we have to test that we did't create collisions with missings
+  
+    nmissings.before <- nmissings(e2)
+    codes <- e2@codes
+    missings.id <- which(is.na(as.vector(e2)))
+    if(length(missings.id) == 0) {
+      e2@codes=callGeneric(e1, codes(e2))
+    } else {
+      codes[-missings.id] <- callGeneric(codes(e2)[-missings.id], e1)
+      e2@codes <- codes
+    }
+    validObject(e2)
+    nmissings.after <- nmissings(e2)
+    
+    if(nmissings.before != nmissings.after) {
+      message(Dataset.globalenv$message.missing.collision)
+      message(paste('nmissings.before', nmissings.before))
+      message(paste('nmissings.after', nmissings.after))
+      stop("Unable to secure data.")
+    }
+    
+    return(e2)
+  }
 )
 setMethod("Ops", signature(e1="QuantitativeVariable", e2="numeric"),
-          function(e1, e2) {
-            e1@codes=callGeneric(codes(e1), e2)
-            validObject(e1)
-            return(e1)
-          }
+  function(e1, e2) {
+    nmissings.before <- nmissings(e2)
+    codes <- e2@codes
+    missings.id <- which(is.na(as.vector(e2)))
+    if(length(missings.id) == 0) {
+      e2@codes=callGeneric(e1, codes(e2))
+    } else {
+      codes[-missings.id] <- callGeneric(codes(e2)[-missings.id], e1)
+      e2@codes <- codes
+    }
+    validObject(e2)
+    nmissings.after <- nmissings(e2)
+    
+    if(nmissings.before != nmissings.after) {
+      message(Dataset.globalenv$message.missing.collision)
+      message(paste('nmissings.before', nmissings.before))
+      message(paste('nmissings.after', nmissings.after))
+      stop("Unable to secure data.")
+    }
+    
+    return(e2)
+  }
 )
+
 setMethod("Ops", signature(e1="numeric", e2="QuantitativeVariable"),
-          function(e1, e2) {
-            nmissings.before <- nmissings(e2)
-            codes <- e2@codes
-            missings.id <- which(is.na(as.vector(e2)))
-            if(length(missings.id) == 0) {
-              e2@codes=callGeneric(e1, codes(e2))
-            } else {
-              codes[-missings.id] <- callGeneric(e1, codes(e2)[-missings.id])
-              e2@codes <- codes
-            }
-            validObject(e2)
-            nmissings.after <- nmissings(e2)
-            
-            if(nmissings.before != nmissings.after) {
-              message("Sorry, a problem occurs, operation aborted. Please report this error by sending an email to 'dataset-requests@lists.r-forge.r-project.org'.")
-              message(paste('nmissings.before', nmissings.before))
-              message(paste('nmissings.after', nmissings.after))
-              stop("Unable to secure data.")
-            }
-            
-            return(e2)
-          }
+  function(e1, e2) {
+    nmissings.before <- nmissings(e2)
+    codes <- e2@codes
+    missings.id <- which(is.na(as.vector(e2)))
+    if(length(missings.id) == 0) {
+      e2@codes=callGeneric(e1, codes(e2))
+    } else {
+      codes[-missings.id] <- callGeneric(e1, codes(e2)[-missings.id])
+      e2@codes <- codes
+    }
+    validObject(e2)
+    nmissings.after <- nmissings(e2)
+    
+    if(nmissings.before != nmissings.after) {
+      message(Dataset.globalenv$message.missing.collision)
+      message(paste('nmissings.before', nmissings.before))
+      message(paste('nmissings.after', nmissings.after))
+      stop("Unable to secure data.")
+    }
+    
+    return(e2)
+  }
 )
 
 setMethod(

@@ -41,3 +41,6 @@ Dataset.version <- function(){
 Dataset.globalenv$Variable.description.default <- "    !!!empty!!!"
 Dataset.globalenv$Variable.version <- "0.6"
 Dataset.globalenv$Dataset.version  <- "0.4"
+
+
+Dataset.globalenv$message.missing.collision <- "Sorry, a problem occurs, operation aborted. Please report this error by sending an email to 'dataset-requests@lists.r-forge.r-project.org'."
