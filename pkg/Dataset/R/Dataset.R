@@ -523,9 +523,15 @@ setMethod(
       j <- unique(j) # to avoid doulons with weighting and checkvars
 			listData <- listData[j]
 		}
-		if (!missing(i)){ # i have to be understood as row.names
-      # ask i to be unique? data.frame do a make.names, I do either
-      row.id <- match(i, row.names)
+		if (!missing(i)){ 
+      # ask i to be unique? no for data.frame, I do either
+      if(inherits(i, 'character')) {
+        # data.frame do a make.names on row.names ?
+        row.id <- match(i, row.names)
+      } else {
+        row.id <- i
+      }
+      
       row.id.na <- which(is.na(row.id))
 #       print(row.id.na)
       if(length(row.id.na) > 0) {
@@ -543,7 +549,7 @@ setMethod(
           message("Your 'i' argument doesn't match any row name") 
           return(dataset())
         }
-#       }
+#     }
 			for (k in 1:length(listData)) {
 				listData[[k]] <- listData[[k]][row.id]
 			}

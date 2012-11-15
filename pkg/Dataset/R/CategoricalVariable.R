@@ -497,7 +497,7 @@ setMethod(
     out[,'Missing'] <- c(miscol)
     
     N <- numeric(0)
-    for (i in valu) {
+    for (i in valu) { # weighted number of instances for each value
       N <- c(N, sum(weights[which(codes(x) == i)]))
     }
     
@@ -572,12 +572,16 @@ setMethod(
       if (N.missings.total > 0) {
         percent.sep.missings <- N[(length(vali)+1):length(N)]/N.missings.total
       } else {
-        percent.sep.missings <- 0
+        percent.sep.missings <- N[(length(vali)+1):length(N)]
       }
     }
     
+#     print('hello')
+    
     percent.sep <- c(N[1:length(vali)]/N.valids.total,percent.sep.missings)*100
     percent.sep <- formatC(percent.sep, format=format, digits=digits)
+#     print(out)
+#     print(percent.sep)
     out[,'Percent'] <- percent.sep
     
     last.line <- data.frame(

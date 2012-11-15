@@ -153,8 +153,25 @@ setMethod("Ops", signature(e1="QuantitativeVariable", e2="numeric"),
 )
 setMethod("Ops", signature(e1="numeric", e2="QuantitativeVariable"),
           function(e1, e2) {
-            e2@codes=callGeneric(e1, codes(e2))
+            nmissings.before <- nmissings(e2)
+            codes <- e2@codes
+            missings.id <- which(is.na(as.vector(e2)))
+            if(length(missings.id) == 0) {
+              e2@codes=callGeneric(e1, codes(e2))
+            } else {
+              codes[-missings.id] <- callGeneric(e1, codes(e2)[-missings.id])
+              e2@codes <- codes
+            }
             validObject(e2)
+            nmissings.after <- nmissings(e2)
+            
+            if(nmissings.before != nmissings.after) {
+              message("Sorry, a problem occurs, operation aborted. Please report this error by sending an email to 'dataset-requests@lists.r-forge.r-project.org'.")
+              message(paste('nmissings.before', nmissings.before))
+              message(paste('nmissings.after', nmissings.after))
+              stop("Unable to secure data.")
+            }
+            
             return(e2)
           }
 )
