@@ -14,12 +14,18 @@ setClass(
   }
 )
 
+constrasts.indicator <- c(
+  'unordered' = "contr.treatment",
+  'ordered' = "contr.treatment"
+)
 
 reglog <- function(
   formula,
   target,
   imbric,
   data,
+  model.type = NULL,
+  contrasts = 'indicator',
   subset,
   na.action,
   ...
@@ -28,6 +34,15 @@ reglog <- function(
 
   data.Dataset <- data
   data <- v(data)
+  
+  contrasts.user <- options("contrasts")$contrasts
+  constrasts.indicator <- c(
+    'unordered' = "contr.treatment",
+    'ordered' = "contr.treatment"
+  )
+  if (contrasts == 'indicator') {
+    options(contrasts = constrasts.indicator)
+  }
   
   # for taking weights into account
   data <- cbind(data, data.frame('....weights125678' = as.vector(weights(data.Dataset))))
@@ -64,12 +79,15 @@ reglog <- function(
     '1' = target,
     '0' = olev
   )
+  model.type <- 'binary'
       
   target.bin <- as.numeric(as.character(v(target.recoded)))
   data[[response]] <- target.bin
   
   # we keep only ful complete cases
-  data <- data[complete.cases(data),]
+#   data <- data[complete.cases(data),] #FIXME
+  # and check for representativness changes
+  only.complete(variables, data.Dataset)
 #   data[[1]] <- factor(data[[1]])
 #   return(data)
 
@@ -130,10 +148,16 @@ reglog <- function(
     )
   }
 
+  
+  options(contrasts = contrasts.user)
+  
   out[["variables"]] <- variables
   out[["response"]] <- response
+  out[["target"]] <- target
   out[["data"]] <- data.Dataset
+  out[["model.type"]] <- model.type
   out[["nmodels"]] <- n.models
+  out[["contrasts"]] <- contrasts
 
   out <- new('RegLog', out)
   return(out)
@@ -209,32 +233,28 @@ summary2 <- function(
       gm.df[rcount,2*i-1] <- x[[i]]$rl$null.deviance
     }
   }
-  if (is.element("chi2.bloc", gm)) {
-    rcount <- rcount + 1
-    deviance.previous <- x[[1]]$rl$null.deviance
-    df.previous <- 0
-    for(i in 1:x$nmodels) {
-      chi <- deviance.previous - x[[i]]$rl$deviance
-      chi.df <- x[[i]]$df - df.previous
-      #chi.print <- paste(chi, ' (dl=', chi.df, ')', sep='')
-      chi.pval <- pchisq(chi, chi.df, lower.tail = F)
-      #gm.df[rcount,2*i-1] <- chi.print
-      gm.df[rcount,2*i-1] <-chi.df
-      gm.df[rcount,2*i] <- chi.pval
-      deviance.previous <- x[[i]]$rl$deviance
-      df.previous <- x[[i]]$df
-    }
-  }
   if (is.element("chi2.model", gm)) {
     rcount <- rcount + 1
     deviance.null <- x[[1]]$rl$null.deviance
     for(i in 1:x$nmodels) {
-      chi <- deviance.null - x[[i]]$rl$deviance
-      #chi.print <- paste(chi, ' (dl=', x[[i]]$df, ')', sep='')
+      chi <- deviance.null - x[[i]]$rl$deviance # deviance reduction => chi2 gain
       chi.pval <- pchisq(chi, x[[i]]$df, lower.tail = F)
-      #gm.df[rcount,2*i-1] <- chi.print
       gm.df[rcount,2*i-1] <- chi
       gm.df[rcount,2*i] <- chi.pval
+    }
+  }
+  if (is.element("chi2.bloc", gm)) {
+    rcount <- rcount + 1
+    deviance.previous <- x[[1]]$rl$null.deviance
+    df.previous <-  x[[1]]$rl$df.null
+    for(i in 1:x$nmodels) {
+      chi <- deviance.previous - x[[i]]$rl$deviance
+      chi.df <- df.previous - x[[i]]$rl$df.residual
+      chi.pval <- pchisq(chi, chi.df, lower.tail = F)
+      gm.df[rcount,2*i-1] <- chi
+      gm.df[rcount,2*i] <- chi.pval
+      deviance.previous <- x[[i]]$rl$deviance
+      df.previous <- x[[i]]$rl$df.residual
     }
   }
   if (is.element("r2.cs", gm)) {
@@ -393,10 +413,23 @@ setMethod(
       require(xtable)
       
       
-      cat("\\section*{Variables} \n", file = outFileCon, append = T)
+      cat("\\section*{Settings} \n", file = outFileCon, append = T)
       
-      cat("\\textbf{Target}",
+      cat("\\textbf{Model fitted:}",
+          totex(paste(object[["model.type"]], 'logistic regression model')),
+          " \n",
+          file = outFileCon, append = T
+      )
+      cat("\\newline \n", file = outFileCon, append = T)
+      cat("\\textbf{Contrasts used for nominal and ordinal variables:}",
+          totex(paste(object[["contrasts"]])),
+          " \n",
+          file = outFileCon, append = T
+      )
+      cat("\\newline \n", file = outFileCon, append = T)
+      cat("\\textbf{Target variable}",
           totex(object[["response"]]),
+          " \n",
           file = outFileCon, append = T
       )
       
@@ -404,6 +437,11 @@ setMethod(
         cat(paste(":",
                   totex(description(object[["data"]][[object[["response"]]]]))), " \n", file = outFileCon, append = T)
       }
+      cat("\\newline \n", file = outFileCon, append = T)
+      cat("\\textbf{Logit estimated for:}",
+          totex(paste(object[["target"]])),
+          file = outFileCon, append = T
+      )
       
       cat("\\newline \n", file = outFileCon, append = T)
       cat("\\textbf{Predictor(s)}", " \n", file = outFileCon, append = T)
