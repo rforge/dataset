@@ -1150,6 +1150,8 @@ setMethod("summaryToPDF", "Dataset",
   	}
   	
   	latexFile <- paste(pdfSavingName, ".tex", sep="")
+    
+    is.writable(pdfSavingName, path = getwd())
   	
     outFileCon <- file(latexFile, "w", encoding="UTF-8")
     

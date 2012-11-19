@@ -613,3 +613,13 @@ setMethod(
 #  }
 #)
 
+setMethod("Compare", signature(e1="CategoricalVariable", e2="character"),
+          function(e1, e2) {
+            return(callGeneric(as.vector(e1), e2))
+          }
+)
+setMethod("Compare", signature(e1="character", e2="CategoricalVariable"),
+          function(e1, e2) {
+            return(callGeneric(e1, as.vector(e2)))
+          }
+)

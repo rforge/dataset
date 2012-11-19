@@ -7,13 +7,34 @@ totex <- function(txt){
 # totex("shp_bon")
 # totex("shp$$bon")
 
+is.writable <- function(pdfSavingName, extensions, path) {
+  # FIXME first we test the folder (for all latex aux files)
+  
+  if(missing(extensions)) extensions <- c('.tex','.pdf')
+  
+  for (i in extensions) {
+    currentfile <- paste(pdfSavingName, i, sep = '')
+    if(file.access(currentfile, mode = 0) == 0){ #exist
+      if(file.access(currentfile, mode = 2) == -1){ #writable
+        message("The file '", currentfile, "' exists and is not writable.")
+        message('Maybe a software is currently using it, your PDF viewer for example.')
+        message('Try to close any software which could lock the file.')
+        message('')
+        stop('Unable to get write permission.')
+      }
+    }
+  }
+}
+
 latex.head <- function(title, latexPackages, outFileCon){
   message('')
   message('Your file will be save in ', getwd())
   filenameTex <- summary(outFileCon)$description
   filename <- substr(filenameTex, 0, nchar(filenameTex)-4)
-  message('Name of your file: ', filename, '.pdf')
+  filename.pdf <- paste(filename, '.pdf', sep='')
+  message('Name of your file: ', filename.pdf)
   message('')
+  
   message('Writing tex file...', appendLF=F)
   cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)

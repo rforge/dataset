@@ -1,20 +1,36 @@
-# methode S4
+# TODO : methode S4 ?
 # formula est de classe formula
 # imbric est une liste, chaque élément est une list de termes
 # exemple : formula = santébin ~ sexe + age, imbric = list(~ education + occupation, ~ partenaire)
-# 
+#
+
+setClass(
+  'RegLog',
+  contains = c('list'),
+  validity = function(object) {
+    flag = TRUE
+    
+    return(flag)
+  }
+)
+
+
 reglog <- function(
   formula,
   target,
   imbric,
   data,
   subset,
-  weights,
-  na.action
+  na.action,
+  ...
 ) {
+
 
   data.Dataset <- data
   data <- v(data)
+  
+  # for taking weights into account
+  data <- cbind(data, data.frame('....weights125678' = as.vector(weights(data.Dataset))))
   
   if(missing(imbric)) n.models <- 1
   else n.models <- length(imbric) + 1
@@ -33,8 +49,8 @@ reglog <- function(
   }
   #print(formulas)
 
-  big.f <- formulas[[n.models]] 
-  t <- terms(big.f)
+  full.formula <- formulas[[n.models]] 
+  t <- terms(full.formula)
   variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
   response <- variables[[attr(t, "response")]]
   lev <- levels(data[[response]])
@@ -45,36 +61,17 @@ reglog <- function(
   target.Variable <- data.Dataset[[response]]
   target.recoded <- recode(
     target.Variable,
-    list(
-      '1' = target,
-      '0' = olev
-    )
+    '1' = target,
+    '0' = olev
   )
       
-  #data <- v(data.Dataset)
-  #data <- data[,variables]
-  data[[response]] <- v(target.recoded)
-  data <- data[complete.cases(data),]
-  data[[1]] <- factor(data[[1]])
+  target.bin <- as.numeric(as.character(v(target.recoded)))
+  data[[response]] <- target.bin
   
-  #recodage1 <- paste("c('", target, "')=c('1')", sep='')
-  #recodage2 <- paste("c('",paste(olev, collapse="','"),"')=c('0')", sep="")
-    
-  #data[[response]] <- recode(
-  #  data[[response]],
-  #  paste(recodage1,recodage2,sep=";")
-  #)
-
-  #mf <- model.frame(big.f, data = data)
-  #return(mf)
- 
-  # on récupère le noms de toutes les variables utilisées, et on construit le jeu de données n'ayant aucun missing sur ces variables là
-  # 
-
-  #mapp <- mapply(inherits, formulas, "formula")
-  #if(!all(mapp)) stop("reglog: all objects in argument 'formulas' must inherits of class 'formula'")
-
-  # we compute all regression
+  # we keep only ful complete cases
+  data <- data[complete.cases(data),]
+#   data[[1]] <- factor(data[[1]])
+#   return(data)
 
   out <- list()
   for (i in 1:n.models) {
@@ -82,12 +79,31 @@ reglog <- function(
     t <- terms(formula)
     model.variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
 
-    #print(head(data))
+
+#     print(formula)
+#     print(data)
     rl <- glm(
       formula = formula,
       data = data,
-      family=binomial
+      family=binomial,
+      weights = ....weights125678
     )
+#     rl <- do.call('glm', list(
+#       'formula' = formula,
+#       'data' = data,
+#       'family' = 'binomial',
+#       'weights' = 'weights1'
+#       )
+#     )
+#     rl.call <- call('glm',list(
+#         'formula' = formula,
+#         'data' = data,
+#         'family' = 'binomial',
+#         'weights' = 'weights1'
+#       )
+#     )
+#     print(rl.call)
+#     rl <- eval(rl.call)
     #print(rl)
     rl.s <- summary(rl)
   
@@ -116,14 +132,16 @@ reglog <- function(
 
   out[["variables"]] <- variables
   out[["response"]] <- response
+  out[["data"]] <- data.Dataset
   out[["nmodels"]] <- n.models
 
-  class(out) <- "reglog"
+  out <- new('RegLog', out)
   return(out)
 }
 
-summary.reglog <- function(
+summary2 <- function(
   x,
+  odd.ratio = T,
   global.measures = c('deviance', 'deviance.null', 'chi2.model', 'chi2.bloc', 'r2.cs', 'r2.nag', 'df', 'parameters', 'aic', 'bic')
 ){
 
@@ -131,6 +149,7 @@ summary.reglog <- function(
   coef.names <- rownames(sx)
   coef.est <- sx[,'Estimate']
   coef.pval <- sx[,'Pr(>|z|)']
+  # we put the intercept at the end
   coef.names <- c(coef.names[2:length(coef.names)],coef.names[1])
   coef.est <- c(coef.est[2:length(coef.est)],coef.est[1])
   coef.pval <- c(coef.pval[2:length(coef.pval)],coef.pval[1])
@@ -140,20 +159,31 @@ summary.reglog <- function(
   
   coef.df <- data.frame(matrix(rep(NA, ncol*nrow), ncol=ncol), stringsAsFactors = F)
   rownames(coef.df) <- coef.names
+#   print(coef.df)
   
-  colnames <- addEvenNames(paste('Model', 1:x$nmodels))
+#   colnames <- addEvenNames(paste('Model', 1:x$nmodels))
+#   colnames <- paste('Model', 1:x$nmodels)
+#   colnames2 <- addSignif(col
+#   colnames <- c(colnames, colnames)
+  colnames <- addSignif(paste('Model', 1:x$nmodels))
   names(coef.df) <- colnames
+#   print(coef.df)
 
   for(i in 1:x$nmodels) {
     sx <- summary(x[[i]]$rl)$coefficients
     coef.est <- sx[,'Estimate']
     coef.pval <- sx[,'Pr(>|z|)']
     for (k in names(coef.est)){
-      coef.df[k,2*(i-1)+1] <- exp(coef.est[k])
+      coef.df[k,2*(i-1)+1] <- coef.est[k]
       coef.df[k,2*i] <- coef.pval[k]
     }
+    if(odd.ratio) {
+      coef.df[,2*(i-1)+1] <- exp(coef.df[,2*(i-1)+1])
+    }
   }
-
+#   stdf <- statdf(coef.df, pvalues = 'even', na = '',formatc = list('digits' = 4, 'format' = 'f'))
+#   print(stdf)
+#   print(summary(stdf), merge='left')
   #print(coef.df)
 
 
@@ -244,67 +274,221 @@ summary.reglog <- function(
     }
   }
   #print(gm.df)
+  coef.name <- 'Estimated coefficients'
+  if(odd.ratio) {
+    coef.name <- paste(coef.name, '(odd ratios)')
+  }
+  coef.statdf <- statdf(
+    coef.df,
+    pvalues = 'even',
+    name = coef.name,
+    na = '',
+    formatc = list('digits' = 4, 'format' = 'f')
+  )
+  gm.statdf <- statdf(
+    gm.df,
+    pvalues = 'even',
+    name = 'Quality measures',
+    na = '',
+    formatc = list('digits' = 2, 'format' = 'f')
+  )
   out <- list(
-    coeffs = coef.df,
-    gm <- gm.df
+    coeffs = coef.statdf,
+    gm = gm.statdf
   )
   class(out) <- 'summary.reglog'
   return(out)
   #print("target versus ...")
   #print(x$bic)
 }
-  
-print.reglog <- function(x) {
-  print("reglog object")
-}
-
-print.summary.reglog <- function(x) {
-  message("Coefficients")
-  message('')
-  print(x)
-  #print(giveStars.df.even(x[[1]]))
-  message('')
-  message('')
-  #print(giveStars.df.even(x[[2]]))
-}
+ 
 
 
-summaryToPDF.reglog <- function(x){
+setMethod(
+  f = 'print',
+  signature = c('RegLog'),
+  definition = function(x, ...) {
 
-  if(!is.installed.pkg('xtable')) {
-    exit.by.uninstalled.pkg('xtable')
-  } else {
+    s <- summary2(x)
     
-    pdfSavingName <- "reglog"
-    latexFile <- paste(pdfSavingName, ".tex", sep="")
+    message('Table 1:')
+    print(summary(s[[1]], merge='left'))
     
-    outFileCon <- file(latexFile, "w", encoding="UTF-8")
-    
-    latex.head(title = paste("Summary of logistic regression", '', ""), latexPackages, outFileCon)
-  
-    
-    s <- summary(x)
-    require(xtable)
-    print(
-      xtable(
-        giveStars.df.even(s[[1]]),
-        digits = 3,
-        display = c('d','f','e','f','f','f','f')
-        ),
-      file=latexFile , append=T
-    )
-     print(
-      xtable(
-        giveStars.df.even(s[[2]]),
-        digits = 3,
-        display = c('d','f','e','f','f','f','f')
-        ),
-      file=latexFile , append=T
-    )
-    
-    close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+    message('')
+    message('Table 2: ')
+    print(summary(s[[2]], merge='left'))
   }
-}
+)
+
+setMethod(
+  f = 'show',
+  signature = c('RegLog'),
+  definition = function(object) {
+    print(object)
+  }
+)
+
+
+
+# summaryToPDF.reglog <- function(x){
+setMethod(
+  f = 'summaryToPDF',
+  signature = c('RegLog'),
+  definition = function (
+    object,
+    pdfSavingName,
+    graphics = F,
+    description.chlength,
+    valids.chlength,
+    valids.cut.percent,
+    sorting,
+    dateformat,
+    latexPackages,
+    width.id,
+    width.varname,
+    width.description,
+    width.n,
+    width.na,
+    width.valids,
+    width.valids.nao.inc,
+    width.min,
+    width.max,
+    width.mean,
+    width.stddev,
+    keepTex,
+    openPDF,
+    ...
+  ) {
+    if(!is.installed.pkg('xtable')) {
+      exit.by.uninstalled.pkg('xtable')
+    } else {
+      
+      if(!missing(pdfSavingName)) {
+        outName <- pdfSavingName
+      } else {
+        outName <- 'Logistic Regression'
+      }
+      
+      outName.pdf <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+      
+      if(missing(pdfSavingName)) {    
+        pdfSavingName <- paste("Summary-", outName.pdf, sep = "") # no spaces for Unix/Texlive compilation ?
+      }
+      
+      latexFile <- paste(pdfSavingName, ".tex", sep="")
+      
+      is.writable(pdfSavingName, path = getwd())
+      
+      outFileCon <- file(latexFile, "w", encoding="UTF-8")
+      
+      latex.head(title = paste("Summary of logistic regression", '', ""), latexPackages, outFileCon)
+    
+      args <- list(...)
+      if(is.logical(args$odd.ratio)) {
+        oddr <- args$odd.ratio
+      } else {
+        oddr <- T
+      }
+      s <- summary2(object, odd.ratio = oddr)
+      require(xtable)
+      
+      
+      cat("\\section*{Variables} \n", file = outFileCon, append = T)
+      
+      cat("\\textbf{Target}",
+          totex(object[["response"]]),
+          file = outFileCon, append = T
+      )
+      
+      if (length(description(object[["data"]][[object[["response"]]]])) > 0) {
+        cat(paste(":",
+                  totex(description(object[["data"]][[object[["response"]]]]))), " \n", file = outFileCon, append = T)
+      }
+      
+      cat("\\newline \n", file = outFileCon, append = T)
+      cat("\\textbf{Predictor(s)}", " \n", file = outFileCon, append = T)
+      cat("\\begin{itemize*}", " \n", file = outFileCon, append = T)
+      predictors <- object[['variables']]
+      predictors <- predictors[-which(predictors == object[['response']])]
+      stopifnot(length(predictors) > 0)
+      for (i in predictors) {
+        cat("\\item ", totex(i), file = outFileCon, append = T)
+        if(length(description(object[["data"]][[i]])) > 0) {
+          cat(paste(":",  totex(description(object[["data"]][[i]]))), file = outFileCon, append = T)
+        }
+        cat(" \n", file = outFileCon, append = T)
+      }
+      cat("\\end{itemize*}", " \n", file = outFileCon, append = T)
+      
+      
+      cat("\\textbf{Weighting} ", file = outFileCon, append = T)
+      object.data <- object[["data"]]
+      wvarname <- weighting(object.data)
+      if(length(wvarname) > 0) {
+        cat(totex(wvarname), file = outFileCon, append = T)
+        if (length(description(object.data[[wvarname]])) > 0) {
+          cat(paste(":", totex(description(object.data[[wvarname]]))), " \n", file = outFileCon, append = T)
+        }
+      } else {
+        cat("No weighting variable defined, equi-weighting is used", " \n", file = outFileCon, append = T)
+      }
+      
+      
+      cat("\\section*{Modeling} \n", file = outFileCon, append = T)
+      
+      
+      
+  #     print(
+  #       xtable(
+  #         giveStars.df.even(s[[1]]),
+  #         digits = 3,
+  #         display = c('d','f','e','f','f','f','f')
+  #         ),
+  #       file=latexFile , append=T
+  #     )
+      s1 <- summary(s[[1]], merge = 'left')
+      object.xtable <- xtable(
+        sdf(s1),
+        align = c("l", rep('c', ncol(s1))),
+        caption=paste(name(s1), ', ', thresholds(s1)),
+      )
+      cat("\\begin{center} \n", file = outFileCon, append = T)
+      print(object.xtable, file=outFileCon , append=T,
+            table.placement = "htb",
+            floating=T
+      )
+#       cat("\\newline ", " \n", file = outFileCon, append = T)
+#       cat(thresholds(s1), " \n", file = outFileCon, append = T)
+      cat("\\end{center} \n", file = outFileCon, append = T)
+      
+      
+      
+      
+      s2 <- summary(s[[2]], merge = 'left')
+      object.xtable <- xtable(
+        sdf(s2),
+        align = c("l", rep('c', ncol(s2))),
+        caption=paste(name(s2), ', ', thresholds(s2)),
+      )
+      cat("\\begin{center} \n", file = outFileCon, append = T)
+      print(object.xtable, file=outFileCon , append=T,
+            table.placement = "htb",
+            floating=T
+      )
+      cat("\\end{center} \n", file = outFileCon, append = T)
+  #      print(
+  #       xtable(
+  #         giveStars.df.even(s[[2]]),
+  #         digits = 3,
+  #         display = c('d','f','e','f','f','f','f')
+  #         ),
+  #       file=latexFile , append=T
+  #     )
+      
+      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+    }
+  }
+)
 
 #11155
 #l <- mysubset.recoded[c("santé", "sexe","age",'education')]

@@ -282,6 +282,8 @@ setMethod(
       
       latexFile <- paste(pdfSavingName, ".tex", sep="")
       
+      is.writable(pdfSavingName, path = getwd())
+      
       outFileCon <- file(latexFile, "w", encoding="UTF-8")
       
       latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
@@ -316,7 +318,7 @@ setMethod(
       wvarname <- names(weighting(object))
       if(length(wvarname) > 0) {
         cat(totex(wvarname), file = outFileCon, append = T)
-        if (length(description(target(object)[[1]])) > 0) {
+        if (length(description(target(object)[[1]])) > 0) { #FIXME sure it's target???
           cat(paste(":", totex(description(weighting(object)[[1]]))), " \n", file = outFileCon, append = T)
         }
       } else {

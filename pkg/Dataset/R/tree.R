@@ -270,6 +270,8 @@ setMethod(
       
       latexFile <- paste(pdfSavingName, ".tex", sep="")
       
+      is.writable(pdfSavingName, path = getwd())
+      
       outFileCon <- file(latexFile, "w", encoding="UTF-8")
       
       latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)

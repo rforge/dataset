@@ -125,7 +125,19 @@ setMethod(
   }
 )
 
-setMethod("Ops", signature(e1="QuantitativeVariable", e2="QuantitativeVariable"),
+
+setMethod("Compare", signature(e1="QuantitativeVariable", e2="character"),
+          function(e1, e2) {
+            return(callGeneric(as.vector(e1), e2))
+          }
+)
+setMethod("Compare", signature(e1="character", e2="QuantitativeVariable"),
+          function(e1, e2) {
+            return(callGeneric(e1, as.vector(e2)))
+          }
+)
+
+setMethod("Arith", signature(e1="QuantitativeVariable", e2="QuantitativeVariable"),
   function(e1, e2) {
   
   # we have to perform the operation only on valid cases, not on missings
@@ -153,7 +165,7 @@ setMethod("Ops", signature(e1="QuantitativeVariable", e2="QuantitativeVariable")
     return(e2)
   }
 )
-setMethod("Ops", signature(e1="QuantitativeVariable", e2="numeric"),
+setMethod("Arith", signature(e1="QuantitativeVariable", e2="numeric"),
   function(e1, e2) {
     nmissings.before <- nmissings(e2)
     codes <- e2@codes
@@ -178,7 +190,7 @@ setMethod("Ops", signature(e1="QuantitativeVariable", e2="numeric"),
   }
 )
 
-setMethod("Ops", signature(e1="numeric", e2="QuantitativeVariable"),
+setMethod("Arith", signature(e1="numeric", e2="QuantitativeVariable"),
   function(e1, e2) {
     nmissings.before <- nmissings(e2)
     codes <- e2@codes
