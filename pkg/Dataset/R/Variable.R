@@ -548,3 +548,86 @@ setMethod("rename", "Variable",
 )
 
 
+
+setMethod(
+  "plot", 
+  signature = c("Variable"), 
+  definition = function (x, ...) {
+    message("A Variable have to be plot inside a Dataset object.")
+    message("Please use the following syntax:")
+    message("plot(varname, data)")
+    stop("Bad use of plot method for Variable object")
+  }
+)
+
+setMethod(
+  "table", 
+  definition = function (..., exclude, useNA, dnn, deparse.level) {
+    
+    args <- list(...)
+#     if(inherits(args[[1]], "Variable")) {
+    
+    message("the table function for Variable objects has been replaced by the two following commands:")
+    message("- if you want to compute frequencies, use the frequencies() method")
+    message("- if you want a contigency table, use the bivan() method")
+    message("")
+    message("table() has been desactivated by the Dataset package.")
+    message("Please use base::table() if you want to use table on a classical R object")
+    message("")
+    message("If you really need to reactivate table(), type")
+    message("table <- base::table")
+    message("")
+    stop("table() has been desactivated by the Dataset package.")
+    
+#     } else {
+      
+#     base::table(... = ..., exclude = exclude, useNA = useNA, dnn= dnn, deparse.level = deparse.level)
+#     }
+  }
+)
+
+
+setMethod(
+  "plot", 
+  signature = c("character"), 
+  definition = function (x, data,...) {
+    
+    if(missing(data)){
+      message("You have to provide a 'data' argument")
+      stop("No Dataset provided")
+    }
+    
+    args <- list(...)
+    
+    if(is.null(args$x.srt)) args$x.srt <- 0
+    if(is.null(args$x.xmv)) args$x.xmv <- 0
+    if(is.null(args$x.ymv)) args$x.ymv <- -2.5
+
+    flag <- F
+    
+    if(inherits(data[[x]], "CategoricalVariable")) {
+      flag <- T
+      vali <- names(valids(data[[x]]))
+      bar <- numeric(0)
+      
+      for (i in 1:length(vali)) {
+        bar <- c(bar, sum(weights(data)[which(data[[x]] == vali[i])]))
+      }
+      #     original.parameters<-par()
+      #     par(xaxt="n")
+      b <- barplot(bar, xaxt="n")
+      #     axis(1, at=seq(1, 1:length(vali), by=1), labels = FALSE)
+      text(cex=1, x=b+args$x.xmv, y=args$x.ymv, labels = vali, xpd=TRUE, srt=args$x.srt)
+    }
+    
+    if(inherits(data[[x]], "QuantitativeVariable")) {
+      flag <- T
+#       boxplot(v(data[[x]])*v(weights(data)))
+      message("unweighted box plot (weighted version forthcoming)")
+      boxplot(v(data[[x]]))
+    }
+    
+    stopifnot(flag)
+  }
+)
+

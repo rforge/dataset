@@ -247,6 +247,7 @@ setMethod(
     valids.cut.percent,
     sorting,
     dateformat,
+    page.orientation,
     latexPackages,
     width.id,
     width.varname,
@@ -286,7 +287,8 @@ setMethod(
       
       outFileCon <- file(latexFile, "w", encoding="UTF-8")
       
-      latex.head(title = paste("Summary of the", totex(outName)), latexPackages, outFileCon)
+      latex.head(title = paste("Summary of the", totex(outName)),
+      page.orientation, latexPackages, outFileCon)
       
       cat("\\section*{Variables} \n", file = outFileCon, append = T)
       

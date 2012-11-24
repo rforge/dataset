@@ -26,7 +26,7 @@ is.writable <- function(pdfSavingName, extensions, path) {
   }
 }
 
-latex.head <- function(title, latexPackages, outFileCon){
+latex.head <- function(title, page.orientation, latexPackages, outFileCon){
   message('')
   message('Your file will be save in ', getwd())
   filenameTex <- summary(outFileCon)$description
@@ -36,7 +36,7 @@ latex.head <- function(title, latexPackages, outFileCon){
   message('')
   
   message('Writing tex file...', appendLF=F)
-  cat("\\documentclass[landscape]{article} \n" , file = outFileCon, append = F)
+  cat("\\documentclass[", page.orientation, "]{article} \n" , file = outFileCon, append = F)
   cat("\\usepackage[top=2.5cm, bottom=2.5cm, left=1.5cm, right=1.5cm]{geometry} \n", file = outFileCon, append = T)
   
   cat("\\usepackage[utf8]{inputenc} \n", file = outFileCon, append = T)

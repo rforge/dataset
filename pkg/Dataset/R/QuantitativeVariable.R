@@ -50,11 +50,8 @@ is.quantitative <- function(x){
   }
 }
 
-setMethod("plot", "QuantitativeVariable", 
-  definition = function (x, ...) {
-    boxplot(as.vector(x), ...)
-  }
-)
+
+
 
 setMethod(
   f = "cut", 
@@ -110,7 +107,7 @@ setMethod(
     }
     
     if(!quiet)
-      print(table(v(x), v(out)))
+      print(base::table(v(x), v(out)))
     
     nmissings.before <- nmissings(x)
     nmissings.after <- nmissings(out)

@@ -76,6 +76,7 @@ setGeneric("summaryToPDF", function(
   valids.cut.percent = 0.5,
   sorting = "decreasing",
   dateformat,
+  page.orientation = "landscape",
   latexPackages = NULL,
   width.id = 0.5,
   width.varname = 1.5,
@@ -174,6 +175,8 @@ setGeneric("frequencies", function(x, data, sort = 'decreasing', sort.ordinal = 
 ##setGeneric("cUnion", function(...){ standardGeneric("cUnion") })
 ##setClassUnion
 setGeneric("merge")
+setGeneric("table")
+# setGeneric("freq")
 #setGeneric("merge",  function(x, y, ...){  standardGeneric("merge") })
 setGeneric("cbind",  function(..., deparse.level = 1){  standardGeneric("cbind") })
 setGeneric("rbind",  function(..., deparse.level = 1){  standardGeneric("rbind") })

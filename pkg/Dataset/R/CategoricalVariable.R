@@ -348,12 +348,6 @@ setMethod("print", "CategoricalVariable",
   }
 )
 
-setMethod("plot", "CategoricalVariable", 
-  definition = function (x, ...) {
-  plot(as.vector(x), ...)
-  }
-)
-
 
 # as.data.frame
 setMethod("as.data.frame", "CategoricalVariable", 
@@ -447,7 +441,7 @@ setMethod(
     }
     
     if(is.null(args$silent) || (args$silent == FALSE))
-      print(table(v(object.init), v(object)))
+      print(base::table(v(object.init), v(object)))
       
     return(object)
   }

@@ -27,10 +27,11 @@ pdflatex <- function(file) {
       message('Unable to find the pdflatex command, please install a LaTeX distribution (Miktex for example), or check your LaTeX distibution.')
       message('Generation of the PDF file aborded.')
     } else {
-      system(paste(pdflatex.path, v.current),
-             ignore.stdout = T,
-             ignore.stderr = T,
-             show.output.on.console = F
+      compilation.out <- system(paste(pdflatex.path, v.current),
+#              ignore.stdout = T,
+#              ignore.stderr = T,
+#              show.output.on.console = F
+               intern = T
       )
     }
 #     shell(v.current)

@@ -103,6 +103,7 @@ exportMethods(
   'weights<-',
   'weights',
   'merge',
+  'table',
   'recode',
   'cut',
   'value',

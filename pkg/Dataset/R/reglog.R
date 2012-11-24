@@ -26,6 +26,7 @@ reglog <- function(
   data,
   model.type = NULL,
   contrasts = 'indicator',
+  references,
   subset,
   na.action,
   ...
@@ -103,6 +104,7 @@ reglog <- function(
     rl <- glm(
       formula = formula,
       data = data,
+#       family=quasibinomial,
       family=binomial,
       weights = ....weights125678
     )
@@ -128,7 +130,7 @@ reglog <- function(
     deviance <- rl$deviance
     null.deviance <- rl$null.deviance
     n <- rl$df.null + 1
-  
+
     b <- exp(coef(rl))
     p <- (rl$aic - deviance)/2
     bic <- deviance + p * log(n)
@@ -136,7 +138,7 @@ reglog <- function(
     r2.cs <- 1 - exp((deviance - null.deviance)/n)
     r2.nag <- r2.cs/(1-exp(-null.deviance/n))
 
-    out[[paste("bloc", i, sep='')]] <- list(
+    out[[paste("block", i, sep='')]] <- list(
       vari = model.variables,
       params = length(coef(rl)),
       df = length(coef(rl)) - 1,
@@ -144,7 +146,8 @@ reglog <- function(
       rl.s = rl.s,
       bic = bic,
       r2.cs = r2.cs,
-      r2.nag = r2.nag
+      r2.nag = r2.nag,
+      N = n
     )
   }
 
@@ -165,8 +168,8 @@ reglog <- function(
 
 summary2 <- function(
   x,
-  odd.ratio = T,
-  global.measures = c('deviance', 'deviance.null', 'chi2.model', 'chi2.bloc', 'r2.cs', 'r2.nag', 'df', 'parameters', 'aic', 'bic')
+  odds.ratios = T,
+  global.measures = c('deviance', 'deviance.null', 'chi2.model', 'df.model', 'chi2.block', "df.block", 'r2.cs', 'r2.nag', 'parameters', 'aic', 'bic', 'N')
 ){
 
   sx <- summary(x[[x$nmodels]]$rl)$coefficients
@@ -201,7 +204,7 @@ summary2 <- function(
       coef.df[k,2*(i-1)+1] <- coef.est[k]
       coef.df[k,2*i] <- coef.pval[k]
     }
-    if(odd.ratio) {
+    if(odds.ratios) {
       coef.df[,2*(i-1)+1] <- exp(coef.df[,2*(i-1)+1])
     }
   }
@@ -213,12 +216,19 @@ summary2 <- function(
 
   # quality assessment
   gm <- intersect(
-    global.measures,
-    c('deviance', 'deviance.null', 'chi2.model', 'chi2.bloc', 'r2.cs', 'r2.nag', 'df', 'parameters', 'aic', 'bic') # available measures
+    c('deviance', 'deviance.null', 'chi2.model', 'df.model', 'chi2.block', "df.block", 'r2.cs', 'r2.nag',  'parameters', 'aic', 'bic', 'N'), # available measures
+    global.measures
   )
+  
+  gm.printname <- data.frame(
+    'name' =  c('deviance', 'deviance.null', 'chi2.model', 'df.model', 'chi2.block', "df.block", 'r2.cs', 'r2.nag',  'parameters', 'aic', 'bic', 'N'),
+    'print.name' =  c('Deviance', 'Deviance H0', 'Model Chi2', 'Model DF', 'Block Chi2', "Block DF", 'R2 Cox-Snell', 'R2 Nagelkerke',  'N parameters', 'AIC', 'BIC', 'N'),
+    row.names = 'name'
+  )
+  
   ngm <- length(gm)
   gm.df <- data.frame(matrix(rep(NA, ncol*ngm), ncol=ncol), stringsAsFactors = F)
-  row.names(gm.df) <- gm
+  row.names(gm.df) <- gm.printname[gm,1]
   names(gm.df) <- colnames
   rcount <- 0
   if (is.element("deviance", gm)) {
@@ -243,7 +253,13 @@ summary2 <- function(
       gm.df[rcount,2*i] <- chi.pval
     }
   }
-  if (is.element("chi2.bloc", gm)) {
+  if (is.element("df.model", gm)) {
+    rcount <- rcount + 1
+    for(i in 1:x$nmodels) {
+      gm.df[rcount,2*i-1] <- x[[i]]$df
+    }
+  }
+  if (is.element("chi2.block", gm)) {
     rcount <- rcount + 1
     deviance.previous <- x[[1]]$rl$null.deviance
     df.previous <-  x[[1]]$rl$df.null
@@ -257,6 +273,14 @@ summary2 <- function(
       df.previous <- x[[i]]$rl$df.residual
     }
   }
+  if (is.element("df.block", gm)) {
+    rcount <- rcount + 1
+    df.previous <-  x[[1]]$rl$df.null
+    for(i in 1:x$nmodels) {
+      gm.df[rcount,2*i-1] <- df.previous - x[[i]]$rl$df.residual
+      df.previous <- x[[i]]$rl$df.residual
+    }
+  }
   if (is.element("r2.cs", gm)) {
     rcount <- rcount + 1
     for(i in 1:x$nmodels) {
@@ -267,12 +291,6 @@ summary2 <- function(
     rcount <- rcount + 1
     for(i in 1:x$nmodels) {
       gm.df[rcount,2*i-1] <- x[[i]]$r2.nag
-    }
-  }
-  if (is.element("df", gm)) {
-    rcount <- rcount + 1
-    for(i in 1:x$nmodels) {
-      gm.df[rcount,2*i-1] <- x[[i]]$df
     }
   }
   if (is.element("parameters", gm)) {
@@ -293,17 +311,24 @@ summary2 <- function(
       gm.df[rcount,2*i-1] <- x[[i]]$bic
     }
   }
+  if (is.element("N", gm)) {
+    rcount <- rcount + 1
+    for(i in 1:x$nmodels) {
+#       print(x[[i]]$rl$n)
+      gm.df[rcount,2*i-1] <- x[[i]]$N
+    }
+  }
   #print(gm.df)
   coef.name <- 'Estimated coefficients'
-  if(odd.ratio) {
-    coef.name <- paste(coef.name, '(odd ratios)')
+  if(odds.ratios) {
+    coef.name <- paste(coef.name, '(odds ratios)')
   }
   coef.statdf <- statdf(
     coef.df,
     pvalues = 'even',
     name = coef.name,
     na = '',
-    formatc = list('digits' = 4, 'format' = 'f')
+    formatc = list('digits' = 3, 'format' = 'f')
   )
   gm.statdf <- statdf(
     gm.df,
@@ -363,6 +388,7 @@ setMethod(
     valids.cut.percent,
     sorting,
     dateformat,
+    page.orientation = "portrait",
     latexPackages,
     width.id,
     width.varname,
@@ -401,15 +427,16 @@ setMethod(
       
       outFileCon <- file(latexFile, "w", encoding="UTF-8")
       
-      latex.head(title = paste("Summary of logistic regression", '', ""), latexPackages, outFileCon)
+      latex.head(title = paste("Summary of logistic regression", '', ""),
+                 page.orientation, latexPackages, outFileCon)
     
       args <- list(...)
-      if(is.logical(args$odd.ratio)) {
-        oddr <- args$odd.ratio
+      if(is.logical(args$odds.ratios)) {
+        oddsr <- args$odds.ratios
       } else {
-        oddr <- T
+        oddsr <- T
       }
-      s <- summary2(object, odd.ratio = oddr)
+      s <- summary2(object, odds.ratios = oddsr)
       require(xtable)
       
       

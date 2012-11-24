@@ -573,7 +573,7 @@ setMethod(
           var <- variables(x)[[checkvars(x)[k]]]
           if (inherits(var, 'CategoricalVariable')) {
             #a <- table(v(weights(x)) * v(listData[[checkvars(x)[k]]]))
-            o <- table(v(listData[[checkvars(x)[k]]]))
+            o <- base::table(v(listData[[checkvars(x)[k]]]))
 #             print(listData[[checkvars(x)[k]]])
 #             print(weights(x)[row.id])
             a <- distrib(listData[[checkvars(x)[k]]], weights = weights(x)[row.id])
@@ -1081,6 +1081,7 @@ setMethod("summaryToPDF", "Dataset",
     valids.cut.percent,
     sorting,
     dateformat,
+    page.orientation,
     latexPackages,
     width.id,
     width.varname,
@@ -1155,7 +1156,8 @@ setMethod("summaryToPDF", "Dataset",
   	
     outFileCon <- file(latexFile, "w", encoding="UTF-8")
     
-  	latex.head(title = paste("Summary of the", totex(name(object)), "dataset"), latexPackages, outFileCon)
+    latex.head(title = paste("Summary of the", totex(name(object)), "dataset"),
+               page.orientation, latexPackages, outFileCon)
                            
   	cat("\\section*{Overview} \n", file = outFileCon, append = T)
   	cat("\\begin{itemize*} \n", file = outFileCon, append = T)
