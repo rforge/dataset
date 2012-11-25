@@ -8,6 +8,23 @@ setGeneric("nmissingsw", function(object, weights){ standardGeneric("nmissingsw"
 setGeneric("missings<-", function(object, value){ standardGeneric("missings<-" ) })
 setGeneric("description", function(object){ standardGeneric("description") })
 setGeneric("description<-", function(object, value){ standardGeneric("description<-" ) })
+
+setGeneric("db.author", function(object){ standardGeneric("db.author") })
+setGeneric("db.author<-", function(object, value){ standardGeneric("db.author<-" ) })
+setGeneric("db.contact.email", function(object){ standardGeneric("db.contact.email") })
+setGeneric("db.contact.email<-", function(object, value){ standardGeneric("db.contact.email<-" ) })
+setGeneric("db.license", function(object){ standardGeneric("db.license") })
+setGeneric("db.license<-", function(object, value){ standardGeneric("db.license<-" ) })
+setGeneric("db.release.date", function(object){ standardGeneric("db.release.date") })
+setGeneric("db.release.date<-", function(object, value){ standardGeneric("db.release.date<-" ) })
+setGeneric("db.citation", function(object){ standardGeneric("db.citation") })
+setGeneric("db.citation<-", function(object, value){ standardGeneric("db.citation<-" ) })
+setGeneric("db.website", function(object){ standardGeneric("db.website") })
+setGeneric("db.website<-", function(object, value){ standardGeneric("db.website<-" ) })
+setGeneric("db.population", function(object){ standardGeneric("db.population") })
+setGeneric("db.population<-", function(object, value){ standardGeneric("db.population<-" ) })
+
+
 setGeneric("descriptions", function(object){ standardGeneric("descriptions") })
 setGeneric("values", function(object){ standardGeneric("values") })
 setGeneric("valids", function(object){ standardGeneric("valids") })

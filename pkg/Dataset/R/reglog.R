@@ -19,6 +19,7 @@ constrasts.indicator <- c(
   'ordered' = "contr.treatment"
 )
 
+
 reglog <- function(
   formula,
   target,
@@ -26,13 +27,15 @@ reglog <- function(
   data,
   model.type = NULL,
   contrasts = 'indicator',
-  references,
+  reference,
   subset,
   na.action,
   ...
 ) {
 
-
+  message('Logistic regression model (currently not-weighted)')
+  message('')
+  
   data.Dataset <- data
   data <- v(data)
   
@@ -78,7 +81,8 @@ reglog <- function(
   target.recoded <- recode(
     target.Variable,
     '1' = target,
-    '0' = olev
+    '0' = olev,
+    quiet = T
   )
   model.type <- 'binary'
       
@@ -86,11 +90,28 @@ reglog <- function(
   data[[response]] <- target.bin
   
   # we keep only ful complete cases
-#   data <- data[complete.cases(data),] #FIXME
+  data <- data[complete.cases(data), c(variables, '....weights125678')] #FIXME
   # and check for representativness changes
   only.complete(variables, data.Dataset)
 #   data[[1]] <- factor(data[[1]])
 #   return(data)
+  
+  if(!missing(reference)) {
+    ref.names <- names(reference)
+    for (i in ref.names) {
+      if(!(i %in% variables)) {
+        stop(paste("The variable", i, "is not in data."))
+      }
+      if(!inherits(data[[i]], 'factor')) {
+        stop(paste("The variable", i, "is not categorical."))
+      }
+      lev <- levels(data[[i]])
+      #FIXME only indicator contrast supported
+      contr <- contr.treatment(nlevels(data[[i]]), base = which(lev == reference[[i]]))
+      dimnames(contr) <- list('row.names' = lev[as.numeric(dimnames(contr)[[1]])], 'col.names' = lev[as.numeric(dimnames(contr)[[2]])])
+      data[[i]] <- C(data[[i]], contr = contr)
+    }
+  }
 
   out <- list()
   for (i in 1:n.models) {
@@ -405,6 +426,9 @@ setMethod(
     openPDF,
     ...
   ) {
+    
+    check.tex()
+    
     if(!is.installed.pkg('xtable')) {
       exit.by.uninstalled.pkg('xtable')
     } else {

@@ -7,6 +7,7 @@ totex <- function(txt){
 # totex("shp_bon")
 # totex("shp$$bon")
 
+# FIXME : acrobat ne vérouille pas le fichier en écriture, donc le test writable passe mais la compilation plante ensuite... 
 is.writable <- function(pdfSavingName, extensions, path) {
   # FIXME first we test the folder (for all latex aux files)
   
@@ -24,6 +25,7 @@ is.writable <- function(pdfSavingName, extensions, path) {
       }
     }
   }
+  return(TRUE)
 }
 
 latex.head <- function(title, page.orientation, latexPackages, outFileCon){
@@ -109,6 +111,44 @@ close.and.clean <- function(outFileCon, pdfSavingName, keepTex, openPDF){
 #     print(path)
     openPDF(path)
 #     message(' done', appendLF=T)
+  }
+  
+}
+
+close.and.clean2 <- function(outFileCon, pdfSavingName, keepTex, openPDF){
+  cat("\\end{document} \n", file = outFileCon, append = T)
+  close(outFileCon)
+  message(' done', appendLF=T)
+  
+  message('Processing tex to pdf...', appendLF=F)
+  pdflatex(paste(pdfSavingName, '.tex', sep = ''))
+  message(' done', appendLF=T)
+  
+  # clean directory
+  message('Cleaning auxiliary files...', appendLF=F)
+  if (keepTex) {
+    extensionsToRemove <- ".(log|aux)"
+  } else {
+    extensionsToRemove <- ".(log|aux|tex)"
+  }
+  
+  tempTex <- list.files(
+    ##paste(datadir, wavesFolder, "-SPSS", "/", i, sep = ""),
+    getwd(),
+    pattern = paste("^", pdfSavingName, extensionsToRemove, sep = "")
+  )
+  
+  unlink(tempTex)
+  message(' done', appendLF=T)
+  
+  # opening of the pdf file
+  if (openPDF) {
+    message('')
+    message('Launching PDF file...', appendLF=T)
+    path <- file.path(getwd(), paste(pdfSavingName, '.pdf', sep = ''))
+    #     print(path)
+    openPDF(path)
+    #     message(' done', appendLF=T)
   }
   
 }

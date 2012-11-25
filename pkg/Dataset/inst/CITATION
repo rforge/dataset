@@ -11,7 +11,7 @@ citEntry(
     as.person("Gilbert Ritschard")
   ),
   booktitle = "Lausanne conference on sequence analysis (LaCOSA) 2012",
-  year = "2013",
+  year = "2012",
   url = "http://www3.unil.ch/wpmu/sequences2012/",
   textVersion = paste(
     "Emmanuel Rousseaux, Gilbert Ritschard.",

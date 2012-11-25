@@ -36,6 +36,7 @@
 #ssdf5
 
 
+
 #---------------------------------------------------------------------------
 #        summary.Statdf class specifications
 #---------------------------------------------------------------------------
@@ -552,11 +553,13 @@ setMethod(
       
       the.nas <- which(is.na(out[,i]))
       the.nans <- which(is.nan(out[,i]))
+      
+
       # we replace NAs
       if(length(the.nas) > 0) out[the.nas,i] <- na(object)
       # we replace NAs
       if(length(the.nans) > 0) out[the.nans,i] <- nan(object)
-      # then we format values
+      # first we format values
       out[,i] <- do.call(formatC, c(list("x" = out[,i]), formatc(object)))
     }
     
@@ -644,6 +647,8 @@ setMethod(
     openPDF,
     merge = 'no'
   ) {
+    
+    check.tex()
     
     if(!is.installed.pkg('xtable')) {
       exit.by.uninstalled.pkg('xtable')

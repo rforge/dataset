@@ -374,11 +374,20 @@ setMethod(
   signature = c("CategoricalVariable"),
   definition = function (object, ...) {
 
-    recoding <- list(...)
+    args <- list(...)
+    args.names <- names(args)
+    
+    if('quiet' %in% args.names) {
+      quiet <- args[['quiet']]
+      recoding <- args[-which(args.names == 'quiet')]
+    } else {
+      quiet <- F
+      recoding <- args
+    }
+    
     newcat <- names(recoding)
     stopifnot(length(newcat) == length(unique(newcat))) #new cat has to be unique
     
-    args <- list(...)
     object.init <- object
     
     val <- valids(object)
@@ -440,9 +449,12 @@ setMethod(
       valids(object) <- val
     }
     
-    if(is.null(args$silent) || (args$silent == FALSE))
-      print(base::table(v(object.init), v(object)))
-      
+    if(is.null(quiet) || (quiet == FALSE)) {
+      message(Dataset.globalenv$message.operation.success)
+    }
+    message(Dataset.globalenv$message.allocation.rows)
+    print(base::table(v(object.init), v(object)))
+    
     return(object)
   }
 )

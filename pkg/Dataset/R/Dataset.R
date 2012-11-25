@@ -119,7 +119,14 @@ dataset <- function(
   row.names,
   weights,
   checkvars,
-  infos,
+  infos = list(),
+  db.author = "",
+  db.contact.email = "",
+  db.license = "",
+  db.release.date = "",
+  db.citation = "",
+  db.website = "",
+  db.population = "",
   check.rows = FALSE # not used
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  Dataset: builder \n")
@@ -141,6 +148,14 @@ dataset <- function(
   if (missing(weights)) weights <- character()
   if (missing(checkvars)) checkvars <- character()
   if (missing(infos)) infos <- list()
+  
+  infos[["db.author"]] <- db.author
+  infos[["db.contact.email"]] <- db.contact.email
+  infos[["db.license"]] <- db.license
+  infos[["db.release.date"]] <- db.release.date
+  infos[["db.citation"]] <- db.citation
+  infos[["db.website"]] <- db.website
+  infos[["db.population"]] <- db.population
   
   if (inherits(x, 'data.frame')) {
     cons.counter <- cons.counter.new(
@@ -281,6 +296,112 @@ setReplaceMethod(
 		return(object)
 	}
 )
+
+setMethod("db.author", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.author"]])
+          }
+)
+setReplaceMethod(
+  f = "db.author" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.author"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.contact.email", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.contact.email"]])
+          }
+)
+setReplaceMethod(
+  f = "db.contact.email" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.contact.email"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.license", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.license"]])
+          }
+)
+setReplaceMethod(
+  f = "db.license" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.license"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.release.date", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.release.date"]])
+          }
+)
+setReplaceMethod(
+  f = "db.release.date" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.release.date"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.citation", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.citation"]])
+          }
+)
+setReplaceMethod(
+  f = "db.citation" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.citation"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.website", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.website"]])
+          }
+)
+setReplaceMethod(
+  f = "db.website" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.website"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
+setMethod("db.population", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.population"]])
+          }
+)
+setReplaceMethod(
+  f = "db.population" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.population"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
 
 setMethod("nroww", "Dataset", 
           definition = function (object) { 
@@ -1098,6 +1219,8 @@ setMethod("summaryToPDF", "Dataset",
     openPDF
   ) {
   
+  check.tex()
+    
   if(!is.installed.pkg('xtable')) {
     exit.by.uninstalled.pkg('xtable')
   } else {
@@ -1160,6 +1283,7 @@ setMethod("summaryToPDF", "Dataset",
                page.orientation, latexPackages, outFileCon)
                            
   	cat("\\section*{Overview} \n", file = outFileCon, append = T)
+    cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
   	cat("\\begin{itemize*} \n", file = outFileCon, append = T)
   	cat("\\item \\textbf{Name:}", totex(name(object)), "\n", file = outFileCon, append = T)
   	cat("\\item \\textbf{Description:}", description(object), "\n", file = outFileCon, append = T)
@@ -1203,6 +1327,22 @@ setMethod("summaryToPDF", "Dataset",
       cat("\\item \\textbf{Spatial variable:} none.", "\n", file = outFileCon, append = T, sep='')
     }
   	cat("\\end{itemize*} \n", file = outFileCon, append = T)
+    
+    cat("\\end{minipage} \\hfill \n", file = outFileCon, append = T)
+    cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
+    cat("\\begin{itemize*} \n", file = outFileCon, append = T)
+    cat("\\item \\textbf{Author(s):} ", totex(db.author(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Contact e-mail:} ", totex(db.contact.email(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{License:} ", totex(db.license(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Release date:} ", totex(db.release.date(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Citation:} ", totex(db.citation(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Website:} ", totex(db.website(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Population:} ", totex(db.population(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\end{itemize*} \n", file = outFileCon, append = T)
+    cat("\\end{minipage} \\hfill \n", file = outFileCon, append = T)
+    
+    cat("\\newpage \n", file = outFileCon, append = T)
+    cat("\\section*{Distribution of variables by percent of valid cases} \n", file = outFileCon, append = T)
     
     percents <- seq(from = 0, to = 100, by = 10)
     val <- c()
@@ -1589,7 +1729,7 @@ setMethod("summaryToPDF", "Dataset",
     }
       
   
-      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+      close.and.clean2(outFileCon, pdfSavingName, keepTex, openPDF)
     
       if(!keepTex) {
         unlink(plot.filename.pdf)

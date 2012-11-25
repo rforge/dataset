@@ -264,6 +264,8 @@ setMethod(
     openPDF
   ) {
     
+    check.tex()
+    
     if(!is.installed.pkg('xtable')) {
       exit.by.uninstalled.pkg('xtable')
     } else {

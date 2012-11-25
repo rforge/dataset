@@ -106,8 +106,6 @@ setMethod(
       out <- ovar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))
     }
     
-    if(!quiet)
-      print(base::table(v(x), v(out)))
     
     nmissings.before <- nmissings(x)
     nmissings.after <- nmissings(out)
@@ -118,6 +116,13 @@ setMethod(
       message(paste('nmissings.after', nmissings.after))
       stop()
     }
+    
+    if(!quiet) {
+      message(Dataset.globalenv$message.operation.success)
+      message(Dataset.globalenv$message.allocation.rows)
+      print(base::table(v(x), v(out)))
+    }
+    
     return(out)
   }
 )
