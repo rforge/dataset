@@ -1729,7 +1729,7 @@ setMethod("summaryToPDF", "Dataset",
     }
       
   
-      close.and.clean2(outFileCon, pdfSavingName, keepTex, openPDF)
+      close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
     
       if(!keepTex) {
         unlink(plot.filename.pdf)

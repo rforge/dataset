@@ -554,13 +554,13 @@ setMethod(
       the.nas <- which(is.na(out[,i]))
       the.nans <- which(is.nan(out[,i]))
       
-
-      # we replace NAs
-      if(length(the.nas) > 0) out[the.nas,i] <- na(object)
-      # we replace NAs
-      if(length(the.nans) > 0) out[the.nans,i] <- nan(object)
       # first we format values
+      mode(out[,i]) <- "numeric" # if there are only NA, the mode will be 'logical' by default, we have to switch
       out[,i] <- do.call(formatC, c(list("x" = out[,i]), formatc(object)))
+      # then we replace NAs
+      if(length(the.nas) > 0) out[the.nas,i] <- na(object)
+      # and  we replace NAs
+      if(length(the.nans) > 0) out[the.nans,i] <- nan(object)
     }
     
     # we give stars

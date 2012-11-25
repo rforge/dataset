@@ -77,45 +77,45 @@ latex.write.packages <- function(packages, outFileCon){
 }
 
 
-close.and.clean <- function(outFileCon, pdfSavingName, keepTex, openPDF){
-  cat("\\end{document} \n", file = outFileCon, append = T)
-  close(outFileCon)
-  message(' done', appendLF=T)
-  
-  message('Processing tex to pdf...', appendLF=F)
-  tools::texi2pdf(paste(pdfSavingName, '.tex', sep = ''))
-  message(' done', appendLF=T)
-  
-  # clean directory
-  message('Cleaning auxiliary files...', appendLF=F)
-  if (keepTex) {
-    extensionsToRemove <- ".(log|aux)"
-  } else {
-    extensionsToRemove <- ".(log|aux|tex)"
-  }
-  
-  tempTex <- list.files(
-    ##paste(datadir, wavesFolder, "-SPSS", "/", i, sep = ""),
-    getwd(),
-    pattern = paste("^", pdfSavingName, extensionsToRemove, sep = "")
-  )
-  
-  unlink(tempTex)
-  message(' done', appendLF=T)
-  
-  # opening of the pdf file
-  if (openPDF) {
-    message('')
-    message('Launching PDF file...', appendLF=T)
-    path <- file.path(getwd(), paste(pdfSavingName, '.pdf', sep = ''))
-#     print(path)
-    openPDF(path)
-#     message(' done', appendLF=T)
-  }
-  
-}
+# close.and.clean <- function(outFileCon, pdfSavingName, keepTex, openPDF){
+#   cat("\\end{document} \n", file = outFileCon, append = T)
+#   close(outFileCon)
+#   message(' done', appendLF=T)
+#   
+#   message('Processing tex to pdf...', appendLF=F)
+#   tools::texi2pdf(paste(pdfSavingName, '.tex', sep = ''))
+#   message(' done', appendLF=T)
+#   
+#   # clean directory
+#   message('Cleaning auxiliary files...', appendLF=F)
+#   if (keepTex) {
+#     extensionsToRemove <- ".(log|aux)"
+#   } else {
+#     extensionsToRemove <- ".(log|aux|tex)"
+#   }
+#   
+#   tempTex <- list.files(
+#     ##paste(datadir, wavesFolder, "-SPSS", "/", i, sep = ""),
+#     getwd(),
+#     pattern = paste("^", pdfSavingName, extensionsToRemove, sep = "")
+#   )
+#   
+#   unlink(tempTex)
+#   message(' done', appendLF=T)
+#   
+#   # opening of the pdf file
+#   if (openPDF) {
+#     message('')
+#     message('Launching PDF file...', appendLF=T)
+#     path <- file.path(getwd(), paste(pdfSavingName, '.pdf', sep = ''))
+# #     print(path)
+#     openPDF(path)
+# #     message(' done', appendLF=T)
+#   }
+#   
+# }
 
-close.and.clean2 <- function(outFileCon, pdfSavingName, keepTex, openPDF){
+close.and.clean <- function(outFileCon, pdfSavingName, keepTex, openPDF){
   cat("\\end{document} \n", file = outFileCon, append = T)
   close(outFileCon)
   message(' done', appendLF=T)
