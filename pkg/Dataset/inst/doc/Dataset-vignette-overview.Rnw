@@ -61,7 +61,9 @@ It is based on the R language ({\url www.r-project.org}).
 	\item Dataset objects should be used instead of data.frame objects
 \end{itemize}
 
-\section{Starting guide}
+\section{Overview in 10 minutes}
+
+\section{Starting guide in 15 minutes}
 
 In this section we will present how to handle each variable type. At this end of this section you will be able to create, modify, recode the different kinds of variable, and deal with the Dataset data base format.
 

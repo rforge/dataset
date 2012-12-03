@@ -90,7 +90,7 @@ reglog <- function(
   data[[response]] <- target.bin
   
   # we keep only ful complete cases
-  data <- data[complete.cases(data), c(variables, '....weights125678')] #FIXME
+  data <- data[complete.cases(data[,c(variables, '....weights125678')]), c(variables, '....weights125678')] #FIXME
   # and check for representativness changes
   only.complete(variables, data.Dataset)
 #   data[[1]] <- factor(data[[1]])

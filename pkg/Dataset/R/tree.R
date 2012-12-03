@@ -87,7 +87,7 @@ addWhere <- function(tree, data){
   return(tree)
 }
 
-tree.chaid <- function(formula, data, control = treecontrol(), subset, na.action) {
+tree.chaid <- function(formula, data, control = treecontrol(), subset, na.action, valid.lab.trunc = '15') {
   
   stopifnot(inherits(data, 'Dataset'))
   
@@ -108,9 +108,12 @@ tree.chaid <- function(formula, data, control = treecontrol(), subset, na.action
       stump = control$stump
     )
     
+    data.df <- v(data)
+    
+    
     out <-  do.call("chaid", list(
       'formula' = formula, 
-      'data' = v(data),
+      'data' = data.df,
       'control' = ctrl,
       'weights' = as.vector(weights(data))
     ))
@@ -131,7 +134,7 @@ tree.chaid <- function(formula, data, control = treecontrol(), subset, na.action
 # a <- tree.chaid(Species ~ ., data = ir)
 # plot(a)
 
-tree.cart <- function(formula, data, control = treecontrol(), subset, na.action) {
+tree.cart <- function(formula, data, control = treecontrol(), subset, na.action, valid.lab.trunc = '15') {
   
   stopifnot(inherits(data, 'Dataset'))
   
@@ -158,6 +161,12 @@ tree.cart <- function(formula, data, control = treecontrol(), subset, na.action)
       ))
       
       out <- as.party(out)
+      
+      # if we got a root node, as.party coerce to a partynode instead of a party object
+      # then we have to coerce manually
+      if(inherits(out, "partynode"))
+        out <- party(out, v(data))
+      
       
       out <- addWhere(out, data)
                       
