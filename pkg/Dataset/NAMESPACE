@@ -199,5 +199,6 @@ export(
   treecontrol,
   tree.chaid,
   tree.cart,
-  valids.ordering
+  valids.ordering,
+  findlast
 )
