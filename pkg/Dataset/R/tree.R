@@ -330,6 +330,16 @@ setMethod(
       cat("\\end{itemize*} \n", file = outFileCon, append = T)
       cat("\\subsection*{Statistics} \n", file = outFileCon, append = T)
       where <- object$where
+      
+#       biv1 <- bivan(health ~ sex + partner + child.wanted + working.status + sport.assoc, shp)
+#       s <- summary(global(biv1), merge = 'left')
+#       object.xtable <- xtable(
+#         sdf(s),
+#         align = c("l", rep('c', ncol(sdf(s)))),
+#         caption=paste('Bivariate analysis between the node ids and the target. Legend:', thresholds(s))
+#       )
+#       print(object.xtable)
+      
       cat("\\end{minipage} \n", file = outFileCon, append = T)
       cat("\\end{center} \n", file = outFileCon, append = T)
       

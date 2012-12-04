@@ -92,7 +92,7 @@ reglog <- function(
   # we keep only ful complete cases
   data <- data[complete.cases(data[,c(variables, '....weights125678')]), c(variables, '....weights125678')] #FIXME
   # and check for representativness changes
-  only.complete(variables, data.Dataset)
+#   only.complete(variables, data.Dataset) ### FIXME!!! pb when missings in chisq: Error in chisq.test(x = a, p = b) : probabilities must sum to 1.
 #   data[[1]] <- factor(data[[1]])
 #   return(data)
   
