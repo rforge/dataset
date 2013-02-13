@@ -7,7 +7,7 @@
 # mtc.dataset$cyl <- ovar(v(mtc.dataset[['cyl']]), values=c("4" = 4, "6" = 6, "8"=8), description = 'number of cylinders')
 # mtc.dataset$gear <- ovar(v(mtc.dataset[['gear']]), values=c("3" = 3, "4" = 4, "5"=5), description = 'gear type')
 # b1 <- bivan(cyl ~ am + gear, mtc.dataset)
-# summaryToPDF(b1, pdf = 'bivan1')
+# exportPDF(b1, pdf = 'bivan1')
 #target(b1)
 #description(target(b1))
 
@@ -234,9 +234,9 @@ setMethod(
   }
 )
 
-# summaryToPDF(b1)
+# exportPDF(b1)
 setMethod(
-  f = 'summaryToPDF',
+  f = 'exportPDF',
   signature = c('Bivan'),
   definition = function (
     object,
@@ -335,7 +335,7 @@ setMethod(
         s <- summary(std.res(object), merge = 'left')
         object.xtable <- xtable(
           sdf(s),
-          align = c("l", rep('c', ncol(sdf(s)))),
+          align = c("l", rep('l', ncol(sdf(s)))),
           caption=thresholds(s),
         )
         cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)
@@ -354,7 +354,7 @@ setMethod(
         s <- summary(global(object), merge = 'left')
         object.xtable <- xtable(
           sdf(s),
-          align = c("l", rep('c', ncol(sdf(s)))),
+          align = c("l", rep('l', ncol(sdf(s)))),
           caption=thresholds(s),
         )
         cat("\\section*{", name(s), "} \n", file = outFileCon, append = T)

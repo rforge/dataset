@@ -1,13 +1,13 @@
-\name{summaryToPDF}
-\alias{summaryToPDF}
+\name{exportPDF}
+\alias{exportPDF}
 \title{
 Produce a summary in a PDF file
 }
 \description{
-\code{summaryToPDF} produces a summary of the object in a PDF file.
+\code{exportPDF} produces a summary of the object in a PDF file.
 }
 \usage{
-summaryToPDF(
+exportPDF(
   object,
   pdfSavingName,
   graphics = F,

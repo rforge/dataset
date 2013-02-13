@@ -14,7 +14,7 @@ The \code{dds} name stands for 'Dataset Data Sample'.
 A Dataset object with 15 rows and 10 columns.
 }
 \details{
-Please run a summaryToPDF.
+Run the \code{exportPDF} function on the database for getting details.
 }
 \source{
 NA
@@ -23,8 +23,8 @@ NA
 NA
 }
 \examples{
-data(dds)
-summaryToPDF(dds, description.chlength = 60)
+## data(dds)
+## exportPDF(dds, description.chlength = 60)
 }
 \keyword{datasets}
 \keyword{data}

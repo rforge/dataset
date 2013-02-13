@@ -2,6 +2,7 @@ setGeneric("name", function(object){ standardGeneric("name") })
 setGeneric("name<-", function(object, value){ standardGeneric("name<-") })
 setGeneric("nroww", function(object, ...){ standardGeneric("nroww") })
 setGeneric("nindividual", function(object, ...){ standardGeneric("nindividual") })
+setGeneric("nvariable", function(x, ...){ standardGeneric("nvariable") })
 setGeneric("missings", function(object){ standardGeneric("missings") })
 setGeneric("nmissings", function(object){ standardGeneric("nmissings") })
 setGeneric("nmissingsw", function(object, weights){ standardGeneric("nmissingsw") })
@@ -41,6 +42,10 @@ setGeneric("checkvars", function(object){ standardGeneric("checkvars") })
 setGeneric("checkvars<-", function(object, value){ standardGeneric("checkvars<-" ) })
 setGeneric("spatial", function(object){ standardGeneric("spatial") })
 setGeneric("spatial<-", function(object, value){ standardGeneric("spatial<-" ) })
+setGeneric("spatial.country", function(object){ standardGeneric("spatial.country") })
+setGeneric("spatial.country<-", function(object, value){ standardGeneric("spatial.country<-" ) })
+setGeneric("spatial.variable", function(object){ standardGeneric("spatial.variable") })
+setGeneric("spatial.variable<-", function(object, value){ standardGeneric("spatial.variable<-" ) })
 setGeneric("origin", function(object){ standardGeneric("origin") })
 setGeneric("origin<-", function(object, value){ standardGeneric("origin<-" ) })
 setGeneric("format")
@@ -84,7 +89,7 @@ setGeneric("weightings", function(object){ standardGeneric("weightings" ) })
 setGeneric("nweightings", function(object){ standardGeneric("nweightings" ) })
 setGeneric("index", function(object, names){ standardGeneric("index") })
 setGeneric("rename", function(x, ...){ standardGeneric("rename") })
-setGeneric("summaryToPDF", function(
+setGeneric("exportPDF", function(
   object,
   pdfSavingName,
   graphics = F,
@@ -109,7 +114,7 @@ setGeneric("summaryToPDF", function(
   keepTex = F,
   openPDF = T,
   ...
-){ standardGeneric("summaryToPDF") })
+){ standardGeneric("exportPDF") })
 setGeneric("as.Dataset", function(object){ standardGeneric("as.Dataset") })
 setGeneric("contains", function(keywords, data, ignore.case = T, and = F){ standardGeneric("contains") })
 setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
@@ -181,7 +186,6 @@ setGeneric("frequencies", function(x, data, sort = 'decreasing', sort.ordinal = 
 
 # setGeneric("sd", function(object, na.rm = FALSE){ standardGeneric("sd") })
 #setGeneric("applyToColumn", function(fun, x, ...){ standardGeneric("applyToColumn") })
-#setGeneric("summaryToPDF", function(object, pdfSavingName, keepTex = FALSE){ standardGeneric("summaryToPDF") })
 #setGeneric("longitudinalSummary", function(object){ standardGeneric("longitudinalSummary") })
 #setGeneric("longitudinalSummaryToPDF", function(object, features, pdfSavingName, rate = 0.60, keepTex = FALSE){ standardGeneric("longitudinalSummaryToPDF") })
 ##setGeneric("merge",  function(x, y, by){	standardGeneric("merge") })

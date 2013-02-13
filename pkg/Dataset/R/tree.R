@@ -231,10 +231,10 @@ tree.cart <- function(formula, data, control = treecontrol(), subset, na.action,
 # }
 
 
-# summaryToPDF(a)
+# exportPDF(a)
 
 setMethod(
-  f = 'summaryToPDF',
+  f = 'exportPDF',
   signature = c('constparty'),
   definition = function (
     object,

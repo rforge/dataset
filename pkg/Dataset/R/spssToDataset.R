@@ -67,7 +67,7 @@ spssToDataset <- function(pathToFolder, recursive = TRUE, max.value.labels = Inf
     file.dir <- paste(s[-length(s)], collapse=.Platform$file.sep)
     
     setwd(file.dir)
-    summaryToPDF(get(filename), dateformat = "%Y/%m/%d", description.chlength = 160, values.chlength = 12)
+    exportPDF(get(filename), dateformat = "%Y/%m/%d", description.chlength = 160, values.chlength = 12)
     
   }
   setwd(path.current)

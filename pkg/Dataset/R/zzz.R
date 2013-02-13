@@ -9,9 +9,9 @@
 
 .onAttach <- function(libname, pkgname) {
 	  packageStartupMessage('\n', 'Welcome to Dataset', '.')
-	  packageStartupMessage('You are running on version ', Survey.version(), '.\n')
+	  packageStartupMessage('You are running version ', Survey.version(), '.\n')
 	  packageStartupMessage(
-      'For an introductory material, type ',
+      'For introductory material, type ',
 			#"'vignette(package=\"Dataset\")'.\n"
       "`vignette('Dataset-vignette-overview')`.\n"
 	  )

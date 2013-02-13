@@ -28,7 +28,7 @@ get.spss.file <- function(
 	lowernames = TRUE,
 	name = NULL,
 	description = character(0),
-	summaryToPDF = TRUE,
+	exportPDF = TRUE,
   reencode = "latin1"
 ) {
 	ptm <- proc.time()
@@ -116,7 +116,7 @@ get.spss.file <- function(
   		vtemp <- spssdata[[v]]
       codes <- vtemp
       attributes(codes) <- NULL # we remove all attributes: codes must contains only numerics codes
-      description <- variable.labels[v]
+      var.description <- variable.labels[v]
   		value.labels.all <- as.numeric(attr(vtemp,'value.labels'))
       names(value.labels.all) <- names(attr(vtemp,'value.labels'))
       value.labels.all <- removeEmptyValueLabels(value.labels.all)
@@ -134,7 +134,7 @@ get.spss.file <- function(
       if (is.element(v, tsvar)) {
   			l[[counter]] <- tvar(
   				x = codes,
-  				description = description,
+  				description = var.description,
   				values = value.labels,
   				missings = missings,
   				origin = "1582-10-14"
@@ -145,7 +145,7 @@ get.spss.file <- function(
         if (is.element(v, wvar)) {
           l[[counter]] <- wvar(
             x = codes,
-            description = description,
+            description = var.description,
             values = value.labels,
             missings = missings
           )
@@ -155,7 +155,7 @@ get.spss.file <- function(
             
       			l[[counter]] <- svar(
       				x = codes,
-      				description = description,
+      				description = var.description,
       				values = value.labels,
       				missings = missings)
       			flag <- T
@@ -165,7 +165,7 @@ get.spss.file <- function(
               if (length(value.labels) == 2) { #then binary
         				l[[counter]] <- bvar(
         					x = codes,
-        					description = description,
+        					description = var.description,
         					values = value.labels,
         					missings = missings)
         				flag <- T
@@ -173,14 +173,14 @@ get.spss.file <- function(
                 if (is.element(v, ovar)) { # then ordinal
                   l[[counter]] <- ovar( 
             			x = codes,
-          				description = description,
+          				description = var.description,
           				values = value.labels,
           				missings = missings)
                   flag <- T
                 } else { # then nominal
                   l[[counter]] <- nvar( 
               		x = codes,
-          				description = description,
+          				description = var.description,
           				values = value.labels,
           				missings = missings)
                   flag <- T
@@ -189,7 +189,7 @@ get.spss.file <- function(
       			} else { #nothing matched, we try scale
       			l[[counter]] <- svar(
       				x = codes,
-      				description = description,
+      				description = var.description,
       				values = value.labels,
       				missings = missings)
       			flag <- T
@@ -235,11 +235,11 @@ get.spss.file <- function(
   		message(paste("Data set saved in ", getwd(), "/", fileName, sep=""))
   	}
   	
-  	if(summaryToPDF) {
+  	if(exportPDF) {
   		if (!missing(savingName)) {
-  			#summaryToPDF(out, pdfSavingName = savingName)
+  			#exportPDF(out, pdfSavingName = savingName)
   		} else {
-  			#summaryToPDF(out)
+  			#exportPDF(out)
   		}
   	}
   	

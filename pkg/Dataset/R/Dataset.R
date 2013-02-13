@@ -12,6 +12,7 @@ setClass(
 		row.names = 'character',
     weights = 'character',
     checkvars = 'character',
+    spatial = 'list',
     Dataset.version = 'character',
     infos = 'list'
 	),
@@ -119,6 +120,7 @@ dataset <- function(
   row.names,
   weights,
   checkvars,
+  spatial,
   infos = list(),
   db.author = "",
   db.contact.email = "",
@@ -147,6 +149,7 @@ dataset <- function(
   #if (missing(row.names)) row.names <- character()
   if (missing(weights)) weights <- character()
   if (missing(checkvars)) checkvars <- character()
+  if (missing(spatial)) spatial <- list()
   if (missing(infos)) infos <- list()
   
   infos[["db.author"]] <- db.author
@@ -259,6 +262,7 @@ dataset <- function(
       row.names = row.names,
       weights = weights,
       checkvars = checkvars,
+      spatial = spatial,
       Dataset.version = Dataset.globalenv$Dataset.version,
       infos = infos
     ))
@@ -438,8 +442,37 @@ setReplaceMethod(
 setMethod("spatial", "Dataset", 
           definition = function (object) { 
 #             return(slot(object, "spatial"))
-            return("")
+            return("") # change in sumtopdf
           }
+)
+
+setMethod("spatial.country", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "spatial")[["country"]])
+          }
+)
+setReplaceMethod(
+  f = "spatial.country" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@spatial[["country"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+setMethod("spatial.variable", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "spatial")[["variable"]])
+          }
+)
+setReplaceMethod(
+  f = "spatial.variable" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@spatial[["variable"]] <- value
+    validObject(object)
+    return(object)
+  }
 )
 
 setMethod(
@@ -622,6 +655,11 @@ setMethod("ncol", "Dataset",
 	}
 )
 
+setMethod("nvariable", "Dataset", 
+          definition = function (x) {
+            return(length(names(x)))
+          }
+)
 
 setMethod(
   f = "varid",
@@ -717,9 +755,9 @@ setMethod(
               message(paste("=> control on ", checkvars(x)[k], ': warning, p-value < 0.05', sep = ''))
              #message(paste("=> control on ", 'sexe', ': warning, p-value < 0.05', sep = ''))
               if(length(over) > 0)
-                message(paste(paste(names(over), collapse=', '), 'are oversampled'))
+                message(paste(paste(names(over), collapse=', '), 'are overrepresented'))
               if(length(under) > 0)
-                message(paste(paste(names(under), collapse=', '), 'are undersampled'))
+                message(paste(paste(names(under), collapse=', '), 'are underrepresented'))
             }
           }
         }
@@ -1192,7 +1230,7 @@ setMethod("summary", "Dataset",
 
 
 
-setMethod("summaryToPDF", "Dataset", 
+setMethod("exportPDF", "Dataset", 
   definition = function (
     object,
     pdfSavingName,
@@ -1225,6 +1263,7 @@ setMethod("summaryToPDF", "Dataset",
     exit.by.uninstalled.pkg('xtable')
   } else {
     require(xtable)
+    
     
     #TAILLE IDEALE 19.5cm
     align.common <-  c(
@@ -1273,15 +1312,22 @@ setMethod("summaryToPDF", "Dataset",
   		pdfSavingName <- paste("Summary-", outName, sep = "") # no spaces for Unix/Texlive compilation ?
   	}
   	
+    
   	latexFile <- paste(pdfSavingName, ".tex", sep="")
     
-    is.writable(pdfSavingName, path = getwd())
-  	
+    is.writable(pdfSavingName, path = getwd()) 	
+    
     outFileCon <- file(latexFile, "w", encoding="UTF-8")
+    
+#     print('hello-beforelatexhead')
+#     print(class(getMethod("show", "Variable")))
     
     latex.head(title = paste("Summary of the", totex(name(object)), "dataset"),
                page.orientation, latexPackages, outFileCon)
-                           
+                      
+#     print('hello-afterlatexhead')
+#     print(class(getMethod("show", "Variable")))
+    
   	cat("\\section*{Overview} \n", file = outFileCon, append = T)
     cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
   	cat("\\begin{itemize*} \n", file = outFileCon, append = T)
@@ -1298,6 +1344,9 @@ setMethod("summaryToPDF", "Dataset",
   	    nweightings(object), " weightings",
         ")", "\n", sep = "", file = outFileCon, append = T)
     cat("\\item \\textbf{Number of individuals:}", nTuples, "(for ", nrow(object), " rows)","\n", file = outFileCon, append = T)
+    
+    
+    
     cat("\\item \\textbf{Percent of missing values:}", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
     if(length(weighting(object)) > 0) {
       cat("\\item \\textbf{Weighting variable:} ", totex(weighting(object)), ', ', totex(description(object[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
@@ -1389,10 +1438,10 @@ setMethod("summaryToPDF", "Dataset",
     cat("\\newpage \n", file = outFileCon, append = T)
     cat("\\section*{Configuration} \n", file = outFileCon, append = T)
     cat("\\begin{itemize} \n", file = outFileCon, append = T)
-    cat("\\item Variable descriptions are cutted above", description.chlength, "characters. \n", file = outFileCon, append = T)
-    cat("\\item Valid case descriptions are cutted above", valids.chlength, "characters. \n", file = outFileCon, append = T)
+    cat("\\item Variable descriptions are cut above", description.chlength, "characters. \n", file = outFileCon, append = T)
+    cat("\\item Valid case descriptions are cut above", valids.chlength, "characters. \n", file = outFileCon, append = T)
     if (valids.cut.percent > 0) {
-      cat("\\item For categorical variables, valid cases are cutted when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
+      cat("\\item For categorical variables, valid cases are cut when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
     }
     cat("\\item For nominal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
     cat("\\item For ordinal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
@@ -1834,7 +1883,7 @@ setMethod(
     c <- call('save', outname, file = paste(name, ".RData", sep = ''))
     eval(c)
 #     save(object, file = paste(name, ".RData", sep = ''))
-    summaryToPDF(object, name)
+    exportPDF(object, name)
   }
 )
 

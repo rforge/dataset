@@ -32,6 +32,8 @@ Dataset.globalenv.print.io <- function(x){
 # Dataset.globalenv.print.io(FALSE)
 # svar(c(1))
 Survey.version <- function(){
+#   print('helloe')
+#   print(class(getMethod("show", "Variable")))
   return(Dataset.globalenv$package.infos$Version)
 }
 Dataset.version <- function(){

@@ -21,7 +21,7 @@ get.spss.file(
   lowernames = TRUE,
   name = NULL,
   description = character(0),
-  summaryToPDF = TRUE,
+  exportPDF = TRUE,
   reencode = "latin1"
 )
 }
@@ -63,7 +63,7 @@ a character. The name of the data base. If \code{NULL} the name of the file is u
   \item{description}{
 a character. A description of the database.
 }
-  \item{summaryToPDF}{
+  \item{exportPDF}{
 a logical. If \code{TRUE} the summary in PDF of the data base is created.
 }
   \item{reencode}{

@@ -10,7 +10,7 @@
 #sdf(sdf2)
 #ssdf2 <- summary(sdf2, merge = 'left')
 #ssdf2
-# summaryToPDF(sdf2, merge = 'left')
+# exportPDF(sdf2, merge = 'left')
 #df3 <- data.frame('chi2' = c(23.664518,48.69871987), 'p-values' = c(NA, NA), 't' = c(23.664518,48.69871987), 'p-values' = c(0.0265432, 0.007555))
 #sdf3 <- statdf(df3)
 #sdf3
@@ -619,7 +619,7 @@ setMethod(
 
 
 setMethod(
-  f = 'summaryToPDF',
+  f = 'exportPDF',
   signature = c('Statdf'),
   definition = function (
     object,

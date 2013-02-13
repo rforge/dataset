@@ -396,9 +396,9 @@ setMethod(
 
 
 
-# summaryToPDF.reglog <- function(x){
+# exportPDF.reglog <- function(x){
 setMethod(
-  f = 'summaryToPDF',
+  f = 'exportPDF',
   signature = c('RegLog'),
   definition = function (
     object,
@@ -538,7 +538,7 @@ setMethod(
       s1 <- summary(s[[1]], merge = 'left')
       object.xtable <- xtable(
         sdf(s1),
-        align = c("l", rep('c', ncol(s1))),
+        align = c("l", rep('l', ncol(s1))),
         caption=paste(name(s1), ', ', thresholds(s1)),
       )
       cat("\\begin{center} \n", file = outFileCon, append = T)
@@ -556,7 +556,7 @@ setMethod(
       s2 <- summary(s[[2]], merge = 'left')
       object.xtable <- xtable(
         sdf(s2),
-        align = c("l", rep('c', ncol(s2))),
+        align = c("l", rep('l', ncol(s2))),
         caption=paste(name(s2), ', ', thresholds(s2)),
       )
       cat("\\begin{center} \n", file = outFileCon, append = T)

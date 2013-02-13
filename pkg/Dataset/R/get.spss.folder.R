@@ -39,7 +39,7 @@ get.spss.folder <- function(
       #tsvar,
       #ordinals,
       lowernames = lowernames,
-      summaryToPDF = FALSE
+      exportPDF = FALSE
     )
     if(by %in% names(f)) { # else we can't use the file (we can't merge) 
       var <- names(f)[which(names(f) %in% variables)]

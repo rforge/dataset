@@ -31,6 +31,7 @@ exportMethods(
   'description' ,
   'nroww',
   'nindividual',
+  'nvariable',
   'db.author',
   'db.contact.email',
   'db.license',
@@ -101,7 +102,7 @@ exportMethods(
   'row.names',
   'scales',
   'scales.exact',
-  'summaryToPDF',
+  'exportPDF',
   'tail',
   'times',
   'valid',
@@ -124,6 +125,10 @@ exportMethods(
   'checkvars<-',
   'spatial',
   'spatial<-',
+  'spatial.country',
+  'spatial.country<-',
+  'spatial.variable',
+  'spatial.variable<-',
   'weighting',
   'weighting<-',
   'sdf',
@@ -200,5 +205,6 @@ export(
   tree.chaid,
   tree.cart,
   valids.ordering,
-  findlast
+  findlast,
+  gchart.map
 )
