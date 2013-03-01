@@ -206,5 +206,6 @@ export(
   tree.cart,
   valids.ordering,
   findlast,
+  find.value.last,
   gchart.map
 )

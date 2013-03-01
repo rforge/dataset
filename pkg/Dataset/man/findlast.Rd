@@ -16,7 +16,7 @@ findlast(data, from, to)
 a \code{data.frame} object.
 }
   \item{from}{
-a \code{vector} of either column names or column ids from where you want to find the where the last non-missing value is.
+a \code{vector} of either column names or column ids from where you want to find where the last non-missing value is.
 }
   \item{to}{
 a \code{list} containing in each item the column names or ids of another time-varying variable for which you want to get the last value found in data[,from]. The name of each item is used as column name for the output.
@@ -26,8 +26,8 @@ a \code{list} containing in each item the column names or ids of another time-va
 This function is useful when working on longitudinal data with attrition problems. It allows to retrieve the last values given by repondants in a specific time-varying variable and then getting the values for other time-varying variables according to the index of last participation of each respondant.
 }
 \value{
-If the \code{to} argument is missing, the function returns the ids where the last non-missing value is for each row of the \code{data argument}.
-If the \code{to} argument is given, a \code{data.frame} containing the last values is returned.
+If the \code{to} argument is missing, the function returns the ids where the last non-missing value is for each row of the \code{data} argument.
+If the \code{to} argument is given, a \code{data.frame} containing the corresponding last values on covariates is returned.
 }
 
 \author{
@@ -54,7 +54,7 @@ findlast(
   from = c('age00', 'age01', 'age02')
 )
 
-# we find retrieve the last value for age, and get corresponding values for the variables sex and nationality
+# we retrieve the last value for age, and get corresponding values for the variables sex and nationality
 findlast(
   data = fl.data.example,
   from = c('age00', 'age01', 'age02'),
