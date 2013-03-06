@@ -34,6 +34,10 @@ If the \code{to} argument is given, a \code{data.frame} containing the correspon
 Emmanuel Rousseaux
 }
 
+\seealso{
+\code{\link{find.value.last}}, \code{\link{find.value.fun}}.
+}
+
 \examples{
 # data.frame example
 fl.data.example <- data.frame(

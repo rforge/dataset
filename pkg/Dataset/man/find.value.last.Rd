@@ -22,11 +22,11 @@ a \code{vector} of either column names or column ids from where you want to find
 a \code{list} containing in each item the column names or ids of another time-varying variable for which you want to get the last value found in data[,from]. The name of each item is used as column name for the output.
 }
   \item{value}{
-%%     ~~Describe \code{value} here~~
+an \code{integer}, the value/event you are looking for.
 }
 }
 \details{
-This function is useful when working on longitudinal data with attrition problems. It allows to retrieve the last occurence of an event in a specific time-varying variable and then getting the values for other time-varying variables according to the index previously reported.
+This function is useful when working on longitudinal data with attrition problems. It allows to retrieve the last occurence of an event in a specific time-varying variable and then getting the values for other time-varying variables according to the indexs previously reported.
 }
 \value{
 If the \code{to} argument is missing, the function returns the ids where the last occurence of the value is for each row of the \code{data} argument. It also return a column containing the type of the value retrieved : 1 if the value has been found, NA if the sequence contained only NA values, -1 if the sequence contained non-NA values but no occurence of the value.
@@ -35,6 +35,10 @@ If the \code{to} argument is given, a \code{data.frame} containing the correspon
 
 \author{
 Emmanuel Rousseaux
+}
+
+\seealso{
+\code{\link{findlast}}, \code{\link{find.value.fun}}.
 }
 
 \examples{
