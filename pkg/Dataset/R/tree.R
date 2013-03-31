@@ -10,6 +10,7 @@ setClass(
   }
 )
 
+
 treecontrol <- function(
   minsplit = 20,
   minbucket = 7,
