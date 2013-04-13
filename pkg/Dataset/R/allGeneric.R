@@ -111,6 +111,7 @@ setGeneric("exportPDF", function(
   width.max = 1.25,
   width.mean = 1.25,
   width.stddev = 1.25,
+  plot.tree.ratio = 1,
   keepTex = F,
   openPDF = T,
   ...
@@ -121,7 +122,7 @@ setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
 setGeneric("alldescriptions", function(object){ standardGeneric("alldescriptions") })
 setGeneric("allvalues", function(object){ standardGeneric("allvalues") })
 setGeneric("v", function(x){ standardGeneric("v") })
-setGeneric("export", function(object, name){ standardGeneric("export") })
+setGeneric("export", function(object, name, ...){ standardGeneric("export") })
 
 # for Statdf
 #setGeneric("df")

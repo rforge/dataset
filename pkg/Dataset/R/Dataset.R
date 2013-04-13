@@ -1863,7 +1863,11 @@ setMethod(
 setMethod(
   "export",
   "Dataset",
-  function (object, name) {
+  function (
+    object,
+    name,
+    ...
+  ) {
     
     #dir.create(name)
     if(!missing(name)) {
@@ -1883,7 +1887,7 @@ setMethod(
     c <- call('save', outname, file = paste(name, ".RData", sep = ''))
     eval(c)
 #     save(object, file = paste(name, ".RData", sep = ''))
-    exportPDF(object, name)
+    exportPDF(object, name, ...)
   }
 )
 

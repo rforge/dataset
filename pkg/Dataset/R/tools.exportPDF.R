@@ -229,3 +229,30 @@ addSignif <- function(char.vector, word = "signif.") {
   }
   return(out)
 }
+
+list.to.tex <- function(l, star = T) {
+  stopifnot(inherits(l, 'list'))
+  out <- ''
+  n <- length(l)
+  nam <- names(l)
+  if (n == 0) return(out)
+  else {
+    out <- paste(out, '\\begin{itemize*}\n')
+    
+    for (i in 1:n) {
+      out <- paste(
+        out,
+        '\\item \\textbf{',
+        nam[i],
+        ':} ',
+        l[i],
+        ' \n', sep = ''
+      )
+    }
+    
+    out <- paste(out, '\n', '\\end{itemize*} \n')
+    
+    return(out)
+  }
+}
+# list.to.tex(list('bon' = 0.4, 'jour' = 'soir'))

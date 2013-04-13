@@ -1,8 +1,8 @@
 Package: Dataset
 Type: Package
 Title: Handling survey data in R.
-Version: 0.2.45
-Date: 2013-03-05
+Version: 0.2.47
+Date: 2013-04-09
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable
         labels, values labels, and retrieve information about missing values   
@@ -14,13 +14,13 @@ Description: This package provides a class, called Dataset, and some
 Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>
 Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
-Depends: R (>= 2.15.1), methods, stats
+Depends: R (>= 2.15.1), methods, stats, shiny
 Suggests: foreign, xtable, rpart, CHAID
 LazyLoad: yes
 LazyData: yes
 ZipData: no
 License: GPL (>= 2)
-Collate: environments.R tools.global.R tools.console.R allGeneric.R summary-tools.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R zzz.R
+Collate: environments.R tools.time.R tools.global.R tools.console.R tools.formatCall.R tools.shiny.R allGeneric.R tools.exportPDF.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R zzz.R
 URL: http://rforge.fr/Dataset
 Repository: NA
 Date/Publication:
