@@ -450,7 +450,7 @@ tree.learn.cart <- function(
       ctrl$minsplit <- control$min.for.splitting
       ctrl$minbucket <- control$min.terminal.node.n
       ctrl$cp <- control$min.complexity.reduction
-      ctrl$maxdepth <- control$max.height
+#       ctrl$maxdepth <- control$max.height ##FIXME, return a root tree
       
       if(!interactive){
         
