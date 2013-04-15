@@ -529,7 +529,7 @@ tree.learn.cart <- function(
             "h4('‾‾‾‾')",
             paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
             paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
-            paste("sliderInput('min.complexity.reduction', 'min.complexity.reduction:', min = 0, max = 1, value = ",control$min.complexity.reduction,", step = 0.001)", sep=''),                  
+            paste("sliderInput('min.complexity.reduction', 'min.complexity.reduction:', min = 0.0001, max = 0.01, value = ",control$min.complexity.reduction,", step = 0.0001)", sep=''),                  
             paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
             "h4('____')",
             "h4('Explanatory variables involved:')"), checkboxs
