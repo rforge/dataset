@@ -342,7 +342,7 @@ setMethod(
         cat("\\begin{center} \n", file = outFileCon, append = T)
         print(object.xtable, file=outFileCon , append=T,
               table.placement = "htb",
-              floating=T
+              floating=F
         )
         cat("\\newline ", " \n", file = outFileCon, append = T)
         cat(thresholds(s), " \n", file = outFileCon, append = T)
@@ -361,7 +361,7 @@ setMethod(
         cat("\\begin{center} \n", file = outFileCon, append = T)
         print(object.xtable, file=outFileCon , append=T,
               table.placement = "htb",
-              floating=T
+              floating=F
         )
         cat("\\newline ", " \n", file = outFileCon, append = T)
         cat(thresholds(s), " \n", file = outFileCon, append = T)

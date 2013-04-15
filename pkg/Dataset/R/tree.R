@@ -14,7 +14,7 @@ tree.control <- function(
   min.for.splitting = 20, #chaid, rpart
   min.terminal.node.n = 7, #chaid, rpart
   min.terminal.node.percent = 1, #chaid
-  min.complexity.reduction = 0.01,
+  min.complexity.reduction = 0.001,
   max.height = 3, #chaid, rpart (not used for rpart)
   max.pvalue.merge = 0.05, # chaid
   alpha3 = -1, # chaid
@@ -47,10 +47,14 @@ setMethod(
 #     names(l) <- names(object)
 #     print(l)
     df <- data.frame(t(as.data.frame(object)))
+#     df <- cbind(df, data.frame(
+#       'CHAID' = c(T,T,T,F,T,T,T,T,T),
+#       'CART'  = c(T,T,F,T,T,F,F,F,F)
+#       ))
     df <- cbind(df, data.frame(
       'CHAID' = c('x','x','x','','x','x','x','x','x'),
-      'CART' = c('x','x','','x','x','','','','')
-      ))
+      'CART'  = c('x','x','','x','x','','','','')
+    ))
     names(df) <- c(' ', 'CHAID', 'CART')
     print(df)
   }
@@ -259,20 +263,20 @@ tree.learn.chaid <- function(
     require(CHAID)
     setOldClass(c("constparty", "party"), where = .GlobalEnv)
     
+    cl <- match.call()
+    
+    ctrl <- chaid_control(
+      minsplit = control$min.for.splitting,
+      minbucket = control$min.terminal.node.n,
+      minprob = control$min.terminal.node.percent,
+      maxheight = control$max.height,
+      alpha2 = control$max.pvalue.merge,
+      alpha3 = control$alpha3,
+      alpha4 = control$max.pvalue.split,
+      stump = control$stump
+    )
+      
     if(!interactive){
-      
-      cl <- match.call()
-      
-      ctrl <- chaid_control(
-        minsplit = control$min.for.splitting,
-        minbucket = control$min.terminal.node.n,
-        minprob = control$min.terminal.node.percent,
-        maxheight = control$max.height,
-        alpha2 = control$max.pvalue.merge,
-        alpha3 = control$alpha3,
-        alpha4 = control$max.pvalue.split,
-        stump = control$stump
-      )
       
       data.df <- v(data)
       
@@ -284,6 +288,11 @@ tree.learn.chaid <- function(
         'control' = ctrl,
         'weights' = as.vector(weights(data))
       ))
+      
+      if(depth(out) == 0) {
+        tree.out.no.split()
+        return(NULL)
+      }
             
       out <- addWhere(out, data)
   #     out <- chaid(formula, data = v(data), control = ctrl, weights = weights)
@@ -326,11 +335,11 @@ tree.learn.chaid <- function(
         sidebarPanel =  c(list(
           "h4('Tree growing settings')",
           "h4('‾‾‾‾')",
-          "sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = 2)",          
-          "sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = 6)",          
-          "sliderInput('max.pvalue.merge', 'max.pvalue.merge:', min = 0, max = 1, value = 0.05, step = 0.01)",          
-          "sliderInput('max.pvalue.split', 'max.pvalue.split:', min = 0, max = 1, value = 0.05, step = 0.01)",          
-          "sliderInput('max.height', 'max.height:', min = 0, max = 10, value = 3)",          
+          paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
+          paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
+          paste("sliderInput('max.pvalue.merge', 'max.pvalue.merge:', min = 0, max = 1, value = ",control$max.pvalue.merge,", step = 0.01)", sep=''),          
+          paste("sliderInput('max.pvalue.split', 'max.pvalue.split:', min = 0, max = 1, value = ",control$max.pvalue.split,", step = 0.01)", sep=''),          
+          paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
           "h4('____')",
           "h4('Explanatory variables involved:')"), checkboxs
         ),
@@ -409,7 +418,15 @@ tree.learn.chaid <- function(
 #   data = dm
 # )
 
-tree.learn.cart <- function(formula, data, control = tree.control(), subset, na.action, valid.lab.trunc = '15') {
+tree.learn.cart <- function(
+  formula,
+  data,
+  control = tree.control(),
+  subset,
+  na.action,
+  valid.lab.trunc = '15',
+  interactive = F
+) {
   
   stopifnot(inherits(data, 'Dataset'))
   
@@ -417,52 +434,149 @@ tree.learn.cart <- function(formula, data, control = tree.control(), subset, na.
     exit.by.uninstalled.pkg('rpart')
   } else {
     require(rpart)
-    if(!is.installed.pkg('CHAID')) {
-      exit.by.uninstalled.pkg('CHAID', 'http://r-forge.r-project.org')
+#     if(!is.installed.pkg('CHAID')) {
+#       exit.by.uninstalled.pkg('CHAID', 'http://r-forge.r-project.org')
+#     } else {
+#       require(CHAID)
+    if(!is.installed.pkg('partykit')) {
+      exit.by.uninstalled.pkg('partykit')
     } else {
-      require(CHAID)
+      require(partykit)
       setOldClass(c("constparty", "party"), where = .GlobalEnv)
       
       cl <- match.call()
-      
-      data.df <- v(data)      
-      
-      mf <- model.frame(formula, data = data.df)
       
       ctrl <- rpart.control()
       ctrl$minsplit <- control$min.for.splitting
       ctrl$minbucket <- control$min.terminal.node.n
       ctrl$cp <- control$min.complexity.reduction
-#       ctrl$maxdepth <- control$max.height
+      ctrl$maxdepth <- control$max.height
       
-      out <-  do.call("rpart", list(
-        'formula' = formula, 
-        'data' = v(data),
-        'control' = ctrl,
-        'weights' = as.vector(weights(data))
-      ))
-      
-      out <- as.party(out)
-      
-      # if we got a root node, as.party coerce to a partynode instead of a party object
-      # then we have to coerce manually
-      if(inherits(out, "partynode"))
-        out <- party(out, v(data))
-      
-      
-      out <- addWhere(out, data)
-                      
-      return(new(
-        Class = "Tree",
-        method.name = 'CART',
-        description = 'None',
-        date = giveDate(),
-        call = cl,
-        formula = formula(terms(out)),
-        data.model = data[,names(mf)],
-        control = ctrl,
-        tree = list(out)
-      ))
+      if(!interactive){
+        
+        
+        data.df <- v(data)      
+        
+        mf <- model.frame(formula, data = data.df)
+        
+        
+        
+        out <-  do.call("rpart", list(
+          'formula' = formula, 
+          'data' = v(data),
+          'control' = ctrl,
+          'weights' = as.vector(weights(data))
+        ))
+        
+  
+        out <- as.party(out)
+        
+        if(depth(out) == 0) {
+          tree.out.no.split()
+          return(NULL)
+        }
+        
+        # if we got a root node, as.party coerce to a partynode instead of a party object
+        # then we have to coerce manually
+        if(inherits(out, "partynode"))
+          out <- party(out, v(data))
+        
+  #       out.formula <- formula(terms(out))
+        out.formula <- as.formula("y ~ x")
+        
+        out <- addWhere(out, data)
+        
+        attr(ctrl, 'class') <- NULL
+                        
+        return(new(
+          Class = "Tree",
+          method.name = 'CART',
+          description = 'None',
+          date = giveDate(),
+          call = cl,
+          formula = out.formula,
+          data.model = data[,names(mf)],
+          control = ctrl,
+          tree = list(out)
+        ))
+      } else {
+        path <- getwd()
+        app.name <- 'shiny-tree.learn.cart'
+        packages.ui <- ''
+        packages.server <- c('Dataset', 'partykit')
+        
+        
+        shiny.app <- shiny.write.app(
+          folder = path,
+          app = app.name
+        )
+        
+        setwd(file.path(path,app.name))
+        export(data, 'data', openPDF=F)
+        setwd(path)
+        
+        var.descriptors <- attr(terms(formula),"term.labels")
+        checkboxs <- list()
+        for (i in 1:length(var.descriptors)) {
+          checkboxs[[i]] <- paste('checkboxInput(\'',var.descriptors[i],"', '",var.descriptors[i],"', TRUE)", sep='')
+        }
+
+        
+        shiny.write.ui(
+          title = 'Tree analysis - CART method',
+          sidebarPanel =  c(list(
+            "h4('Tree growing settings')",
+            "h4('‾‾‾‾')",
+            paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
+            paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
+            paste("sliderInput('min.complexity.reduction', 'min.complexity.reduction:', min = 0, max = 1, value = ",control$min.complexity.reduction,", step = 0.001)", sep=''),                  
+            paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
+            "h4('____')",
+            "h4('Explanatory variables involved:')"), checkboxs
+          ),
+          mainPanel = list(
+            "plotOutput('treePlot')"  
+          ),
+          app = shiny.app,
+          packages = packages.ui
+        )
+        
+        shiny.write.server.intro(
+          app = shiny.app,
+          packages = packages.server
+        )
+        
+        
+        cat("output$treePlot <- renderPlot({", ' \n', file = shiny.app$server, append=T)
+        cat("  load('data.RData')", ' \n', file = shiny.app$server, append=T)
+        cat("  formula <- ", deparse(formula), ' \n', file = shiny.app$server, append=T)
+        
+        var.descriptors <- attr(terms(formula),"term.labels")
+        for (i in var.descriptors) {
+          cat("  if(!input[['", i, "']]) formula <- update(formula, . ~ . - ", i,")\n", file = shiny.app$server, append=T, sep='')
+        }
+        cat("\n", file = shiny.app$server, append=T)
+        cat("  tr <- tree.learn.cart(", "\n", file = shiny.app$server, append=T)
+        cat("    formula = formula,", "\n", file = shiny.app$server, append=T)
+        cat("    data = data,", "\n", file = shiny.app$server, append=T)
+        cat("    control = tree.control(", "\n", file = shiny.app$server, append=T)
+        cat("      min.terminal.node.percent = input$min.terminal.node.percent,", file = shiny.app$server, "\n", append=T)
+        cat("      min.for.splitting = input$min.for.splitting,", "\n", file = shiny.app$server, append=T)
+        cat("      min.complexity.reduction = input$min.complexity.reduction,", "\n", file = shiny.app$server, append=T)
+        cat("      max.height = input$max.height", "\n", file = shiny.app$server, append=T)
+        cat("    )", "\n", file = shiny.app$server, append=T)
+        cat("  )", "\n", file = shiny.app$server, append=T)
+        cat("\n", file = shiny.app$server, append=T)
+        
+        cat("  plot(tr) \n", "\n", file = shiny.app$server, append=T)
+        cat("})", "\n", file = shiny.app$server, append=T)
+        
+        shiny.write.server.outro(
+          app = shiny.app
+        )
+        
+        shiny.run(shiny.app)
+      }
     }
   }
 }
@@ -474,21 +588,23 @@ tree.learn.cart <- function(formula, data, control = tree.control(), subset, na.
 # iris$Petal.Length <- cut(iris$Petal.Length, breaks = 4)
 # iris$Petal.Width <- cut(iris$Petal.Width, breaks = 4)
 # ir <- dataset(iris)
-# do.call("rpart", list(
-#   'formula' = Species ~ ., 
-#   'data' = iris,
-#   'control' = rpart.control()
-# #   'weights' = as.vector(weights(data))
-# ))
-# b1 <- as.party(rpart(Species ~ ., data = iris, weights = as.vector(weights(ir))))
-# plot(b1)
-# 
 # 
 # b <- tree.learn.cart(Species ~ ., data = ir)
 # plot(b)
 # b <- tree.learn.chaid(Species ~ ., data = ir)
 # plot(b)
 # exportPDF(b)
+
+## do.call("rpart", list(
+##   'formula' = Species ~ ., 
+##   'data' = iris,
+##   'control' = rpart.control()
+## #   'weights' = as.vector(weights(data))
+## ))
+## b1 <- as.party(rpart(Species ~ ., data = iris, weights = as.vector(weights(ir))))
+## plot(b1)
+
+
 
 # rpart(Species ~ ., data = iris)
 
@@ -626,7 +742,9 @@ setMethod(
       
       cat("\\subsection*{Model formula} \n", file = outFileCon, append = T)
       
+      cat("\\begin{verbatim} \n", file = outFileCon, append = T)
       cat(deparse(object@formula), " \n", file = outFileCon, append = T)
+      cat("\\end{verbatim} \n", file = outFileCon, append = T)
       
       cat("\\subsection*{Settings} \n", file = outFileCon, append = T)
       
@@ -1056,4 +1174,8 @@ class(node_barplot_round_inner) <- "grapcon_generator"
 
 
 
-
+tree.out.no.split <- function() {
+  message("No split performed.")
+  message("Maybe your control parameters are too constraining.")
+  message("NULL is returned")
+}
