@@ -23,8 +23,8 @@ NA
 NA
 }
 \examples{
-## data(dds)
-## exportPDF(dds, description.chlength = 60)
+data(dds)
+exportPDF(dds, width.varname = 2.5, description.chlength = 60)
 }
 \keyword{datasets}
 \keyword{data}
