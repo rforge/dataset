@@ -76,3 +76,13 @@ all.is.numeric <- function (x) {
   out <- !any(is.na(as.numeric(xs)))
   return(out)
 }
+
+formula.expand <- function (formula, data) {
+  return(as.formula(deparse(terms(formula, data = data))))
+}
+
+formula.variables <- function(formula) { # expanded.formula
+  form <- deparse(attr(terms(formula), 'variables'))
+  vars <- strsplit(substr(form, 6,nchar(form)-1), ', ')[[1]]
+  return(vars)
+}

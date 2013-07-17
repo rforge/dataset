@@ -75,27 +75,25 @@ setMethod(
     }
     
     valids.names <- levels(out)
-    min.valid.code <- 1 
-    # we want first valid case start at least at 1
-    if(nmissings(x) > 0) {
+    min.valid.code <- 1 # we want first valid case start at least at 1
+    
+    if(nmissings(x) > 0) { # we check if there is missing codes with a positive values
       min.valid.code <- max(max(missings(x)),min.valid.code)
     }
     valids <- min.valid.code:(min.valid.code+nlevels(out)-1)
 #     valids <- 1:nlevels(out)
     names(valids) <- valids.names
     
+    
     out <- as.numeric(out) ## FIXME pb missing collision ?
     
     
     diff.min.code <- min(out, na.rm=T) - min.valid.code
-#     print(diff.min.code)
-#     print(out[1:20])
-    out <- out - diff.min.code
-#     print(out[1:20])
-#     print(valids)
+    out <- out - diff.min.code # we translate codes
 
-    if (length(valids) == 2) {
-      for (i in missings(x)){ # we refill missing values
+
+    if (length(valids) == 2) { # for creating a bvar()
+      for (i in missings(x)){ # we refill missing codes
         out[which(codes(x) == i)] <- i
       }
       out <- bvar(out, missings=missings(x), values = valids, description = paste(description(x),'- cutted'))

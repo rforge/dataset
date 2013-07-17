@@ -1,6 +1,6 @@
 
 setClass(
-  'Treecontrol',
+  'Tree.control',
   contains = c('list'),
   validity = function(object) {
     flag = TRUE
@@ -34,14 +34,14 @@ tree.control <- function(
     'stump' = stump
   )
   
-  out <- new('Treecontrol', '.Data' = l)
+  out <- new('Tree.control', '.Data' = l)
 
   return(out)
 }
 
 setMethod(
   f = "show",
-  signature = "Treecontrol", 
+  signature = "Tree.control", 
   definition = function (object) {
 #     l <-  object@.Data
 #     names(l) <- names(object)
@@ -61,7 +61,7 @@ setMethod(
 )
 
 # print
-setMethod("print", "Treecontrol", 
+setMethod("print", "Tree.control", 
   definition = function (x, ...) {
     show(x)
   }
@@ -278,9 +278,28 @@ tree.learn.chaid <- function(
       
     if(!interactive){
       
-      data.df <- v(data)
+      data.df <- v(data)   
       
-      mf <- model.frame(formula, data = data.df)
+      mf <- model.frame(formula, data = data.df) # we keep weights here
+      
+      if(nchar(weighting(data))>0) {
+        nam.noweighting <- names(data.df)[-which(names(data.df) == weighting(data))]
+        data.df <- data.df[,nam.noweighting]
+      }
+      
+      expanded.formula <- as.formula(deparse(terms(formula, data = data.df)))
+      
+      # chaid package works only with factor, we have to check
+#       fcheck <- unlist(lapply(mf, class))
+#       print(fcheck)
+#       fcheckwhich <- which(!is.factor(fcheck))
+#       if(length(fcheckwhich)>0) {
+#         stop(paste(
+#           "The CHAID method currently supports only categorical variables. Some of the variables you give aren't categorical:\n",
+#           paste(names(fcheck[fcheckwhich]), collapse = ', '),
+#           sep = ' '  
+#         ))
+#       }
       
       out <-  do.call("chaid", list(
         'formula' = formula, 
@@ -303,89 +322,96 @@ tree.learn.chaid <- function(
         description = 'None',
         date = giveDate(),
         call = cl,
-        formula = formula(terms(out)),
+        formula = expanded.formula,
         data.model = data[,names(mf)],
         control = ctrl,
         tree = list(out)
       ))
     } else {
-      path <- getwd()
-      app.name <- 'shiny-tree.learn.chaid'
-      packages.ui <- ''
-      packages.server <- c('Dataset', 'partykit', 'CHAID')
       
-      
-      shiny.app <- shiny.write.app(
-        folder = path,
-        app = app.name
-      )
-      
-      setwd(file.path(path,app.name))
-      export(data, 'data', openPDF=F)
-      setwd(path)
-      
-      var.descriptors <- attr(terms(formula),"term.labels")
-      checkboxs <- list()
-      for (i in 1:length(var.descriptors)) {
-        checkboxs[[i]] <- paste('checkboxInput(\'',var.descriptors[i],"', '",var.descriptors[i],"', TRUE)", sep='')
+      if(!is.installed.pkg('shiny')) {
+        exit.by.uninstalled.pkg('shiny')
+      } else {
+        require(shiny)
+        
+        path <- getwd()
+        app.name <- 'shiny-tree.learn.chaid'
+        packages.ui <- ''
+        packages.server <- c('Dataset', 'partykit', 'CHAID')
+        
+        
+        shiny.app <- shiny.write.app(
+          folder = path,
+          app = app.name
+        )
+        
+        setwd(file.path(path,app.name))
+        export(data, 'data', openPDF=F)
+        setwd(path)
+        
+        var.descriptors <- attr(terms(formula),"term.labels")
+        checkboxs <- list()
+        for (i in 1:length(var.descriptors)) {
+          checkboxs[[i]] <- paste('checkboxInput(\'',var.descriptors[i],"', '",var.descriptors[i],"', TRUE)", sep='')
+        }
+        
+        shiny.write.ui(
+          title = 'Tree analysis - CHAID method',
+          sidebarPanel =  c(list(
+            "h4('Tree growing settings')",
+            "h4('‾‾‾‾')",
+            paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
+            paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
+            paste("sliderInput('max.pvalue.merge', 'max.pvalue.merge:', min = 0, max = 1, value = ",control$max.pvalue.merge,", step = 0.01)", sep=''),          
+            paste("sliderInput('max.pvalue.split', 'max.pvalue.split:', min = 0, max = 1, value = ",control$max.pvalue.split,", step = 0.01)", sep=''),          
+            paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
+            "h4('____')",
+            "h4('Explanatory variables involved:')"), checkboxs
+          ),
+          mainPanel = list(
+            "plotOutput('treePlot')"  
+          ),
+          app = shiny.app,
+          packages = packages.ui
+        )
+        
+        shiny.write.server.intro(
+          app = shiny.app,
+          packages = packages.server
+        )
+        
+        
+        cat("output$treePlot <- renderPlot({", ' \n', file = shiny.app$server, append=T)
+        cat("  load('data.RData')", ' \n', file = shiny.app$server, append=T)
+        cat("  formula <- ", deparse(formula), ' \n', file = shiny.app$server, append=T)
+        
+        var.descriptors <- attr(terms(formula),"term.labels")
+        for (i in var.descriptors) {
+          cat("  if(!input[['", i, "']]) formula <- update(formula, . ~ . - ", i,")\n", file = shiny.app$server, append=T, sep='')
+        }
+        cat("\n", file = shiny.app$server, append=T)
+        cat("  tr <- tree.learn.chaid(", "\n", file = shiny.app$server, append=T)
+        cat("    formula = formula,", "\n", file = shiny.app$server, append=T)
+        cat("    data = data,", "\n", file = shiny.app$server, append=T)
+        cat("    control = tree.control(", "\n", file = shiny.app$server, append=T)
+        cat("      min.terminal.node.percent = input$min.terminal.node.percent,", file = shiny.app$server, "\n", append=T)
+        cat("      min.for.splitting = input$min.for.splitting,", "\n", file = shiny.app$server, append=T)
+        cat("      max.pvalue.merge = input$max.pvalue.merge,", "\n", file = shiny.app$server, append=T)
+        cat("      max.pvalue.split = input$max.pvalue.split,", "\n", file = shiny.app$server, append=T)
+        cat("      max.height = input$max.height", "\n", file = shiny.app$server, append=T)
+        cat("    )", "\n", file = shiny.app$server, append=T)
+        cat("  )", "\n", file = shiny.app$server, append=T)
+        cat("\n", file = shiny.app$server, append=T)
+        
+        cat("  plot(tr) \n", "\n", file = shiny.app$server, append=T)
+        cat("})", "\n", file = shiny.app$server, append=T)
+        
+        shiny.write.server.outro(
+          app = shiny.app
+        )
+        
+        shiny.run(shiny.app)
       }
-      
-      shiny.write.ui(
-        title = 'Tree analysis - CHAID method',
-        sidebarPanel =  c(list(
-          "h4('Tree growing settings')",
-          "h4('‾‾‾‾')",
-          paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
-          paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
-          paste("sliderInput('max.pvalue.merge', 'max.pvalue.merge:', min = 0, max = 1, value = ",control$max.pvalue.merge,", step = 0.01)", sep=''),          
-          paste("sliderInput('max.pvalue.split', 'max.pvalue.split:', min = 0, max = 1, value = ",control$max.pvalue.split,", step = 0.01)", sep=''),          
-          paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
-          "h4('____')",
-          "h4('Explanatory variables involved:')"), checkboxs
-        ),
-        mainPanel = list(
-          "plotOutput('treePlot')"  
-        ),
-        app = shiny.app,
-        packages = packages.ui
-      )
-      
-      shiny.write.server.intro(
-        app = shiny.app,
-        packages = packages.server
-      )
-      
-      
-      cat("output$treePlot <- renderPlot({", ' \n', file = shiny.app$server, append=T)
-      cat("  load('data.RData')", ' \n', file = shiny.app$server, append=T)
-      cat("  formula <- ", deparse(formula), ' \n', file = shiny.app$server, append=T)
-      
-      var.descriptors <- attr(terms(formula),"term.labels")
-      for (i in var.descriptors) {
-        cat("  if(!input[['", i, "']]) formula <- update(formula, . ~ . - ", i,")\n", file = shiny.app$server, append=T, sep='')
-      }
-      cat("\n", file = shiny.app$server, append=T)
-      cat("  tr <- tree.learn.chaid(", "\n", file = shiny.app$server, append=T)
-      cat("    formula = formula,", "\n", file = shiny.app$server, append=T)
-      cat("    data = data,", "\n", file = shiny.app$server, append=T)
-      cat("    control = tree.control(", "\n", file = shiny.app$server, append=T)
-      cat("      min.terminal.node.percent = input$min.terminal.node.percent,", file = shiny.app$server, "\n", append=T)
-      cat("      min.for.splitting = input$min.for.splitting,", "\n", file = shiny.app$server, append=T)
-      cat("      max.pvalue.merge = input$max.pvalue.merge,", "\n", file = shiny.app$server, append=T)
-      cat("      max.pvalue.split = input$max.pvalue.split,", "\n", file = shiny.app$server, append=T)
-      cat("      max.height = input$max.height", "\n", file = shiny.app$server, append=T)
-      cat("    )", "\n", file = shiny.app$server, append=T)
-      cat("  )", "\n", file = shiny.app$server, append=T)
-      cat("\n", file = shiny.app$server, append=T)
-      
-      cat("  plot(tr) \n", "\n", file = shiny.app$server, append=T)
-      cat("})", "\n", file = shiny.app$server, append=T)
-      
-      shiny.write.server.outro(
-        app = shiny.app
-      )
-      
-      shiny.run(shiny.app)
     }
   }
 }
@@ -454,16 +480,20 @@ tree.learn.cart <- function(
       
       if(!interactive){
         
+        data.df <- v(data)   
         
-        data.df <- v(data)      
-        
-        mf <- model.frame(formula, data = data.df)
-        
-        
-        
+        # we want to expand formula, for the ~ . case, but firt need to remove the weighting variable, which must not appear in the formula
+        if(nchar(weighting(data))>0) {
+          nam.noweighting <- names(data.df)[-which(names(data.df) == weighting(data))]
+          data.df <- data.df[,nam.noweighting]
+        }
+        # now we expand the formula
+        expanded.formula <- formula.expand(formula, data = data.df)
+
+
         out <-  do.call("rpart", list(
-          'formula' = formula, 
-          'data' = v(data),
+          'formula' = formula, # we can't use expanded.formula because its environment is wrong
+          'data' = data.df, # must not have weights here
           'control' = ctrl,
           'weights' = as.vector(weights(data))
         ))
@@ -479,14 +509,20 @@ tree.learn.cart <- function(
         # if we got a root node, as.party coerce to a partynode instead of a party object
         # then we have to coerce manually
         if(inherits(out, "partynode"))
-          out <- party(out, v(data))
-        
-  #       out.formula <- formula(terms(out))
-        out.formula <- as.formula("y ~ x")
+          out <- party(out, data.df)
         
         out <- addWhere(out, data)
         
         attr(ctrl, 'class') <- NULL
+        
+#         mf <- model.frame(expanded.formula, data=data.df)
+#         if(nchar(weighting(data))>0) {
+#           weightsdf <- data.frame(weights(data))
+#           names(weightsdf) <- weighting(data)
+#           mf <- cbind(mf, weightsdf)
+#         }    
+        
+        mfvar <- formula.variables(expanded.formula)
                         
         return(new(
           Class = "Tree",
@@ -494,88 +530,93 @@ tree.learn.cart <- function(
           description = 'None',
           date = giveDate(),
           call = cl,
-          formula = out.formula,
-          data.model = data[,names(mf)],
+          formula = expanded.formula,
+          data.model = data[,mfvar],
           control = ctrl,
           tree = list(out)
         ))
       } else {
-        path <- getwd()
-        app.name <- 'shiny-tree.learn.cart'
-        packages.ui <- ''
-        packages.server <- c('Dataset', 'partykit')
-        
-        
-        shiny.app <- shiny.write.app(
-          folder = path,
-          app = app.name
-        )
-        
-        setwd(file.path(path,app.name))
-        export(data, 'data', openPDF=F)
-        setwd(path)
-        
-        var.descriptors <- attr(terms(formula),"term.labels")
-        checkboxs <- list()
-        for (i in 1:length(var.descriptors)) {
-          checkboxs[[i]] <- paste('checkboxInput(\'',var.descriptors[i],"', '",var.descriptors[i],"', TRUE)", sep='')
+        if(!is.installed.pkg('shiny')) {
+          exit.by.uninstalled.pkg('shiny')
+        } else {
+          require(shiny)
+          path <- getwd()
+          app.name <- 'shiny-tree.learn.cart'
+          packages.ui <- ''
+          packages.server <- c('Dataset', 'partykit')
+          
+          
+          shiny.app <- shiny.write.app(
+            folder = path,
+            app = app.name
+          )
+          
+          setwd(file.path(path,app.name))
+          export(data, 'data', openPDF=F)
+          setwd(path)
+          
+          var.descriptors <- attr(terms(formula),"term.labels")
+          checkboxs <- list()
+          for (i in 1:length(var.descriptors)) {
+            checkboxs[[i]] <- paste('checkboxInput(\'',var.descriptors[i],"', '",var.descriptors[i],"', TRUE)", sep='')
+          }
+  
+          
+          shiny.write.ui(
+            title = 'Tree analysis - CART method',
+            sidebarPanel =  c(list(
+              "h4('Tree growing settings')",
+              "h4('‾‾‾‾')",
+              paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
+              paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
+              paste("sliderInput('min.complexity.reduction', 'min.complexity.reduction:', min = 0.0001, max = 0.01, value = ",control$min.complexity.reduction,", step = 0.0001)", sep=''),                  
+              paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
+              "h4('____')",
+              "h4('Explanatory variables involved:')"), checkboxs
+            ),
+            mainPanel = list(
+              "plotOutput('treePlot')"  
+            ),
+            app = shiny.app,
+            packages = packages.ui
+          )
+          
+          shiny.write.server.intro(
+            app = shiny.app,
+            packages = packages.server
+          )
+          
+          
+          cat("output$treePlot <- renderPlot({", ' \n', file = shiny.app$server, append=T)
+          cat("  load('data.RData')", ' \n', file = shiny.app$server, append=T)
+          cat("  formula <- ", deparse(formula), ' \n', file = shiny.app$server, append=T)
+          
+          var.descriptors <- attr(terms(formula),"term.labels")
+          for (i in var.descriptors) {
+            cat("  if(!input[['", i, "']]) formula <- update(formula, . ~ . - ", i,")\n", file = shiny.app$server, append=T, sep='')
+          }
+          cat("\n", file = shiny.app$server, append=T)
+          cat("  tr <- tree.learn.cart(", "\n", file = shiny.app$server, append=T)
+          cat("    formula = formula,", "\n", file = shiny.app$server, append=T)
+          cat("    data = data,", "\n", file = shiny.app$server, append=T)
+          cat("    control = tree.control(", "\n", file = shiny.app$server, append=T)
+          cat("      min.terminal.node.percent = input$min.terminal.node.percent,", file = shiny.app$server, "\n", append=T)
+          cat("      min.for.splitting = input$min.for.splitting,", "\n", file = shiny.app$server, append=T)
+          cat("      min.complexity.reduction = input$min.complexity.reduction,", "\n", file = shiny.app$server, append=T)
+          cat("      max.height = input$max.height", "\n", file = shiny.app$server, append=T)
+          cat("    )", "\n", file = shiny.app$server, append=T)
+          cat("  )", "\n", file = shiny.app$server, append=T)
+          cat("\n", file = shiny.app$server, append=T)
+          
+          cat("  plot(tr) \n", "\n", file = shiny.app$server, append=T)
+          cat("})", "\n", file = shiny.app$server, append=T)
+          
+          shiny.write.server.outro(
+            app = shiny.app
+          )
+          
+          shiny.run(shiny.app)
         }
-
-        
-        shiny.write.ui(
-          title = 'Tree analysis - CART method',
-          sidebarPanel =  c(list(
-            "h4('Tree growing settings')",
-            "h4('‾‾‾‾')",
-            paste("sliderInput('min.terminal.node.percent', 'min.terminal.node.percent:', min = 0, max = 100, value = ", control$min.terminal.node.percent,")", sep=''),          
-            paste("sliderInput('min.for.splitting', 'min.for.splitting:', min = 0, max = 100, value = ",control$min.for.splitting,")", sep=''),          
-            paste("sliderInput('min.complexity.reduction', 'min.complexity.reduction:', min = 0.0001, max = 0.01, value = ",control$min.complexity.reduction,", step = 0.0001)", sep=''),                  
-            paste("sliderInput('max.height', 'max.height:', min = 0, max = 10, value = ",control$max.height,")", sep=''),          
-            "h4('____')",
-            "h4('Explanatory variables involved:')"), checkboxs
-          ),
-          mainPanel = list(
-            "plotOutput('treePlot')"  
-          ),
-          app = shiny.app,
-          packages = packages.ui
-        )
-        
-        shiny.write.server.intro(
-          app = shiny.app,
-          packages = packages.server
-        )
-        
-        
-        cat("output$treePlot <- renderPlot({", ' \n', file = shiny.app$server, append=T)
-        cat("  load('data.RData')", ' \n', file = shiny.app$server, append=T)
-        cat("  formula <- ", deparse(formula), ' \n', file = shiny.app$server, append=T)
-        
-        var.descriptors <- attr(terms(formula),"term.labels")
-        for (i in var.descriptors) {
-          cat("  if(!input[['", i, "']]) formula <- update(formula, . ~ . - ", i,")\n", file = shiny.app$server, append=T, sep='')
-        }
-        cat("\n", file = shiny.app$server, append=T)
-        cat("  tr <- tree.learn.cart(", "\n", file = shiny.app$server, append=T)
-        cat("    formula = formula,", "\n", file = shiny.app$server, append=T)
-        cat("    data = data,", "\n", file = shiny.app$server, append=T)
-        cat("    control = tree.control(", "\n", file = shiny.app$server, append=T)
-        cat("      min.terminal.node.percent = input$min.terminal.node.percent,", file = shiny.app$server, "\n", append=T)
-        cat("      min.for.splitting = input$min.for.splitting,", "\n", file = shiny.app$server, append=T)
-        cat("      min.complexity.reduction = input$min.complexity.reduction,", "\n", file = shiny.app$server, append=T)
-        cat("      max.height = input$max.height", "\n", file = shiny.app$server, append=T)
-        cat("    )", "\n", file = shiny.app$server, append=T)
-        cat("  )", "\n", file = shiny.app$server, append=T)
-        cat("\n", file = shiny.app$server, append=T)
-        
-        cat("  plot(tr) \n", "\n", file = shiny.app$server, append=T)
-        cat("})", "\n", file = shiny.app$server, append=T)
-        
-        shiny.write.server.outro(
-          app = shiny.app
-        )
-        
-        shiny.run(shiny.app)
       }
     }
   }
@@ -761,7 +802,9 @@ setMethod(
       allv <- all.vars(object@formula)
       allvlist <- vector(length(allv), mode = 'list')
       names(allvlist) <- allv
+      print(allv)
       for(i in 1:length(allv)) {
+        print(allv[i])
         allvlist[i] <- description(object@data.model[[allv[i]]])
       }
       cat(list.to.tex(allvlist), file = outFileCon, append = T)

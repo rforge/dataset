@@ -1926,6 +1926,14 @@ setMethod(
 setMethod("rename", "Dataset", 
   definition = function (x, ...) {
     newnames <- list(...)
+    oldnames <- names(newnames)
+    
+    problem <- setdiff(oldnames, names(x))
+    if(length(problem) > 0 ) {
+      stop(paste(
+        "Some variables don't exist in data:\n ", paste(problem, collapse = ', ')))
+    }
+    
     if (length(names(newnames)) == 0) {
       stop("You have to specify names...")
     } else {

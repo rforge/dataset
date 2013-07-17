@@ -386,17 +386,30 @@ setMethod(
     }
     
     newcat <- names(recoding)
-    stopifnot(length(newcat) == length(unique(newcat))) #new cat has to be unique
+    if(length(newcat) != length(unique(newcat))) {
+      stop(paste(
+        "New values have to be unique, but new you gave:\n", paste(newcat, collapse = ', ')
+      ))
+    }
     
-    object.init <- object
+    oldcat <- unlist(recoding)
+    attr(oldcat, 'names') <- NULL
+    if(length(oldcat) != length(unique(oldcat))) {
+      stop(paste(
+        "Old values have to be unique, but you gave:\n", paste(recoding,collapse = '\n ')
+      ))
+    }
+    
+    object.initial <- object
     
     val <- valids(object)
-    names <- names(recoding)
+    names <- newcat
     
+    # convert num code to values in newcat
     if (all.is.numeric(names)) { #user gives codes
       if(!(is.null(args$keep) || (args$keep == FALSE))) {
         names <- as.numeric(names)
-        if (!all(names %in% val)) stop("[Dataset::recode] all codes have to appear in values")
+        if (!all(names %in% val)) stop("All codes have to appear in values")
         else {
           names.temp <- character(0)
           for(i in 1:length(names)) {
@@ -424,7 +437,7 @@ setMethod(
       #print(names(val))
       
       #print(r %in% names(val))
-      if (!all(r %in% names(val))) stop("[Dataset::recode] some recoding names doesn't exist in the variable")
+      if (!all(r %in% names(val))) stop("Some recoding names doesn't exist in the variable")
       v <- match(r, names(val))
       #print(v)
       code <- val[v[1]]
@@ -453,7 +466,7 @@ setMethod(
       message(Dataset.globalenv$message.operation.success)
     }
     message(Dataset.globalenv$message.allocation.rows)
-    print(base::table(v(object.init), v(object)))
+    print(base::table(v(object.initial), v(object)))
     
     return(object)
   }

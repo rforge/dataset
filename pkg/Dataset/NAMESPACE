@@ -17,7 +17,7 @@ exportClasses(
   'summary.Statdf',
   'Statdf',
   'Bivan',
-  'Treecontrol',
+  'Tree.control',
   'RegLog'
 )
 
