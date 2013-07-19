@@ -34,6 +34,8 @@ exportMethods(
   'nvariable',
   'db.author',
   'db.author<-',
+  'db.manager',
+  'db.manager<-',
   'db.contact.email',
   'db.contact.email<-',
   'db.license',
@@ -44,8 +46,8 @@ exportMethods(
   'db.citation<-',
   'db.website',
   'db.website<-',
-  'db.population',
-  'db.population<-',
+  'db.details',
+  'db.details<-',
   'length',
   'missings<-',
   'missings',
@@ -221,5 +223,6 @@ export(
   findlast,
   find.value.last,
   find.value.fun,
+  seq.count,
   gchart.map
 )

@@ -123,17 +123,18 @@ dataset <- function(
   spatial,
   infos = list(),
   db.author = "",
+  db.manager = "",
   db.contact.email = "",
   db.license = "",
   db.release.date = "",
   db.citation = "",
   db.website = "",
-  db.population = "",
+  db.details = "",
   check.rows = FALSE # not used
 ) {
   if(Dataset.globalenv$print.io) cat(" => (in)  Dataset: builder \n")
   
-  ptm <- proc.time()
+  ptm <- Sys.time()
   
   warn.user <- options(warn = -1) # suppress warnings
   on.exit(options(warn.user)) # restore warnings
@@ -153,12 +154,13 @@ dataset <- function(
   if (missing(infos)) infos <- list()
   
   infos[["db.author"]] <- db.author
+  infos[["db.manager"]] <- db.manager
   infos[["db.contact.email"]] <- db.contact.email
   infos[["db.license"]] <- db.license
   infos[["db.release.date"]] <- db.release.date
   infos[["db.citation"]] <- db.citation
   infos[["db.website"]] <- db.website
-  infos[["db.population"]] <- db.population
+  infos[["db.details"]] <- db.details
   
   if (inherits(x, 'data.frame')) {
     cons.counter <- cons.counter.new(
@@ -202,11 +204,10 @@ dataset <- function(
         cons.counter.print.finish(cons.counter)
       }
       
-      if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
-        duration <- proc.time() - ptm
-        message(paste("Duration:", duration[1]))
-      }
-      
+    }
+    if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
+      duration <- Sys.time() - ptm
+      message(paste("Duration:", format(duration)))
     }
     names(variables) <- names(x)
   } else {
@@ -316,6 +317,21 @@ setReplaceMethod(
   }
 )
 
+setMethod("db.manager", "Dataset", 
+          definition = function (object) { 
+            return(slot(object, "infos")[["db.manager"]])
+          }
+)
+setReplaceMethod(
+  f = "db.manager" ,
+  signature = "Dataset" ,
+  definition = function(object, value){
+    object@infos[["db.manager"]] <- value
+    validObject(object)
+    return(object)
+  }
+)
+
 setMethod("db.contact.email", "Dataset", 
           definition = function (object) { 
             return(slot(object, "infos")[["db.contact.email"]])
@@ -391,16 +407,16 @@ setReplaceMethod(
   }
 )
 
-setMethod("db.population", "Dataset", 
+setMethod("db.details", "Dataset", 
           definition = function (object) { 
-            return(slot(object, "infos")[["db.population"]])
+            return(slot(object, "infos")[["db.details"]])
           }
 )
 setReplaceMethod(
-  f = "db.population" ,
+  f = "db.details" ,
   signature = "Dataset" ,
   definition = function(object, value){
-    object@infos[["db.population"]] <- value
+    object@infos[["db.details"]] <- value
     validObject(object)
     return(object)
   }
@@ -1381,14 +1397,18 @@ setMethod("exportPDF", "Dataset",
     cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
     cat("\\begin{itemize*} \n", file = outFileCon, append = T)
     cat("\\item \\textbf{Author(s):} ", totex(db.author(object)), "\n", file = outFileCon, append = T, sep='')
-    cat("\\item \\textbf{Contact e-mail:} ", totex(db.contact.email(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Database manager(s):} ", totex(db.manager(object)), "\n", file = outFileCon, append = T, sep='')
+    cat("\\item \\textbf{Contact e-mail(s):} ", totex(db.contact.email(object)), "\n", file = outFileCon, append = T, sep='')
     cat("\\item \\textbf{License:} ", totex(db.license(object)), "\n", file = outFileCon, append = T, sep='')
     cat("\\item \\textbf{Release date:} ", totex(db.release.date(object)), "\n", file = outFileCon, append = T, sep='')
     cat("\\item \\textbf{Citation:} ", totex(db.citation(object)), "\n", file = outFileCon, append = T, sep='')
     cat("\\item \\textbf{Website:} ", totex(db.website(object)), "\n", file = outFileCon, append = T, sep='')
-    cat("\\item \\textbf{Population:} ", totex(db.population(object)), "\n", file = outFileCon, append = T, sep='')
+#     cat("\\item \\textbf{Population:} ", totex(db.details(object)), "\n", file = outFileCon, append = T, sep='')
     cat("\\end{itemize*} \n", file = outFileCon, append = T)
     cat("\\end{minipage} \\hfill \n", file = outFileCon, append = T)
+    
+    cat("\\newpage \n", file = outFileCon, append = T)
+    cat("\\section*{Detailed description} \n", totex(db.details(object)), "\n", file = outFileCon, append = T, sep='')
     
     cat("\\newpage \n", file = outFileCon, append = T)
     cat("\\section*{Distribution of variables by percent of valid cases} \n", file = outFileCon, append = T)

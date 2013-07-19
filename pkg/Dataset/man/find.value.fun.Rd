@@ -38,7 +38,7 @@ Emmanuel Rousseaux
 }
 
 \seealso{
-\code{\link{findlast}}, \code{\link{find.value.last}}.
+\code{\link{findlast}}, \code{\link{find.value.last}}, \code{\link{seq.count}}.
 }
 \examples{
 fv.data.example <- data.frame(

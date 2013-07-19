@@ -31,7 +31,7 @@ get.spss.file <- function(
 	exportPDF = TRUE,
   reencode = "latin1"
 ) {
-	ptm <- proc.time()
+	ptm <- Sys.time()
 # 	warn.user <- options("warn")
 # 	options(warn = -1) # suppress warnings
 # 	on.exit(options(warn.user)) # restore warnings
@@ -244,8 +244,8 @@ get.spss.file <- function(
   	}
   	
   	if(Dataset.globalenv$print.comments <= Dataset.globalenv$monitoring){
-  	  duration <- proc.time() - ptm
-  	  message(paste("Duration:", duration[1]))
+  	  duration <- Sys.time() - ptm
+  	  message(paste("Duration:", format(duration)))
   	}
     
   	Dataset.globalenv$print.comments <- print.comments.user

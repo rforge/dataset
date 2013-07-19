@@ -38,7 +38,7 @@ Emmanuel Rousseaux
 }
 
 \seealso{
-\code{\link{findlast}}, \code{\link{find.value.fun}}.
+\code{\link{findlast}}, \code{\link{find.value.fun}}, \code{\link{seq.count}}.
 }
 
 \examples{
