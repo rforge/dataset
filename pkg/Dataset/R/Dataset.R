@@ -531,6 +531,17 @@ setMethod("allvalues", "Dataset",
   }
 )
 
+allvalids <- function(x) {
+  stopifnot(inherits(x, 'Dataset')) 
+  valids <- mapply(valids, variables(x))
+  return(valids)
+}
+allmissings <- function(x) {
+  stopifnot(inherits(x, 'Dataset')) 
+  valids <- mapply(missings, variables(x))
+  return(valids)
+}
+
 setMethod("variables", "Dataset", 
   definition = function (object) {
     return(slot(object, "variables"))

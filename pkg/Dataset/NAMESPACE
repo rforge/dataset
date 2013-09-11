@@ -178,6 +178,11 @@ exportMethods(
 
 export(
   Dataset.globalenv.print.io,
+  allvalids,
+  allmissings,
+  missing.gen.candidate,
+  valid.gen.candidate,
+  missing.add,
   cvar,
   is.quantitative,
   is.qualitative,
@@ -203,6 +208,7 @@ export(
   runion,
   spssToDataset,
   str.typevar,
+  str.capitalize,
   str.names,
   bivan,
   reglog,

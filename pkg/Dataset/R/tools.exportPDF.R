@@ -213,6 +213,14 @@ str.collapse <- function(x,y, sep = ' ') {
 }
 # str.collapse(c("id", "health"), c("s", "o"))
 
+str.capitalize <- function(x, all = FALSE) {
+  if(all) {
+    return(gsub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", x, perl=TRUE))
+  } else {
+    return(sub("(^|[[:space:]])([[:alpha:]])", "\\1\\U\\2", x, perl=TRUE))
+  }
+}
+
 #x a Dataset
 str.names <- function(x, parenthesis=TRUE, sep = ' ') {
   out <- mapply(str.typevar, variables(x), parenthesis=parenthesis)

@@ -291,6 +291,7 @@ seq.count <- function(
 # count3
 # 
 # #### Example 4
+# # For each individual we count occurences of '1' when there were betweeb 2 years and 5 years
 # count4 <- seq.count(
 #   x = data.ex,
 #   value = 1,

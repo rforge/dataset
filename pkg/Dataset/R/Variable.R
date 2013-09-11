@@ -463,9 +463,59 @@ setMethod(
   }
 )
 
+#####################################################################
+## TOOLS for editing variables objects
+#####################################################################
 
+.missing.gen.candidate.vector <- function(valids, missings){
+  stopifnot(inherits(valids, 'numeric'))
+  stopifnot(inherits(missings, 'numeric'))
+  val <- union(valids, missings)
+  
+  if(length(val) == 0) {
+    return(-1)
+  } else {
+    return(min(-1, min(val)-1))
+  }
+}
 
+missing.gen.candidate <- function(x){
+  stopifnot(inherits(x, 'Variable'))
+  return(.missing.gen.candidate.vector(valids(x), missings(x)))
+}
+valid.gen.candidate <- function(x){
+  stopifnot(inherits(x, 'Variable'))
+  val <- values(x)
+  if(length(val) == 0) {
+    return(1)
+  } else {
+    return(max(1, max(val)+1))
+  }
+}
 
+missing.add <- function(x, label, code) {
+  stopifnot(inherits(x, 'Variable'))
+  stopifnot(inherits(label, "character"))
+  stopifnot(nchar(label)>0)
+  
+  if (missing(code)) {
+    code <- missing.gen.candidate(x)
+  } else {
+    stopifnot(inherits(code, "numeric"))
+    if(code %in% missings(x)) {
+      stop("The 'code' supplied already exists in the current 'missing' codes")
+    }
+  }
+  new.miss <- code
+  names(new.miss) <- label
+  missings(x) <- c(missings(x), new.miss)
+  return(x)
+}
+
+# a <- cvar(c("a", "b"), missings = c("no answer" = 0))
+# values(a)
+# a <- missing.add(a, "I don't know")
+# values(a)
 #####################################################################
 ## Column LENGTH
 #####################################################################
