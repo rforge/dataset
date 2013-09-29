@@ -663,6 +663,9 @@ setReplaceMethod(
 	definition = function(x, value){
 		listData <- variables(x)
 		oldnames <- names(listData)
+    if(length(oldnames) != length(value)) {
+      stop(paste0("Bad length of the vector supplied. Length: ", length(value), " for ", length(oldnames), " variables."))
+    }
     if(length(weighting(x))>0) {
       x@weights <- value[varid(weighting(x),x)]
     }

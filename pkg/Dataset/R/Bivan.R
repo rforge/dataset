@@ -16,7 +16,7 @@ bivan.tests <- function(){
    'chi2' = c("Chi^2", 'global', 'symmetric', 'nominal', 'nominal'),
    'cramer.v' = c("Cramer's V", 'global', 'symmetric', 'nominal', 'nominal'),
    'gk.tau' = c("GK's Tau", 'global', 'symmetric', 'nominal', 'nominal'),
-   'somer.d' = c("Somer's D", 'global', 'symmetric', 'nominal', 'nominal'),
+   'somers.d' = c("Somers's D", 'global', 'symmetric', 'nominal', 'nominal'),
    'std.res' = c("Std. Res.", 'global', 'symmetric', 'nominal', 'nominal')
  )
  row.names(out) <- c('name', 'type', 'symmetry', 'dependant', 'predictor')
@@ -404,9 +404,9 @@ setMethod(
     kendall.tau.b,
     stuart.tau.c,
     gk.gamma,
-    somer.d,
+    somers.d,
     wilson.e,
-    calc.spearman.rho,
+    spearman.rho,
     std.res,
     quiet
   ) {
@@ -514,9 +514,9 @@ setMethod(
     if (kendall.tau.b) userTests <- c(userTests, 'kendall.tau.b')
     if (stuart.tau.c) userTests <- c(userTests, 'stuart.tau.c')
     if (gk.gamma) userTests <- c(userTests, 'gk.gamma')
-    if (somer.d) userTests <- c(userTests, 'somer.d')
+    if (somers.d) userTests <- c(userTests, 'somers.d')
     if (wilson.e) userTests <- c(userTests, 'wilson.e')
-    if (calc.spearman.rho) userTests <- c(userTests, 'calc.spearman.rho')
+    if (spearman.rho) userTests <- c(userTests, 'spearman.rho')
     
     userTestsSignif <- addSignif(userTests)
     
@@ -666,8 +666,8 @@ setMethod(
         j <- j+1; mes[i, j] <- temp$pvalue;
       }
       
-      if (is.element("somer.d", userTests)) {
-        temp <- calc.somer.d(obs.no.margin)
+      if (is.element("somers.d", userTests)) {
+        temp <- calc.somers.d(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
         # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
@@ -680,7 +680,7 @@ setMethod(
         # j <- j+1; mes[i, j] <- calc.Sd(tablexy)$Sd.CR
       }
       
-      if (is.element("calc.spearman.rho", userTests)) {
+      if (is.element("spearman.rho", userTests)) {
         temp <- calc.spearman.rho(obs.no.margin)
         j <- j+1; mes[i, j] <- temp$statistic;
         j <- j+1; mes[i, j] <- temp$pvalue;
@@ -1171,7 +1171,7 @@ egal.target <- function(x)
 }
 
 
-calc.somer.d <- function(x)
+calc.somers.d <- function(x)
 {
 #   x <- matrix(as.numeric(x), dim(x))
   
@@ -1210,7 +1210,7 @@ calc.somer.d <- function(x)
 #   pvalue <- pnorm(abs(stat)/std.error, mean = 0, sd = 1, lower.tail = F)*2 # il faut mettre la stat en valeur absolue ?
   # le calcul pnorm(abs(-0.10667)/0.062592, mean = 0, sd = 1, lower.tail = F)*2
   # tombe juste avec para
-#   message('somer.d')
+#   message('somers.d')
 #   message(paste('stat',stat))
 #   message(paste('asympt.var',asympt.var))
 #   message(paste('sqrt(asympt.var)',sqrt(asympt.var)))

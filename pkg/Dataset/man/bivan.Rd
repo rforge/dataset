@@ -91,13 +91,13 @@ if \code{TRUE} the Somer's D is computed.
 if \code{TRUE} the Wilson's e is computed.
 }
   \item{calc.spearman.rho}{
-if \code{TRUE} the Spearman's rho is computed. (not working yet)
+if \code{TRUE} the Spearman's rho is computed. (not available yet)
 }
   \item{std.res}{
-if \code{TRUE} the Pearson's Khi-squared standardize residuals are computed.
+if \code{TRUE} the Pearson's Chi-squared standardize residuals are computed.
 }
   \item{quiet}{
-if \code{TRUE} console messages are turned of.
+if \code{TRUE} console messages are turned off.
 }
 }
 \details{

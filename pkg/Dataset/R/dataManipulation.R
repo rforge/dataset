@@ -46,26 +46,51 @@ setMethod(
   f = "merge",
   signature = c("Dataset", "Dataset"), 
   definition = function (x, y, ...) {
-    #verifier que l'union des names est unique
-    #verifier si on donne une column
-    allnames <- union(names(x), names(y))
-    if(length(unique(allnames)) != length(allnames)) {
-      stop("The merge method for Dataset objects expect names in x and y are unique. \n Please renames concerned variables.")
-    }
     
   	dots <- list(...)
-#     if(is.null(dots$by))
-#       mergeBy <- intersect(names(x), names(y))
-#     else
-      mergeBy <- dots$by
+    
+    by.flag <- FALSE
+    if('by' %in% names(dots)) {
+      by.flag <- TRUE
+      mergeBy.x <- dots$by
+  	  mergeBy.y <- dots$by
+    }
+    else {
+      mergeBy.x <- mergeBy.y <- intersect(names(x), names(y))
+    }
+    if('by.x' %in% names(dots)) {
+      by.flag <- TRUE
+      mergeBy.x <- dots$by.x # if by.x is provided, by is ignored, default behavior of the native merge function
+    }
+    if('by.y' %in% names(dots)) {
+      by.flag <- by.flag && TRUE
+      mergeBy.y <- dots$by.y # if by.y is provided, by is ignored, default behavior of the native merge function
+    }
+    
+    if(!by.flag)
+      warning("You should explicitly provide the variables to used as the primary key.")
+    
+    nomerging.names.x <- setdiff(names(x), mergeBy.x)
+  	nomerging.names.y <- setdiff(names(y), mergeBy.y)
+  	nomerging.names.all <- c(nomerging.names.x, nomerging.names.y)
+    if(length(nomerging.names.all) == 0) {
+      stop(paste(
+        "All variables are used as the primary key for merging. There is no variable to merge.\n",
+        sep = ' '
+      ))
+    }
+  	if(length(unique(nomerging.names.all)) != length(nomerging.names.all)) {
+#   	  stop("The merge method for Dataset objects expect names in x and y are unique. \n Please renames concerned variables.")
+      warning(paste("The merge method for Dataset objects expect that names in x and y are unique. \n Names will be make unique, but you better have to make names unique before using the merge method.\n Variable concerned are:", paste(intersect(nomerging.names.x, nomerging.names.y), collapse = ', ')))
+      names.in.x <- match(nomerging.names.x, names(x))
+      names.in.y <- match(nomerging.names.y, names(y))
+      names.unique <- make.unique(c(names(x), names(y)))
+      names.unique.x <- names.unique[1:length(names(x))]
+      names.unique.y <- names.unique[(length(names(x))+1):length(names.unique)]
+      names(x)[names.in.x] <- names.unique.x[names.in.x]
+      names(y)[names.in.y] <- names.unique.y[names.in.y]
+  	}
        
-#   	if (length(mergeBy) == length(names(x))) # si x ne contient que les variables de jointures : renvoie directement y.
-#   		return(y)
-#   	if (length(mergeBy) == length(names(y))) # si y ne contient que les variables de jointures : renvoie directement x.
-#   		return(x)
-  		
-  	#print(mergeBy)
-#   	dataMerge <- merge.data.frame(cbind(as.data.frame(x[,mergeBy]), flagX = 1:nrow(x)), cbind(as.data.frame(y[,mergeBy]), flagY = 1:nrow(y)), by = mergeBy)
   	dataMerge <- merge.data.frame(cbind(as.data.frame(x), flagX = 1:nrow(x)), cbind(as.data.frame(y), flagY = 1:nrow(y)), ... = ...)
   	#print(names(dataMerge))
   	#print(dataMerge[1:20,])
@@ -99,11 +124,11 @@ setMethod(
 #     return(list(tuplesX, tuplesY))
     
     newvars.x <- variables(x[,intersect(names(dataMerge), names(x))])
-    newvars.y <- variables(y[,setdiff(intersect(names(dataMerge), names(y)), mergeBy)])
+    newvars.y <- variables(y[,setdiff(intersect(names(dataMerge), names(y)), mergeBy.y)])
     
     if(!is.null(new.miss.code)) {
-      newvars.x <- mapply(missing.add, newvars.x, "Individual added by a merge operation", new.miss.code)
-      newvars.y <- mapply(missing.add, newvars.y, "Individual added by a merge operation", new.miss.code)
+      newvars.x <- mapply(missing.add, newvars.x, "Individual added by a merging operation", new.miss.code)
+      newvars.y <- mapply(missing.add, newvars.y, "Individual added by a merging operation", new.miss.code)
     }
     
     for (k in names(newvars.x)) {
@@ -122,7 +147,7 @@ setMethod(
       }
       
 #         print(newcodes)
-      if(k %in% mergeBy) {
+      if(k %in% mergeBy.x) {
         if (length(which(is.na(tuplesX))) > 0)
           newcodes[which(is.na(tuplesX))] <- tuplesY[which(is.na(tuplesX))]
       }
@@ -163,29 +188,7 @@ setMethod(
       description = "Created by the merge of X and Y",
       Dataset.version = Dataset:::Dataset.globalenv$Dataset.version
     ))
-    
-#     if() { 
-#       missing.gen.candidate(unique(unlist(allmissings(x))))
-#     }
-    
-    
-  	#print(tuplesY)
-  	## le merge colle au dataset x le dataset y dans l'ordre en modifiant l'ordre des elements pour les faire matcher e la cle primaire de x
-  	## je fais donc de meme ici : je reprend les tuples de x conserves apres le merge, et je reprend de y les variables qui n'etaient pas deje dans x et en reprendant l'ordre des tuples matchant avec la cle primaire de x, donne par flagY
-#   	out <- cunion(
-#   		x[tuplesX,],
-#   		y[tuplesY, names(y)[which(!(names(y) %in% mergeBy))]]
-#   	)
-  	## puis on recupere les variables de y qui ne sont pas dans by (car elles ont ete deje mises)
-  	#ybis <- y[tuplesY,names(y)[which(!(names(y) %in% mergeBy))]]
-  	#for (i in 1:length(ybis)) { # ceux qui ne sont pas dans le by
-  		#print("i")
-  		#v <- ybis[,i]
-  		#vColumn <- as.Column(v)
-  		#print(vColumn)
-  		#out <- cUnion(out, vColumn[flagY,])
-  	#}
-  	#out <- new("Dataset", data = outData)
+
   	return(out)
   }
 )
@@ -194,6 +197,18 @@ setMethod(
 # missings(x1$var1) <- c("No answer" = -1)
 # x2 <- dataset(data.frame(idx= c(1,2), var2=c("d","e")))
 # missings(x2$var2) <- c("I don't know" = -3)
+# x1;x2;
+# merge(x1,x2)
+# merge(x1,x2, by='idx')
+# merge(x1,x2, by='idx', all=T)
+# merge(x1,x2, by='idx', all.x=T)
+# merge(x1,x2, by='idx', all.y=T)
+# 
+# 
+# x1 <- dataset(data.frame(idx= c(2,3), var1=c("a","b")))
+# missings(x1$var1) <- c("No answer" = -1)
+# x2 <- dataset(data.frame(idx= c(1,2), var1=c("d","e")))
+# missings(x2$var1) <- c("I don't know" = -3)
 # x1;x2;
 # merge(x1,x2)
 # merge(x1,x2, by='idx')

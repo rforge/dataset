@@ -162,9 +162,9 @@ setGeneric("bivan", function(
   kendall.tau.b = F, # 1945
   stuart.tau.c = F, # 1953
   gk.gamma = F, # 1954
-  somer.d = T, # 1962
+  somers.d = T, # 1962
   wilson.e = F, # 1974
-  calc.spearman.rho = F,
+  spearman.rho = F,
   std.res = T,
   quiet = F
 ){ standardGeneric("bivan") })
