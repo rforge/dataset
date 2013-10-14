@@ -1,8 +1,8 @@
 Package: Dataset
 Type: Package
 Title: Handling survey data in R.
-Version: 0.2.54
-Date: 2013-09-29
+Version: 0.2.56
+Date: 2013-10-14
 Description: This package provides a class, called Dataset, and some
         methods allowing to handle efficiently survey data: handle variable
         labels, values labels, and retrieve information about missing values   
@@ -11,16 +11,16 @@ Description: This package provides a class, called Dataset, and some
         missing value type from a NA to a level to use it in the
         analysis. A function allowing to import data from a SPSS file
         to a Dataset object is provided.
-Author: Emmanuel Rousseaux <emmanuel.rousseaux@eryx.fr>, Gilbert
+Author: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>, Gilbert
         Ritschard <gilbert.ritschard@unige.ch>
-Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Dataset@gmail.com>
+Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>
 Depends: R (>= 2.15.1), methods, stats
 Suggests: foreign, xtable, rpart, CHAID, shiny
 LazyLoad: yes
 LazyData: yes
 ZipData: no
 License: GPL (>= 2)
-Collate: environments.R tools.time.R tools.global.R tools.console.R tools.formatCall.R tools.shiny.R allGeneric.R tools.exportPDF.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R seq.count.R zzz.R
+Collate: environments.R tools.time.R tools.global.R tools.console.R tools.formatCall.R tools.shiny.R allGeneric.R tools.exportPDF.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R import.data.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R seq.count.R zzz.R
 URL: http://rforge.fr/Dataset
 Repository: NA
 Date/Publication:

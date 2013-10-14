@@ -25,7 +25,7 @@ bivan(
   kendall.tau.b = F,
   stuart.tau.c = F,
   gk.gamma = F,
-  somer.d = T,
+  somers.d = T,
   wilson.e = F,
   calc.spearman.rho = F,
   std.res = T,
@@ -84,8 +84,8 @@ if \code{TRUE} the Stuart's tau c is computed.
   \item{gk.gamma}{
 if \code{TRUE} the Goodman and Kruskal's gamma is computed.
 }
-  \item{somer.d}{
-if \code{TRUE} the Somer's D is computed.
+  \item{somers.d}{
+if \code{TRUE} the Somers' D is computed.
 }
   \item{wilson.e}{
 if \code{TRUE} the Wilson's e is computed.

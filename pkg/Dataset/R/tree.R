@@ -282,7 +282,7 @@ tree.learn.chaid <- function(
       
       mf <- model.frame(formula, data = data.df) # we keep weights here
       
-      if(nchar(weighting(data))>0) {
+      if(length(weighting(data)) > 0) {
         nam.noweighting <- names(data.df)[-which(names(data.df) == weighting(data))]
         data.df <- data.df[,nam.noweighting]
       }
@@ -427,6 +427,10 @@ tree.learn.chaid <- function(
 #   Species ~ .,
 #   data = ir
 # )
+# # b <- tree.learn.cart(
+# #   Species ~ .,
+# #   data = ir
+# # )
 # plot(a@tree[[1]])
 # plot(a)
 # exportPDF(a, plot.tree.ratio = 1.5)
@@ -483,7 +487,7 @@ tree.learn.cart <- function(
         data.df <- v(data)   
         
         # we want to expand formula, for the ~ . case, but firt need to remove the weighting variable, which must not appear in the formula
-        if(nchar(weighting(data))>0) {
+        if(length(weighting(data))>0) {
           nam.noweighting <- names(data.df)[-which(names(data.df) == weighting(data))]
           data.df <- data.df[,nam.noweighting]
         }
@@ -516,7 +520,7 @@ tree.learn.cart <- function(
         attr(ctrl, 'class') <- NULL
         
 #         mf <- model.frame(expanded.formula, data=data.df)
-#         if(nchar(weighting(data))>0) {
+#         if(length(weighting(data))>0) {
 #           weightsdf <- data.frame(weights(data))
 #           names(weightsdf) <- weighting(data)
 #           mf <- cbind(mf, weightsdf)
@@ -802,9 +806,9 @@ setMethod(
       allv <- all.vars(object@formula)
       allvlist <- vector(length(allv), mode = 'list')
       names(allvlist) <- allv
-      print(allv)
+#       print(allv)
       for(i in 1:length(allv)) {
-        print(allv[i])
+#         print(allv[i])
         allvlist[i] <- description(object@data.model[[allv[i]]])
       }
       cat(list.to.tex(allvlist), file = outFileCon, append = T)

@@ -388,7 +388,7 @@ setMethod(
     newcat <- names(recoding)
     if(length(newcat) != length(unique(newcat))) {
       stop(paste(
-        "New values have to be unique, but new you gave:\n", paste(newcat, collapse = ', ')
+        "New values have to be unique, but you gave:\n", paste(newcat, collapse = ', ')
       ))
     }
     
@@ -399,6 +399,10 @@ setMethod(
         "Old values have to be unique, but you gave:\n", paste(recoding,collapse = '\n ')
       ))
     }
+    wh <- which(!(oldcat %in% valids(object)))
+    if(length(wh) > 0)
+      stop(paste("The following values aren't defined in the variable:", paste(oldcat[wh], collapse = ', ')))
+    
     
     object.initial <- object
     
@@ -420,21 +424,29 @@ setMethod(
       }
     }
   
+    newvalids <- numeric(0)
     for (i in 1:length(recoding)) {
       r <- recoding[[i]]
+      
+#       print('r')
+#       print(r)
 
-      if (all.is.numeric(r)) { #user gives codes
+      if (all.is.numeric(r)) { #user gives codes, we convert numeric codes to corresponding value labels
         r <- as.numeric(r)
         r.temp <- character(0)
         for(j in 1:length(r)) {
-          #print(r[j])
+#           print('r[j]')
+#           print(r[j])
+#           print(value(r[j], object))
           r.temp[j] <- value(r[j], object)
         }
         r <- r.temp
       }
       
-      #print(r)
-      #print(names(val))
+#       print('r')
+#       print(r)
+#       print('names(val)')
+#       print(names(val))
       
       #print(r %in% names(val))
       if (!all(r %in% names(val))) stop("Some recoding names doesn't exist in the variable")
@@ -447,19 +459,32 @@ setMethod(
       codes(object)[wcodes] <- code
       # then we change values
       names(code) <- names[i]
-      val <- val[-v]
-      val <- c(val,code)
+#       val <- val[-v]  # we remove used labels
+      newvalids <- c(newvalids,code) # and add the new one
+      
+#       print('names(val)')
+#       print(names(val))
+#       print('names(newvalids)')
+#       print(names(newvalids))
       
     }
-    if(length(val) < 3) {
+    
+#     print('END LOOP')
+#     print('names(val)')
+#     print(names(val))
+#     print('newvalids')
+#     print(newvalids)
+    
+    if(length(newvalids) < 3) {
       object <- bvar(
         x = codes(object),
         missings = missings(object),
-        values = val,
+        values = newvalids,
         description = description(object)
       )
     } else {
-      valids(object) <- val
+#       print(newvalids)
+      valids(object) <- newvalids
     }
     
     if(is.null(quiet) || (quiet == FALSE)) {

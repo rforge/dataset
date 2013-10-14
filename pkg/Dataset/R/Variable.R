@@ -315,6 +315,8 @@ setMethod(
   signature = c("character", "Variable"), 
   definition = function (value, object) {
     stopifnot(length(value) == 1)
+    if(!(value %in%names(values(object))))
+      stop(paste0("The value '", value, "' doesn't exist in the variable"))
     out <- values(object)[value]
     names(out) <- NULL
     return(out)
@@ -326,7 +328,10 @@ setMethod(
   signature = c("numeric", "Variable"), 
   definition = function (value, object) {
     stopifnot(length(value) == 1)
-    return(names(values(object))[which(values(object) == value)])
+    wh <- which(values(object) == value)
+    if(length(wh) == 0)
+      stop(paste0("The code '", value, "' doesn't exist in the variable"))
+    return(names(values(object))[wh])
   }
 )
 
