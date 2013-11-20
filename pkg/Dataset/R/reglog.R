@@ -37,6 +37,7 @@ reglog <- function(
   message('')
   
   data.Dataset <- data
+  weighting(data.Dataset) <- ''
   data <- v(data)
   
   contrasts.user <- options("contrasts")$contrasts
@@ -80,8 +81,8 @@ reglog <- function(
   target.Variable <- data.Dataset[[response]]
   target.recoded <- recode(
     target.Variable,
-    '1' = target,
-    '0' = olev,
+    '1' = valids(target.Variable)[match(target, names(valids(target.Variable)))],
+    '0' = valids(target.Variable)[match(olev, names(valids(target.Variable)))],
     quiet = T
   )
   model.type <- 'binary'

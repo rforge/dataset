@@ -17,7 +17,7 @@ bivan.tests <- function(){
    'cramer.v' = c("Cramer's V", 'global', 'symmetric', 'nominal', 'nominal'),
    'gk.tau' = c("GK's Tau", 'global', 'symmetric', 'nominal', 'nominal'),
    'somers.d' = c("Somers's D", 'global', 'symmetric', 'nominal', 'nominal'),
-   'std.res' = c("Std. Res.", 'global', 'symmetric', 'nominal', 'nominal')
+   'std.res' = c("Standardized Residuals", 'global', 'symmetric', 'nominal', 'nominal')
  )
  row.names(out) <- c('name', 'type', 'symmetry', 'dependant', 'predictor')
  return(out)

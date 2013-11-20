@@ -596,14 +596,18 @@ setReplaceMethod(
     if(length(value) == 0) {
       object@weights <- value
     } else {
-      if(is.weighting(object[[value]])) {
-        object@weights <- value
+      if(is.null(value) || nchar(value) == 0) {
+        object@weights <- character(0)
       } else {
-        message("The argument given isn't a WeightingVariable object")
-  #       message("I'll try to perform a conversion...", appendLF=F)
-  #       print(deparse(substitute(object)))
-  #       .GlobalEnv$object[[value]] <- wvar(object[[value]])
-  #       message("success!")
+        if(is.weighting(object[[value]])) {
+          object@weights <- value
+        } else {
+          message("The argument given isn't a WeightingVariable object")
+    #       message("I'll try to perform a conversion...", appendLF=F)
+    #       print(deparse(substitute(object)))
+    #       .GlobalEnv$object[[value]] <- wvar(object[[value]])
+    #       message("success!")
+        }
       }
     }
     validObject(object)
