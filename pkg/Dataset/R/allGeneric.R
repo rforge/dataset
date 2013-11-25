@@ -118,6 +118,7 @@ setGeneric("exportPDF", function(
   openPDF = T,
   ...
 ){ standardGeneric("exportPDF") })
+setGeneric("exportTAB", function(object, ...){ standardGeneric("exportTAB") })
 setGeneric("as.Dataset", function(object){ standardGeneric("as.Dataset") })
 setGeneric("contains", function(keywords, data, ignore.case = T, and = F){ standardGeneric("contains") })
 setGeneric("valid", function(object, percent = 70){ standardGeneric("valid") })
@@ -180,6 +181,8 @@ setGeneric("std.res", function(object){ standardGeneric("std.res") })
 setGeneric("std.res<-", function(object, value){ standardGeneric("std.res<-" ) })
 setGeneric("global", function(object){ standardGeneric("global") })
 setGeneric("global<-", function(object, value){ standardGeneric("global<-" ) })
+
+
 
 setGeneric("varid", function(names, object){ standardGeneric("varid" ) })
 

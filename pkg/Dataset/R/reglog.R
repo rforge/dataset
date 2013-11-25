@@ -1,7 +1,7 @@
 # TODO : methode S4 ?
 # formula est de classe formula
-# imbric est une liste, chaque élément est une list de termes
-# exemple : formula = santébin ~ sexe + age, imbric = list(~ education + occupation, ~ partenaire)
+# nested est une liste, chaque élément est une list de termes
+# exemple : formula = santébin ~ sexe + age, nested = list(~ education + occupation, ~ partenaire)
 #
 
 setClass(
@@ -23,7 +23,7 @@ constrasts.indicator <- c(
 reglog <- function(
   formula,
   target,
-  imbric,
+  nested,
   data,
   model.type = NULL,
   contrasts = 'indicator',
@@ -52,16 +52,16 @@ reglog <- function(
   # for taking weights into account
   data <- cbind(data, data.frame('....weights125678' = as.vector(weights(data.Dataset))))
   
-  if(missing(imbric)) n.models <- 1
-  else n.models <- length(imbric) + 1
+  if(missing(nested)) n.models <- 1
+  else n.models <- length(nested) + 1
 
   # formula must be complete
   if (!(inherits(formula, 'formula') && length(formula) == 3)) stop("Please check formula: either not a formula or incomplete")
   # we build formulas for all models
   formulas <- list(formula)
-  if(!missing(imbric)) {
+  if(!missing(nested)) {
     for (i in 1:(n.models-1)) {
-      tmp <- imbric[[i]]
+      tmp <- nested[[i]]
       formulas[[i+1]] <- as.formula(
         paste(c(deparse(formulas[[i]][[2]]), '~', deparse(formulas[[i]][[3]]), '+', deparse(tmp[[length(tmp)]])), collapse='')
       )
@@ -376,7 +376,15 @@ setMethod(
   signature = c('RegLog'),
   definition = function(x, ...) {
 
-    s <- summary2(x)
+    args <- list(...)
+    if(is.logical(args$odds.ratios)) {
+      oddsr <- args$odds.ratios
+    } else {
+      oddsr <- T
+    }
+    s <- summary2(x, odds.ratios = oddsr)
+    
+#     s <- summary2(x)
     
     message('Table 1:')
     print(summary(s[[1]], merge='left'))
@@ -601,3 +609,17 @@ setMethod(
 #prior.weights
 #df.residual
 #df.null
+
+setMethod(
+  f = 'exportTAB',
+  signature = c('RegLog'),
+  definition = function(object) {
+    out <- list('logit.contributions' = NULL, 'odds.ratios' = NULL, 'quality.measures' = NULL)
+    s1 <- summary2(object)
+    s2 <- summary2(object, odds.ratios = FALSE)
+    out[['logit.contributions']] <- s2$coeffs
+    out[['odds.ratios']] <- s1$coeffs
+    out[['quality.measures']] <- s1$gm
+    return(out)
+  }
+)

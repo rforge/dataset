@@ -112,6 +112,7 @@ exportMethods(
   'scales',
   'scales.exact',
   'exportPDF',
+  'exportTAB',
   'tail',
   'times',
   'valid',
