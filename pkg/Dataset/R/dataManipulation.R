@@ -220,15 +220,14 @@ setMethod(
 	# si deux objets Dataset on lance le merge Dataset, sinon on lance le merge normal
 #}
 
-runion <- function (...) {
-	y = list(...)
-	#verifier que l'union des names est unique
-	#verifier si on donne une column
-	#for (i in y) {
-		#print(y)
-	#	i <- as.Dataset(i)
-	#	outData = c(outData, slot(i, "data"))
-	#}
-	#out <- new("Dataset", data = outData)
-	#return(out)
+merge.row <- function(x,y) {
+  out <- x
+  for (i in names(out)) {
+    var <- out[[i]]
+    codes(var) <- c(codes(x[[i]]),codes(y[[i]]))
+    eval(parse(text=paste0("out$", i, ' <- var')))
+  }
+  row.names(out) <- as.character(1:(nrow(x)+nrow(y)))
+  validObject(out)
+  return(out)
 }
