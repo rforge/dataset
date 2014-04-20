@@ -19,8 +19,8 @@ to a Dataset object is provided.
 \tabular{ll}{
 Package: \tab Dataset\cr
 Type: \tab Package\cr
-Version: \tab 0.2.12\cr
-Date: \tab 2012-08-31\cr
+Version: \tab 0.2.60.0\cr
+Date: \tab 2014-04-20\cr
 Depends: \tab R (>= 2.10.1), methods, stats\cr
 Suggests: \tab foreign, xtable\cr
 LazyLoad: \tab yes\cr
