@@ -1,0 +1,26 @@
+citHeader("== To cite Dataset in publications please use:")
+
+p1 <- person("Emmanuel", "Rousseaux", email = "emmanuel.rousseaux@unige.ch")
+p2 <- person("Gilbert", "Ritschard", email = "gilbert.ritschard@unige.ch")
+
+citEntry(
+  entry = "INPROCEEDINGS",
+  title  = "The Dataset project: Handling survey data in {R}",
+  author = personList(
+    as.person("Emmanuel Rousseaux"),
+    as.person("Gilbert Ritschard")
+  ),
+  booktitle = "7th International Conference of Panel Data Users in Switzerland",
+  year = "2013",
+  pages = "37-38",
+  url = "http://www.swisspanel.ch/IMG/pdf/AbstractsDef.pdf",
+  textVersion = paste(
+    "Rousseaux E. and Ritschard G. (2013).",
+    "The Dataset project: Handling survey data in R.",
+    "7th International Conference of Panel Data Users in Switzerland, p. 37-38.",
+    "URL http://www.swisspanel.ch/IMG/pdf/AbstractsDef.pdf."
+  ),
+  header = "= For the Dataset project and the Dataset package:\n"
+)
+
+citFooter("See",sQuote("citation()"),"for citing R itself.")

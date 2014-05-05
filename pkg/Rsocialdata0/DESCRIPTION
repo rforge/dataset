@@ -1,0 +1,26 @@
+Package: Dataset
+Type: Rsocialdata0
+Title: Handling survey data in R.
+Version: 0.0.1.0
+Date: 2014-05-05
+Description: This package provides a class, called Dataset, and some
+        methods allowing to handle efficiently survey data: handle variable
+        labels, values labels, and retrieve information about missing values   
+        like in a SPSSdata set file.
+        In particularity we can switch a specific
+        missing value type from a NA to a level to use it in the
+        analysis. A function allowing to import data from a SPSS file
+        to a Dataset object is provided.
+Author: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>, Gilbert
+        Ritschard <gilbert.ritschard@unige.ch>
+Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>
+Depends: R (>= 2.15.1), methods, stats
+Suggests: foreign, xtable, rpart, CHAID, shiny
+LazyLoad: yes
+LazyData: yes
+ZipData: no
+License: GPL (>= 2)
+Collate: environments.R tools.time.R tools.global.R tools.console.R tools.formatCall.R tools.shiny.R allGeneric.R tools.exportPDF.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R import.data.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R seq.count.R zzz.R
+URL: http://rforge.fr/Dataset
+Repository: NA
+Date/Publication:
