@@ -1,5 +1,5 @@
-Package: Dataset
-Type: Rsocialdata0
+Package: Rsocialdata0
+Type: Package
 Title: Handling survey data in R.
 Version: 0.0.1.0
 Date: 2014-05-05
