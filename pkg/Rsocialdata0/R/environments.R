@@ -1,6 +1,6 @@
 Dataset.globalenv <- new.env()
 # read.dcf(file = system.file("DESCRIPTION",package="Dataset"), fields="Version")
-Dataset.globalenv$package.infos <- utils:::packageDescription("Dataset")
+Dataset.globalenv$package.infos <- utils:::packageDescription("Rsocialdata0")
 # Dataset.globalenv$object.version <- "0.3-001"
 # shoud be the same as in utils:::packageVersion("Dataset")
 Dataset.globalenv$print.io <- FALSE
