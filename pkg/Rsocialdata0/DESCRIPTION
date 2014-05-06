@@ -21,6 +21,6 @@ LazyData: yes
 ZipData: no
 License: GPL (>= 2)
 Collate: environments.R tools.time.R tools.global.R tools.console.R tools.formatCall.R tools.shiny.R allGeneric.R tools.exportPDF.R tools.vignettes.R Statdf.R Variable.R QuantitativeVariable.R CategoricalVariable.R OrderedVariable.R ScaleVariable.R WeightingVariable.R TimestampVariable.R NominalVariable.R BinaryVariable.R OrdinalVariable.R Dataset.R import.data.R get.spss.file.R get.spss.folder.R gchart.map.R dataManipulation.R spssToDataset.R as.value.R as.missing.R Bivan.R tree.R reglog.R findlast.R seq.count.R zzz.R
-URL: http://rforge.fr/Dataset
+URL: https://r-forge.r-project.org/R/?group_id=1371
 Repository: NA
 Date/Publication:

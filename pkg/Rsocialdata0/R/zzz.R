@@ -12,7 +12,7 @@
 	  packageStartupMessage('You are running version ', Survey.version(), '.\n')
 	  packageStartupMessage(
       'For introductory material, type ',
-			#"'vignette(package=\"Dataset\")'.\n"
+			#"'vignette(package=\"Rsocialdata0\")'.\n"
       "`vignette('Rsocialdata0-vignette-overview')`.\n"
 	  )
 	  packageStartupMessage(
@@ -32,5 +32,5 @@
 }
 
 .onUnload <- function(libpath) {
-  #library.dynam.unload("Dataset", libpath )
+  #library.dynam.unload("Rsocialdata0", libpath )
 }

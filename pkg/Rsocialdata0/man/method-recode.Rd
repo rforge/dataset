@@ -39,14 +39,14 @@ Emmanuel Rousseaux
 \code{\link{cut}}
 }
 \examples{
-data(dds)
-valids(dds$connaissetcomp.acquis.1)
-dds$connaissetcomp.acquis.1.in3 <- recode(
-  dds$connaissetcomp.acquis.1,
-  'no' = 1:2,
-  'average' = 3,
-  'yes' = 4:5
-)
+%data(dds)
+%valids(dds$connaissetcomp.acquis.1)
+%dds$connaissetcomp.acquis.1.in3 <- recode(
+%  dds$connaissetcomp.acquis.1,
+%  'no' = 1:2,
+%  'average' = 3,
+%  'yes' = 4:5
+%)
 }
 \keyword{methods}
 \keyword{categorical}

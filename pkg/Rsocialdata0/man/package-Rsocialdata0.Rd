@@ -6,7 +6,7 @@
 Handling survey data in R. (beta, not for use)
 }
 \description{
-This package provides a class, called Rsocialdata0, and some
+This package provides a class, called Dataset, and some
 methods allowing to handle efficiently survey data: handle variable
 labels, values labels, and retrieve information about missing values   
 like in a SPSSdata set file.
@@ -49,7 +49,7 @@ Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux+Rsocialdata0@gmail.com>
 \keyword{ data }
 \keyword{ survey }
 \seealso{
-\code{\link{dds}}, \code{\link{get.spss.file}}
+%\code{\link{dds}}, \code{\link{get.spss.file}}
 }
 \examples{
 # forthcoming

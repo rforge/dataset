@@ -20,8 +20,8 @@
 }
 }}
 \section{Examples}{
-data(dds)
-description(dds$sexe)
+%data(dds)
+%description(dds$sexe)
 }
 \keyword{methods}
 \keyword{ ~~ other possible keyword(s) ~~ }
