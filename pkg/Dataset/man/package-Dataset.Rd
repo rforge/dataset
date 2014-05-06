@@ -3,7 +3,7 @@
 \alias{Dataset}
 \docType{package}
 \title{
-Handling survey data in R.
+Handling survey data in R. (official release)
 }
 \description{
 This package provides a class, called Dataset, and some

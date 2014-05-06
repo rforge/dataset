@@ -1,6 +1,6 @@
 Package: Rsocialdata0
 Type: Package
-Title: Handling survey data in R.
+Title: Handling survey data in R. (beta, not for use)
 Version: 0.0.1.0
 Date: 2014-05-05
 Description: This package provides a class, called Dataset, and some

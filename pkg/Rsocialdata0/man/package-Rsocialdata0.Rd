@@ -3,7 +3,7 @@
 \alias{Rsocialdata0}
 \docType{package}
 \title{
-Handling survey data in R.
+Handling survey data in R. (beta, not for use)
 }
 \description{
 This package provides a class, called Rsocialdata0, and some
