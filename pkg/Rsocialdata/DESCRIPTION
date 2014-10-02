@@ -1,0 +1,26 @@
+Package: Rsocialdata
+Type: Package
+Title: Handling survey data in R. (official release)
+Version: 0.2.60.1
+Date: 2014-09-29
+Description: This package provides a class, called Rsocialdata, and some
+        methods allowing to handle efficiently survey data: handle variable
+        labels, values labels, and retrieve information about missing values   
+        like in a SPSSdata set file.
+        In particularity we can switch a specific
+        missing value type from a NA to a level to use it in the
+        analysis. A function allowing to import data from a SPSS file
+        to a Rsocialdata object is provided.
+Author: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>, Gilbert
+        Ritschard <gilbert.ritschard@unige.ch>
+Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>
+Depends: R (>= 2.15.1), methods, stats, foreign, xtable, rpart, shiny
+Suggests: CHAID
+LazyLoad: yes
+LazyData: yes
+ZipData: no
+License: GPL (>= 2)
+Collate: environments.r tools.time.r tools.global.r tools.console.r tools.formatCall.r tools.shiny.r allGeneric.r tools.exportPDF.r tools.vignettes.r Statdf.r Variable.r QuantitativeVariable.r CategoricalVariable.r OrderedVariable.r ScaleVariable.r WeightingVariable.r TimestampVariable.r NominalVariable.r BinaryVariable.r OrdinalVariable.r Rsocialdata.r import.data.r get.spss.file.r get.spss.folder.r gchart.map.r dataManipulation.r spssToRsocialdata.r as.value.r as.missing.r Bivan.r tree.r reglog.r findlast.r seq.count.r zzz.r
+URL: http://www.rsocialdata.org
+Repository: NA
+Date/Publication:

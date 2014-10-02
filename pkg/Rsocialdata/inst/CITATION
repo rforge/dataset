@@ -1,0 +1,47 @@
+citHeader("== To cite Rsocialdata in publications please use:")
+
+p1 <- person("Emmanuel", "Rousseaux", email = "emmanuel.rousseaux@unige.ch")
+p2 <- person("Gilbert", "Ritschard", email = "gilbert.ritschard@unige.ch")
+p3 <- person("Danilo", "Bolano", email = "danilo.bolano@unige.ch")
+
+citEntry(
+  entry = "InProceedings",
+  title  = "{The Rsocialdata project: handling and sharing longitudinal and network survey data with R}",
+  author = personList(
+    as.person("Emmanuel Rousseaux"),
+    as.person("Gilbert Ritschard")
+  ),
+  booktitle = "In Society for Longitudinal and Life Course Studies Annual Conference",
+  year = "2014",
+  url = "http://www.rsocialdata.org",
+  textVersion = paste(
+    "Rousseaux E. and Ritschard G. (2014).",
+    "The Rsocialdata project: handling and sharing longitudinal and network survey data with R.",
+    "In Society for Longitudinal and Life Course Studies Annual Conference, Lausanne, Switzerland.",
+    "URL http://www.rsocialdata.org."
+  ),
+  header = "= For the Rsocialdata project:\n"
+)
+
+citEntry(
+  entry = "InProceedings",
+  title  = "The {Rsocialdata} package: Handling survey data in {R}",
+  author = personList(
+    as.person("Emmanuel Rousseaux"),
+    as.person("Danilo Bolano"),
+    as.person("Gilbert Ritschard")
+  ),
+  booktitle = "In XXVII IUSSP International Population Conference, Busan, Republic of Korea",
+  year = "2013",
+  pages = "37-38",
+  url = "http://bit.ly/1u5mK1h",
+  textVersion = paste(
+    "Rousseaux E., Danilo B. and Ritschard G. (2013).",
+    "The Rsocialdata package: Handling survey data in R.",
+    "In XXVII IUSSP International Population Conference, Busan, Republic of Korea.",
+    "URL http://bit.ly/1u5mK1h."
+  ),
+  header = "= For the Rsocialdata package:\n"
+)
+
+citFooter("See",sQuote("citation()"),"for citing R itself.")
