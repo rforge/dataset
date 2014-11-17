@@ -590,11 +590,11 @@ setMethod("weights", "Rsocialdata",
 #' 
 #' @param object the \code{Rsocialdata} object for which we want to get the map.
 #' @export
-setGeneric("weighting", function(object, ...){ standardGeneric("weighting" ) })
+setGeneric("weighting", function(object){ standardGeneric("weighting" ) })
 
 #' @describeIn weighting method for \code{Rsocialdata} objects.
 setMethod("weighting", "Rsocialdata", 
-  definition = function (object, ...) {
+          definition = function (object) {
     return(slot(object, 'weights'))
   }
 )
@@ -1490,4 +1490,566 @@ setMethod(
     
     return(out)
   }
+)
+
+
+#' @describeIn exportPDF method for \code{Rsocialdata} objects. Generate a codebook of the database.
+setMethod("exportPDF", "Rsocialdata", 
+          definition = function (
+            object,
+            pdfSavingName,
+            dateformat,
+            page.orientation = "landscape",
+            latexPackages = NULL,
+            keepTex = F,
+            openPDF = T,
+            description.chlength = 300,
+            valids.chlength = 40,
+            valids.cut.percent = 0.5,
+            sorting = "decreasing",
+            width.id = 0.5,
+            width.varname = 1.5,
+            width.description = 10.5,
+            width.n = 0.8,
+            width.na = 1.2,
+            width.valids = 5,
+            width.valids.nao.inc = 5,
+            width.min = 1.25,
+            width.max = 1.25,
+            width.mean = 1.25,
+            width.stddev = 1.25
+          ) {
+            
+            check.tex()
+            
+            if(!is.installed.pkg('xtable')) {
+              exit.by.uninstalled.pkg('xtable')
+            } else {
+              require(xtable)
+              
+              
+              #TAILLE IDEALE 19.5cm
+              align.common <-  c(
+                paste("p{",width.id,"cm}",sep=''),
+                paste("p{",width.varname,"cm}",sep=''),
+                paste("p{",width.description,"cm}",sep=''),
+                paste("p{",width.n,"cm}",sep=''),
+                paste("p{",width.na,"cm}",sep='')
+              ) # 14.5cm
+              align.bin    <-  c(
+                align.common,
+                paste("p{",width.valids+0.5,"cm}",sep='')
+              )
+              align.nom    <-  c(
+                align.common,
+                paste("p{",0.6,"cm}",sep=''),
+                paste("p{",width.valids-0.6,"cm}",sep='')
+              )
+              align.nom[3] <- paste("p{",width.description - width.valids.nao.inc,"cm}",sep='')
+              align.nom[7] <- paste("p{",width.valids + width.valids.nao.inc,"cm}",sep='')
+              align.ord    <-  align.nom
+              align.scale  <-  c(
+                align.common,
+                paste("p{",width.min,"cm}",sep=''),
+                paste("p{",width.max,"cm}",sep=''),
+                paste("p{",width.mean,"cm}",sep=''),
+                paste("p{",width.stddev,"cm}",sep='')
+              ) 
+              align.wvar   <-  align.scale
+              align.ts   <-  align.scale
+              #     align.ts     <-  c(
+              #       align.common,
+              #       paste("p{"width.min"cm}",sep=''),
+              #       paste("p{"width.min"cm}",sep=''),
+              #       paste("p{"width.min"cm}",sep=''),
+              #       paste("p{"1.5"cm}",sep='')
+              #     )
+              
+              nTuples <- nroww(object)
+              weights <- weights(object)
+              
+              if (length(name(object)) == 0) { outName <- "Untitled Rsocialdata" } else { outName <- name(object) }
+              outName <- make.names(outName) # no spaces for Unix/Texlive compilation ?
+              
+              if(missing(pdfSavingName)) {    
+                pdfSavingName <- paste("Summary-", outName, sep = "") # no spaces for Unix/Texlive compilation ?
+              }
+              
+              
+              latexFile <- paste(pdfSavingName, ".tex", sep="")
+              
+              is.writable(pdfSavingName, path = getwd()) 	
+              
+              outFileCon <- file(latexFile, "w", encoding="UTF-8")
+              
+              #     print('hello-beforelatexhead')
+              #     print(class(getMethod("show", "Variable")))
+              
+              latex.head(title = paste("Summary of the", totex(name(object)), "dataset"),
+                         page.orientation, latexPackages, outFileCon)
+              
+              #     print('hello-afterlatexhead')
+              #     print(class(getMethod("show", "Variable")))
+              
+              cat("\\section*{Overview} \n", file = outFileCon, append = T)
+              cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
+              cat("\\begin{itemize*} \n", file = outFileCon, append = T)
+              cat("\\item \\textbf{Name:}", totex(name(object)), "\n", file = outFileCon, append = T)
+              cat("\\item \\textbf{Description:}", description(object), "\n", file = outFileCon, append = T)
+              #cat("\\item Object version:", oversion(object), "\n", file = outFileCon, append = T)
+              #cat("\\item Created by Rsocialdata version:", pversion(object), "\n", file = outFileCon, append = T)
+              cat("\\item \\textbf{Number of variables:} ", ncol(object), " (",
+                  nbinaries(object), " binaries, ",
+                  nordinals(object), " ordinals, ",
+                  nnominals.exact(object), " nominals, ",
+                  nscales.exact(object), " scales, ",
+                  ntimes(object), " timestamps, ",
+                  nweightings(object), " weightings",
+                  ")", "\n", sep = "", file = outFileCon, append = T)
+              cat("\\item \\textbf{Number of individuals:}", nTuples, "(for ", nrow(object), " rows)","\n", file = outFileCon, append = T)
+              
+              
+              
+              cat("\\item \\textbf{Percent of missing values:}", missings(object)["nmissingspercent.cha"], "\\%", "\n", file = outFileCon, append = T)
+              if(length(weighting(object)) > 0) {
+                cat("\\item \\textbf{Weighting variable:} ", totex(weighting(object)), ', ', totex(description(object[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
+              } else {
+                cat("\\item \\textbf{Weighting variable:} none.", "\n", file = outFileCon, append = T, sep='')
+              }
+              if(length(checkvars(object)) > 0) {
+                cat("\\item \\textbf{Control variable(s):} ", file = outFileCon, append = T, sep='')
+                cv.temp <- checkvars(object)
+                count <- 0
+                count.last <- length(cv.temp)
+                for (cv in cv.temp) {
+                  count <- count + 1
+                  cat(totex(cv), ' (', totex(description(object[[cv]])), ")", file = outFileCon, append = T, sep='')
+                  if (count == count.last) {
+                    cat('. ', "\n",  file = outFileCon, append = T, sep='')
+                  } else {
+                    cat(', ', file = outFileCon, append = T, sep='')
+                  }
+                }
+              } else {
+                cat("\\item \\textbf{Control variable(s):} none.", "\n", file = outFileCon, append = T, sep='')
+              }
+              if(nchar(spatial(object)) > 0) {
+                cat("\\item \\textbf{Spatial variable:} ", totex(spatial(object)), ', ', totex(description(spatial[[weighting(object)]])), ".", "\n", file = outFileCon, append = T, sep='')
+              } else {
+                cat("\\item \\textbf{Spatial variable:} none.", "\n", file = outFileCon, append = T, sep='')
+              }
+              cat("\\end{itemize*} \n", file = outFileCon, append = T)
+              
+              cat("\\end{minipage} \\hfill \n", file = outFileCon, append = T)
+              cat("\\begin{minipage}[t]{.46\\linewidth} \n", file = outFileCon, append = T)
+              cat("\\begin{itemize*} \n", file = outFileCon, append = T)
+              cat("\\item \\textbf{Author(s):} ", totex(db.author(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{Database manager(s):} ", totex(db.manager(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{Contact e-mail(s):} ", totex(db.contact.email(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{License:} ", totex(db.license(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{Release date:} ", totex(db.release.date(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{Citation:} ", totex(db.citation(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\item \\textbf{Website:} ", totex(db.website(object)), "\n", file = outFileCon, append = T, sep='')
+              #     cat("\\item \\textbf{Population:} ", totex(db.details(object)), "\n", file = outFileCon, append = T, sep='')
+              cat("\\end{itemize*} \n", file = outFileCon, append = T)
+              cat("\\end{minipage} \\hfill \n", file = outFileCon, append = T)
+              
+              cat("\\newpage \n", file = outFileCon, append = T)
+              cat("\\section*{Detailed description} \n", totex(db.details(object)), "\n", file = outFileCon, append = T, sep='')
+              
+              cat("\\newpage \n", file = outFileCon, append = T)
+              cat("\\section*{Distribution of variables by percent of valid cases} \n", file = outFileCon, append = T)
+              
+              percents <- seq(from = 0, to = 100, by = 10)
+              val <- c()
+              for (i in percents) {
+                val <- c(val, ncol(valid(object, percent = i)))
+              }
+              valdf <- data.frame(percents,val)
+              names(valdf) <- c("Percents of valid cases", "Number of variables")
+              
+              object.xtable <- xtable(
+                valdf,
+                label='validCasesSummary',
+                caption='Number of variables by percent of valid cases',
+                digits = 3,
+                #     		align = c("l","p{4cm}","l"),
+                display = c("d","d","d")
+              )
+              
+              plot.filename <- paste(pdfSavingName, ".validcasesRplot", sep = "")
+              plot.filename <- gsub("\\.", "-", plot.filename)
+              plot.filename.pdf <- paste(plot.filename, ".pdf", sep = "")
+              pdf(file = plot.filename.pdf)
+              plot(
+                percents,
+                val,
+                type = "l",
+                main = "Number of variables by percent of valid cases",
+                xlab = "Percentage of valid cases",
+                ylab = "Number of variables"
+              )
+              polygon(c(0,percents,100),c(0,val,0), col="gray")
+              dev.off()
+              
+              cat("\\begin{center} \n", file = outFileCon, append = T)
+              cat("\\begin{minipage}[c]{.35\\linewidth} \n", file = outFileCon, append = T)
+              print(object.xtable, file=outFileCon , append=T, include.rownames = F, table.placement = "htb", floating=F) 
+              cat("\\end{minipage} \n", file = outFileCon, append = T)
+              cat("\\begin{minipage}[c]{.40\\linewidth} \n", file = outFileCon, append = T)
+              cat("\\includegraphics[scale=0.40]{", plot.filename.pdf, "} \n", file = outFileCon, append = T, sep = "")
+              cat("\\end{minipage} \n", file = outFileCon, append = T)
+              cat("\\end{center} \n", file = outFileCon, append = T)
+              
+              
+              cat("\\newpage \n", file = outFileCon, append = T)
+              cat("\\section*{Configuration} \n", file = outFileCon, append = T)
+              cat("\\begin{itemize} \n", file = outFileCon, append = T)
+              cat("\\item Variable descriptions are cut above", description.chlength, "characters. \n", file = outFileCon, append = T)
+              cat("\\item Valid case descriptions are cut above", valids.chlength, "characters. \n", file = outFileCon, append = T)
+              if (valids.cut.percent > 0) {
+                cat("\\item For categorical variables, valid cases are cut when under", valids.cut.percent, "\\% of representativity. \n", file = outFileCon, append = T)
+              }
+              cat("\\item For nominal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
+              cat("\\item For ordinal variables, valid cases are listed in", sorting, "order. \n", file = outFileCon, append = T)
+              cat("\\end{itemize} \n", file = outFileCon, append = T)
+              cat("\\newpage \n", file = outFileCon, append = T)
+              flag.newpage <- FALSE
+              cat("\\section*{Variable summary} \n", file = outFileCon, append = T)
+              
+              
+              if(nweightings(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Weighting variable(s)} \n", file = outFileCon, append = T)
+                scvar <- weightings(object)
+                scvar.names <- names(scvar)
+                
+                
+                descriptions <- c()
+                nbNA <- c()
+                theMin <- c()
+                theMax <- c()
+                theMean <- c()
+                theSD <- c()
+                
+                for (i in scvar.names ) {
+                  vtemp <- scvar[[i]]
+                  
+                  desc.temp <- description(vtemp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+                  theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+                  theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+                  theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, nweightings(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)
+                
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean", "Std dev.")
+                # row.names(df) <- 1:nrow(df)
+                
+                
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Weighting variable(s) summary',
+                  digits = 3,
+                  align = align.wvar,
+                  display = c("d","s","s","d","fg","fg","fg","fg","fg")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              
+              if(nbinaries(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Binary variables} \n", file = outFileCon, append = T)
+                scvar <- binaries(object)
+                scvar.names <- names(scvar)
+                
+                descriptions <- c()
+                nbNA <- c()
+                theDistrib <- c()   
+                
+                for (i in scvar.names ) {
+                  vtemp <- scvar[[i]]
+                  
+                  desc.temp <- description(vtemp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
+                  #theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, nbinaries(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theDistrib)
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Distribution (%)")
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Binary variables summary',
+                  digits = 3,
+                  align = align.bin,
+                  display = c("d","s","s","d","fg","s")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              if(nordinals(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Ordinal variables} \n", file = outFileCon, append = T)
+                scvar <- ordinals(object)
+                scvar.names <- names(scvar)
+                
+                descriptions <- c()
+                nbNA <- c()
+                theNlevels <- c()
+                theDistrib <- c()   
+                
+                for (i in scvar.names ) {
+                  vtemp <- scvar[[i]]
+                  
+                  desc.temp <- description(vtemp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theNlevels <- c(theNlevels, nvalids(vtemp))
+                  theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
+                  #theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, nordinals(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Ordinal variables summary',
+                  digits = 3,
+                  align = align.ord,
+                  display = c("d","s","s","d","fg","d","s")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              if(nnominals.exact(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Nominal variables} \n", file = outFileCon, append = T)
+                scvar <- nominals.exact(object)
+                scvar.names <- names(scvar)
+                
+                descriptions <- c()
+                nbNA <- c()
+                theNlevels <- c()
+                theDistrib <- c()   
+                
+                for (i in scvar.names ) {
+                  #print(i)
+                  vtemp <- scvar[[i]]
+                  
+                  desc.temp <- description(vtemp)
+                  #print(desc.temp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theNlevels <- c(theNlevels, nvalids(vtemp))
+                  theDistrib <- c(theDistrib, distrib(vtemp, weights, percent = T, format = T, chlength = valids.chlength, sorting=sorting, cut.percent=valids.cut.percent))
+                  #theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, nnominals.exact(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theNlevels, theDistrib)
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Classes", "Distribution (%)")
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Nominal variables summary',
+                  digits = 3,
+                  align = align.nom,
+                  display = c("d","s","s","d","fg","d","s")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              if(nscales.exact(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Scale variables} \n", file = outFileCon, append = T)
+                scvar <- scales.exact(object)
+                scvar.names <- names(scvar)
+                
+                descriptions <- c()
+                nbNA <- c()
+                theMin <- c()
+                theMax <- c()
+                theMean <- c()
+                theSD <- c()
+                
+                for (i in scvar.names ) {
+                  vtemp <- scvar[[i]]
+                  
+                  desc.temp <- description(vtemp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+                  theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+                  theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+                  theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, nscales.exact(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMean, theSD)
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Mean", "Std dev.")
+                # row.names(df) <- 1:nrow(df)
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Scale variables summary',
+                  digits = 3,
+                  align = align.scale,
+                  display = c("d","s","s","d","fg","fg","fg","fg","fg")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              if(ntimes(object) > 0 ) {
+                if (flag.newpage) {
+                  #         cat("\\newpage \n", file = outFileCon, append = T)
+                  cat("\\vspace*{2cm} \n", file = outFileCon, append = T)
+                }
+                cat("\\subsection*{Timestamp variables} \n", file = outFileCon, append = T)
+                scvar <- times(object)
+                scvar.names <- names(scvar)
+                
+                descriptions <- c()
+                nbNA <- c()
+                theMin <- c()
+                theMax <- c()
+                theMed <- c()
+                theMean <- c()  	
+                
+                for (i in scvar.names ) {
+                  vtemp <- scvar[[i]]
+                  if(!missing(dateformat)){
+                    format(vtemp) <- dateformat
+                  }
+                  
+                  desc.temp <- description(vtemp)
+                  if (nchar(desc.temp) > description.chlength)
+                    desc.temp <- paste(substr(desc.temp, 0, description.chlength - 3), "...", sep = "")
+                  
+                  descriptions <- c(descriptions, desc.temp)
+                  nbNA <- c(nbNA, nmissingsw(vtemp, weights))
+                  theMin <- c(theMin, min(vtemp, na.rm = TRUE))
+                  theMax <- c(theMax, max(vtemp, na.rm = TRUE))
+                  theMed <- c(theMed, median(vtemp, na.rm = TRUE))
+                  theMean <- c(theMean, mean(vtemp, na.rm = TRUE))
+                  #theSD <- c(theSD, sd(vtemp, na.rm = TRUE))
+                }
+                
+                nbNA[which(is.na(nbNA))] <- 0
+                N <- rep(nTuples, ntimes(object)) - nbNA
+                NApourcent <- nbNA / nTuples * 100
+                
+                df <- data.frame(scvar.names, descriptions,N, NApourcent, theMin, theMax, theMed, theMean)
+                names(df) <- c("Variable", "Description", "N", "NA (%)", "Min", "Max", "Median", "Mean")
+                row.names(df) <- varid(scvar.names, object)
+                cat("{\\footnotesize \n", file = outFileCon, append = T)
+                
+                object.xtable <- xtable(
+                  df,
+                  label='featureSummary',
+                  caption='Timestamp variables summary',
+                  digits = 3,
+                  align = align.ts,
+                  display = c("d","s","s","d","fg","fg","fg","fg","fg")
+                )
+                
+                print(object.xtable, file=outFileCon , append=T, tabular.environment='longtable', table.placement = "htb", floating=F) 
+                cat("} \n", file = outFileCon, append = T)
+                flag.newpage <- TRUE
+              }
+              
+              
+              close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
+              
+              if(!keepTex) {
+                unlink(plot.filename.pdf)
+              }
+            }
+          }
 )

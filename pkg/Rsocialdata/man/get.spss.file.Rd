@@ -18,9 +18,9 @@ get.spss.file(file, datadir, variables = NULL, tsvar = character(0),
 
 \item{tsvar}{a vector containing the names of variables having to be converted in the \code{TimestampVariable} type. The SPSS timestamp origin "1582-10-14" is used to set the origin of the time variable.}
 
-\item{ovara}{vector containing the names of variables having to be converted in the \code{OrdinalVariable} type.}
+\item{ovar}{a vector containing the names of variables having to be converted in the \code{OrdinalVariable} type.}
 
-\item{wvara}{vector containing the names of variables having to be converted in the \code{WeightingVariable} type.}
+\item{wvar}{a vector containing the names of variables having to be converted in the \code{WeightingVariable} type.}
 
 \item{use.coding.order}{a character, either \code{"increasing"}, \code{"decreasing"}, \code{"default"}. If \code{"increasing"} the coding order is used to sort the order in the values of the Variable. If \code{"decreasing"} the order is in a decreasing way. If \code{"default"} no sorting is performed. Default is \code{"increasing"}.}
 

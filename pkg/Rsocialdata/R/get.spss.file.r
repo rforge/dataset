@@ -24,8 +24,8 @@ removeEmptyValueLabels <- function(values) {
 #' @param datadir the directory where your SPSS file is. If missing the working directory is used.
 #' @param variables the list of variables you want to import. If missing all variables in the SPSS file are imported.
 #' @param tsvar a vector containing the names of variables having to be converted in the \code{TimestampVariable} type. The SPSS timestamp origin "1582-10-14" is used to set the origin of the time variable.
-#' @param ovara vector containing the names of variables having to be converted in the \code{OrdinalVariable} type.
-#' @param wvara vector containing the names of variables having to be converted in the \code{WeightingVariable} type.
+#' @param ovar a vector containing the names of variables having to be converted in the \code{OrdinalVariable} type.
+#' @param wvar a vector containing the names of variables having to be converted in the \code{WeightingVariable} type.
 #' @param use.coding.order a character, either \code{"increasing"}, \code{"decreasing"}, \code{"default"}. If \code{"increasing"} the coding order is used to sort the order in the values of the Variable. If \code{"decreasing"} the order is in a decreasing way. If \code{"default"} no sorting is performed. Default is \code{"increasing"}.
 #' @param max.value.labels depreciated. Will be soon removed.
 #' @param savingName a character. By setting this argument you produce an export in .Rdata of the SPSS file with the name given.

@@ -177,6 +177,8 @@ exportMethods(
   'only.complete'
 )
 
+export(.Last.lib)
+
 export(
   Rsocialdata.globalenv.print.io,
   allvalids,

@@ -6,16 +6,14 @@
 \alias{weighting<-,Rsocialdata,character-method}
 \title{Get the non-response weights of a \code{Rsocialdata} database}
 \usage{
-weighting(object, ...)
+weighting(object)
 
-\S4method{weighting}{Rsocialdata}(object, ...)
+\S4method{weighting}{Rsocialdata}(object)
 
 \S4method{weighting}{Rsocialdata,character}(object) <- value
 }
 \arguments{
 \item{object}{the \code{Rsocialdata} object for which we want to get the map.}
-
-\item{value}{a character, the name of the variable to use as non-response weights.}
 }
 \description{
 This generic method intends to extract the non-response weights of a \code{Rsocialdata} database.

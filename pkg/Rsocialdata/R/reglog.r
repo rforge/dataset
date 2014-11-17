@@ -32,7 +32,7 @@ reglog <- function(
   na.action,
   ...
 ) {
-
+  
   message('Logistic regression model (currently not-weighted)')
   message('')
   
@@ -54,7 +54,7 @@ reglog <- function(
   
   if(missing(nested)) n.models <- 1
   else n.models <- length(nested) + 1
-
+  
   # formula must be complete
   if (!(inherits(formula, 'formula') && length(formula) == 3)) stop("Please check formula: either not a formula or incomplete")
   # we build formulas for all models
@@ -68,7 +68,7 @@ reglog <- function(
     }
   }
   #print(formulas)
-
+  
   full.formula <- formulas[[n.models]] 
   t <- terms(full.formula)
   variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
@@ -86,16 +86,16 @@ reglog <- function(
     quiet = T
   )
   model.type <- 'binary'
-      
+  
   target.bin <- as.numeric(as.character(v(target.recoded)))
   data[[response]] <- target.bin
   
   # we keep only ful complete cases
   data <- data[complete.cases(data[,c(variables, '....weights125678')]), c(variables, '....weights125678')] #FIXME
   # and check for representativness changes
-#   only.complete(variables, data.Rsocialdata) ### FIXME!!! pb when missings in chisq: Error in chisq.test(x = a, p = b) : probabilities must sum to 1.
-#   data[[1]] <- factor(data[[1]])
-#   return(data)
+  #   only.complete(variables, data.Rsocialdata) ### FIXME!!! pb when missings in chisq: Error in chisq.test(x = a, p = b) : probabilities must sum to 1.
+  #   data[[1]] <- factor(data[[1]])
+  #   return(data)
   
   if(!missing(reference)) {
     ref.names <- names(reference)
@@ -113,53 +113,53 @@ reglog <- function(
       data[[i]] <- C(data[[i]], contr = contr)
     }
   }
-
+  
   out <- list()
   for (i in 1:n.models) {
     formula <- formulas[[i]] 
     t <- terms(formula)
     model.variables <- as.character(setdiff(strsplit(as.character(attr(t, "variables")), split="\\("), "list"))
-
-
-#     print(formula)
-#     print(data)
+    
+    
+    #     print(formula)
+    #     print(data)
     rl <- glm(
       formula = formula,
       data = data,
-#       family=quasibinomial,
+      #       family=quasibinomial,
       family=binomial,
       weights = ....weights125678
     )
-#     rl <- do.call('glm', list(
-#       'formula' = formula,
-#       'data' = data,
-#       'family' = 'binomial',
-#       'weights' = 'weights1'
-#       )
-#     )
-#     rl.call <- call('glm',list(
-#         'formula' = formula,
-#         'data' = data,
-#         'family' = 'binomial',
-#         'weights' = 'weights1'
-#       )
-#     )
-#     print(rl.call)
-#     rl <- eval(rl.call)
+    #     rl <- do.call('glm', list(
+    #       'formula' = formula,
+    #       'data' = data,
+    #       'family' = 'binomial',
+    #       'weights' = 'weights1'
+    #       )
+    #     )
+    #     rl.call <- call('glm',list(
+    #         'formula' = formula,
+    #         'data' = data,
+    #         'family' = 'binomial',
+    #         'weights' = 'weights1'
+    #       )
+    #     )
+    #     print(rl.call)
+    #     rl <- eval(rl.call)
     #print(rl)
     rl.s <- summary(rl)
-  
+    
     deviance <- rl$deviance
     null.deviance <- rl$null.deviance
     n <- rl$df.null + 1
-
+    
     b <- exp(coef(rl))
     p <- (rl$aic - deviance)/2
     bic <- deviance + p * log(n)
     
     r2.cs <- 1 - exp((deviance - null.deviance)/n)
     r2.nag <- r2.cs/(1-exp(-null.deviance/n))
-
+    
     out[[paste("block", i, sep='')]] <- list(
       vari = model.variables,
       params = length(coef(rl)),
@@ -172,7 +172,7 @@ reglog <- function(
       N = n
     )
   }
-
+  
   
   options(contrasts = contrasts.user)
   
@@ -183,7 +183,7 @@ reglog <- function(
   out[["model.type"]] <- model.type
   out[["nmodels"]] <- n.models
   out[["contrasts"]] <- contrasts
-
+  
   out <- new('RegLog', out)
   return(out)
 }
@@ -193,7 +193,7 @@ summary2 <- function(
   odds.ratios = T,
   global.measures = c('deviance', 'deviance.null', 'chi2.model', 'df.model', 'chi2.block', "df.block", 'r2.cs', 'r2.nag', 'parameters', 'aic', 'bic', 'N')
 ){
-
+  
   sx <- summary(x[[x$nmodels]]$rl)$coefficients
   coef.names <- rownames(sx)
   coef.est <- sx[,'Estimate']
@@ -202,22 +202,22 @@ summary2 <- function(
   coef.names <- c(coef.names[2:length(coef.names)],coef.names[1])
   coef.est <- c(coef.est[2:length(coef.est)],coef.est[1])
   coef.pval <- c(coef.pval[2:length(coef.pval)],coef.pval[1])
-
+  
   ncol <- 2 * x$nmodels
   nrow <- length(coef.names)
   
   coef.df <- data.frame(matrix(rep(NA, ncol*nrow), ncol=ncol), stringsAsFactors = F)
   rownames(coef.df) <- coef.names
-#   print(coef.df)
+  #   print(coef.df)
   
-#   colnames <- addEvenNames(paste('Model', 1:x$nmodels))
-#   colnames <- paste('Model', 1:x$nmodels)
-#   colnames2 <- addSignif(col
-#   colnames <- c(colnames, colnames)
+  #   colnames <- addEvenNames(paste('Model', 1:x$nmodels))
+  #   colnames <- paste('Model', 1:x$nmodels)
+  #   colnames2 <- addSignif(col
+  #   colnames <- c(colnames, colnames)
   colnames <- addSignif(paste('Model', 1:x$nmodels))
   names(coef.df) <- colnames
-#   print(coef.df)
-
+  #   print(coef.df)
+  
   for(i in 1:x$nmodels) {
     sx <- summary(x[[i]]$rl)$coefficients
     coef.est <- sx[,'Estimate']
@@ -230,12 +230,12 @@ summary2 <- function(
       coef.df[,2*(i-1)+1] <- exp(coef.df[,2*(i-1)+1])
     }
   }
-#   stdf <- statdf(coef.df, pvalues = 'even', na = '',formatc = list('digits' = 4, 'format' = 'f'))
-#   print(stdf)
-#   print(summary(stdf), merge='left')
+  #   stdf <- statdf(coef.df, pvalues = 'even', na = '',formatc = list('digits' = 4, 'format' = 'f'))
+  #   print(stdf)
+  #   print(summary(stdf), merge='left')
   #print(coef.df)
-
-
+  
+  
   # quality assessment
   gm <- intersect(
     c('deviance', 'deviance.null', 'chi2.model', 'df.model', 'chi2.block', "df.block", 'r2.cs', 'r2.nag',  'parameters', 'aic', 'bic', 'N'), # available measures
@@ -336,7 +336,7 @@ summary2 <- function(
   if (is.element("N", gm)) {
     rcount <- rcount + 1
     for(i in 1:x$nmodels) {
-#       print(x[[i]]$rl$n)
+      #       print(x[[i]]$rl$n)
       gm.df[rcount,2*i-1] <- x[[i]]$N
     }
   }
@@ -368,14 +368,14 @@ summary2 <- function(
   #print("target versus ...")
   #print(x$bic)
 }
- 
+
 
 
 setMethod(
   f = 'print',
   signature = c('RegLog'),
   definition = function(x, ...) {
-
+    
     args <- list(...)
     if(is.logical(args$odds.ratios)) {
       oddsr <- args$odds.ratios
@@ -384,7 +384,7 @@ setMethod(
     }
     s <- summary2(x, odds.ratios = oddsr)
     
-#     s <- summary2(x)
+    #     s <- summary2(x)
     
     message('Table 1:')
     print(summary(s[[1]], merge='left'))
@@ -405,34 +405,19 @@ setMethod(
 
 
 
-# exportPDF.reglog <- function(x){
+
+#' @describeIn exportPDF method for \code{Reglog} objects. Generate a summary of a logistic regression model.
 setMethod(
   f = 'exportPDF',
   signature = c('RegLog'),
   definition = function (
     object,
     pdfSavingName,
-    graphics = F,
-    description.chlength,
-    valids.chlength,
-    valids.cut.percent,
-    sorting,
-    dateformat,
+    graphics = FALSE,
     page.orientation = "portrait",
-    latexPackages,
-    width.id,
-    width.varname,
-    width.description,
-    width.n,
-    width.na,
-    width.valids,
-    width.valids.nao.inc,
-    width.min,
-    width.max,
-    width.mean,
-    width.stddev,
-    keepTex,
-    openPDF,
+    latexPackages = NULL,
+    keepTex = FALSE,
+    openPDF = TRUE,
     ...
   ) {
     
@@ -460,9 +445,16 @@ setMethod(
       
       outFileCon <- file(latexFile, "w", encoding="UTF-8")
       
-      latex.head(title = paste("Summary of logistic regression", '', ""),
-                 page.orientation, latexPackages, outFileCon)
-    
+      #       print(latexPackages)
+      
+      latex.head(
+        title = paste("Summary of logistic regression", '', ""),
+        page.orientation,
+        #         latexPackages,
+        NULL,
+        outFileCon
+      )
+      
       args <- list(...)
       if(is.logical(args$odds.ratios)) {
         oddsr <- args$odds.ratios
@@ -536,14 +528,14 @@ setMethod(
       
       
       
-  #     print(
-  #       xtable(
-  #         giveStars.df.even(s[[1]]),
-  #         digits = 3,
-  #         display = c('d','f','e','f','f','f','f')
-  #         ),
-  #       file=latexFile , append=T
-  #     )
+      #     print(
+      #       xtable(
+      #         giveStars.df.even(s[[1]]),
+      #         digits = 3,
+      #         display = c('d','f','e','f','f','f','f')
+      #         ),
+      #       file=latexFile , append=T
+      #     )
       s1 <- summary(s[[1]], merge = 'left')
       object.xtable <- xtable(
         sdf(s1),
@@ -555,8 +547,8 @@ setMethod(
             table.placement = "htb",
             floating=T
       )
-#       cat("\\newline ", " \n", file = outFileCon, append = T)
-#       cat(thresholds(s1), " \n", file = outFileCon, append = T)
+      #       cat("\\newline ", " \n", file = outFileCon, append = T)
+      #       cat(thresholds(s1), " \n", file = outFileCon, append = T)
       cat("\\end{center} \n", file = outFileCon, append = T)
       
       
@@ -574,14 +566,14 @@ setMethod(
             floating=T
       )
       cat("\\end{center} \n", file = outFileCon, append = T)
-  #      print(
-  #       xtable(
-  #         giveStars.df.even(s[[2]]),
-  #         digits = 3,
-  #         display = c('d','f','e','f','f','f','f')
-  #         ),
-  #       file=latexFile , append=T
-  #     )
+      #      print(
+      #       xtable(
+      #         giveStars.df.even(s[[2]]),
+      #         digits = 3,
+      #         display = c('d','f','e','f','f','f','f')
+      #         ),
+      #       file=latexFile , append=T
+      #     )
       
       close.and.clean(outFileCon, pdfSavingName, keepTex, openPDF)
     }

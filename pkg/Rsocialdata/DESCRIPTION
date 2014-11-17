@@ -1,8 +1,8 @@
 Package: Rsocialdata
 Type: Package
 Title: Handling survey data in R. (official release)
-Version: 0.2.60.1
-Date: 2014-09-29
+Version: 0.2.60.3
+Date: 2014-11-17
 Description: This package provides a class, called Rsocialdata, and some
         methods allowing to handle efficiently survey data: handle variable
         labels, values labels, and retrieve information about missing values   
