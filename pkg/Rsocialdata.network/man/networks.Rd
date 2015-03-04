@@ -4,20 +4,27 @@
 \name{networks,NetworkVariable-method}
 \alias{networks}
 \alias{networks,NetworkVariable-method}
+\alias{networks<-,NetworkVariable-method}
 \title{Get/Set the networks matrix of an object containing network data}
 \usage{
 \S4method{networks}{NetworkVariable}(object)
 
+\S4method{networks}{NetworkVariable}(object) <- value
+
 networks(object)
 }
 \arguments{
-\item{object}{the \code{NetworkVariable} object for which we want to get the networks matrix.}
+\item{object}{the object for which we want to get the networks matrix.}
+
+\item{value}{a list of network \code{matrix}}
 }
 \description{
 This generic method intends to extract the networks object.
 }
 \section{Methods (by class)}{
 \itemize{
+\item \code{NetworkVariable}: method for \code{NetworkVariable} objects.
+
 \item \code{NetworkVariable}: method for \code{NetworkVariable} objects.
 }}
 

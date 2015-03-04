@@ -2,6 +2,7 @@
 % Please edit documentation in R/NetworkMetadata.r
 \docType{class}
 \name{NetworkMetadata-class}
+\alias{NetworkMetadata}
 \alias{NetworkMetadata-class}
 \title{The NetworkMetadata class}
 \description{

@@ -7,11 +7,11 @@
 networks(object) <- value
 }
 \arguments{
-\item{object}{the \code{NetworkVariable} object for which we want to set the networks matrix.}
+\item{object}{the object for which we want to set the networks matrix.}
 
 \item{value}{a list of network \code{matrix}}
 }
 \description{
-This generic method intends to set the networks object.
+This generic method intends to set the networks in a compatible object.
 }
 

@@ -1,6 +1,7 @@
 #' The NetworkVariable class
 #' 
-#' This class allows to store network survey data. Basically, data are stored as matrix of survey codes and a dictionnary containing labels and missing values specification. The class supports a link to a NetworkMetavar object to take into account demographic information about people cited within the networks.
+#' This class allows to store network survey data. Basically, data are stored as matrix of survey codes and a dictionnary containing labels and missing values specification. A network should be read as ROWS \emph{do to} COLUMNS. For instance, if the description field of a network variable is defined as "Gives emotional support." and the first row of the first case is \code{0 1 1 0 0}, we understand that PERSON1 gives emotional support to PERSON2 and PERSON3 in the first network. The class supports a link to a NetworkMetavar object to take into account demographic information about people cited within the networks.
+#' @aliases NetworkVariable
 #' @export
 setClass(
   "NetworkVariable",
@@ -169,8 +170,8 @@ netvar <- function(
   } # end if Rsocialdata
   
   if(inherits(x, 'list')) {
-    are.matrix <- mapply(inherits, a, 'matrix')
-    all.matrix <- all(mapply(inherits, a, 'matrix'))
+    are.matrix <- mapply(inherits, x, 'matrix')
+    all.matrix <- all(mapply(inherits, x, 'matrix'))
     which.no.matrix <- which(!are.matrix)
     
     if(!all.matrix) {
@@ -197,6 +198,7 @@ setMethod(
   }
 )
 
+#' @describeIn networks method for \code{NetworkVariable} objects.
 setMethod(
   f = "networks<-" ,
   signature = "NetworkVariable" ,
@@ -271,6 +273,14 @@ setMethod(
     show(x) 
   }
 )
+
+#' length method for NetworkVariable objects
+#'
+#' @name length
+#' @aliases length,NetworkVariable-method
+#' @docType methods
+#' @rdname length-methods
+NULL
 setMethod(
   f= "length",
   signature = "NetworkVariable", 
@@ -279,6 +289,13 @@ setMethod(
   }
 )
 
+#' Extract or replace parts of a NetworkVariable object
+#'
+#' @name [
+#' @aliases [,NetworkVariable-method
+#' @docType methods
+#' @rdname extract-methods
+NULL
 setMethod(
   f ="[",
   signature ="NetworkVariable",
@@ -287,6 +304,14 @@ setMethod(
     return(x)
   }
 )
+
+#' set parts of NetworkVariable
+#'
+#' @name [<-
+#' @aliases [<-,NetworkVariable-method
+#' @docType methods
+#' @rdname extract-methods
+NULL
 setMethod(
   f ="[<-",
   signature =c("NetworkVariable"),
@@ -297,76 +322,3 @@ setMethod(
     return(x)
   }
 )
-
-
-
-# setGeneric("net.density",
-#            function(x)
-#              standardGeneric("net.density")
-# )
-# 
-# setMethod(
-#   f = 'net.density',
-#   signature = 'NetworkVariable',
-#   definition = function(x) {
-#     n <- length(x@networks)
-#     density <- numeric(0)
-#     for (i in 1:n) {
-#       net <- x@networks[[i]]
-#       #       if(inherits(net,'vector')){
-#       #         if(is.na(net)) {
-#       #           density <- c(density, NA)
-#       #         } else {
-#       #           stop('a vector object has been given in a network instead a matrix')
-#       #         }
-#       if(is.null(dim(net))) {
-#         density <- c(density, NA)
-#       } else {
-#         con.possible <- dim(net)[1] * (dim(net)[1] - 1)
-#         #         print(con.possible)
-#         if (con.possible == 0) {
-#           density <- c(density, 0)
-#         } else {
-#           con.exist <- length(which(as.vector(net) == 1))
-#           density <- c(density, con.exist/con.possible)
-#         }
-#       }
-#     }
-#     return(density)
-#   }
-# )
-# 
-# 
-# 
-# setGeneric("net.centrality.degree",
-#            function(x, transpose = F)
-#              standardGeneric("net.centrality.degree")
-# )
-# 
-# 
-# setMethod(
-#   f = 'net.centrality.degree',
-#   signature = 'NetworkVariable',
-#   definition = function(x, transpose) {
-#     n <- length(x@networks)
-#     out <- vector("list", n)
-#     for (i in 1:n) {
-#       net <- x@networks[[i]]
-#       if(transpose){
-#         net <- t(net)
-#       }
-#       if(is.null(dim(net))) {
-#         out[[i]] <- NA
-#       } else {
-#         l <- numeric()
-#         d <- dim(net)[1]
-#         for (j in 1:d) {
-#           l <- c(l, length(which(net[j,] == 1)))
-#         }
-#         names(l) <- c('ego', rep('',d-1))
-#         out[[i]] <- l/(d-1)
-#       }
-#     }
-#     return(out)
-#   }
-# )

@@ -1,7 +1,7 @@
 #' The NetworkMetadata class
 #' 
 #' This object allows to store covariates data describing individuals within an egocentric networks. This covariates are generally demographic variables.
-#' 
+#' @aliases NetworkMetadata
 #' @export
 setClass(
   "NetworkMetadata",

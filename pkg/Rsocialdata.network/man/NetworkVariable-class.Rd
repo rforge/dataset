@@ -2,9 +2,10 @@
 % Please edit documentation in R/NetworkVariable.r
 \docType{class}
 \name{NetworkVariable-class}
+\alias{NetworkVariable}
 \alias{NetworkVariable-class}
 \title{The NetworkVariable class}
 \description{
-This class allows to store network survey data. Basically, data are stored as matrix of survey codes and a dictionnary containing labels and missing values specification. The class supports a link to a NetworkMetavar object to take into account demographic information about people cited within the networks.
+This class allows to store network survey data. Basically, data are stored as matrix of survey codes and a dictionnary containing labels and missing values specification. A network should be read as ROWS \emph{do to} COLUMNS. For instance, if the description field of a network variable is defined as "Gives emotional support." and the first row of the first case is \code{0 1 1 0 0}, we understand that PERSON1 gives emotional support to PERSON2 and PERSON3 in the first network. The class supports a link to a NetworkMetavar object to take into account demographic information about people cited within the networks.
 }
 

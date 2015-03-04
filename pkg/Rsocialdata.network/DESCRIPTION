@@ -1,8 +1,8 @@
 Package: Rsocialdata.network
 Type: Package
 Title: Network tools for the Rsocialdata package
-Version: 0.2
-Date: 2014-11-13
+Version: 0.4.2
+Date: 2015-03-04
 Author: Emmanuel Rousseaux
 Maintainer: Emmanuel Rousseaux <emmanuel.rousseaux@unige.ch>
 Description: Extension of the Rsocialdata package providing tools for handling
@@ -11,4 +11,4 @@ Depends:
     methods,
     Rsocialdata
 License: GPL-3
-Collate: Rsocialdata.network.r allgenerics.r NetworkMetadata.r NetworkVariable.r
+Collate: Rsocialdata.network.r allgenerics.r NetworkMetadata.r NetworkVariable.r measures.r
